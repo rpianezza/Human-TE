@@ -1,0 +1,9 @@
+base:
+  samples_list: 'test/tiny_samplesList.tsv'
+  output_directory: 'humRepTE_out'
+references:
+  input_reference: 'refg/reflibrary_humans_v6.1.fasta'
+  output_reference: 'refg/reflibrary_humans_v6.1.fasta'
+scripts:
+  mpileupsync_jar: 'scripts/mpileup2sync.jar'
+  mapstat: 'scripts/humante-mapstat.py'

@@ -1,0 +1,189 @@
+# set input stream -------------------
+import pandas as pd
+from snakemake.remote.S3 import RemoteProvider as S3RemoteProvider
+S3 = S3RemoteProvider(access_key_id="MYACCESSKEY", secret_access_key="MYSECRET")
+
+# globals ----------------------------
+shell.executable("/bin/bash")
+shell.prefix('set -vex pipefail; ')
+
+# read config ------------------------
+configfile: 'config.yaml'
+
+MPTSYNC = config['scripts']['mpileupsync_jar']
+MAPSTAT = config['scripts']['mapstat']
+
+IN_REF = config['references']['input_reference']
+REP_REF = config['references']['output_reference']
+
+OUTDIR = config['base']['output_directory']  # S3 bucket name
+
+SAMPLES_LIST = config['base']['samples_list']
+
+
+# declare a dataframe to be a paramspace
+SAMPLES = pd.read_csv(SAMPLES_LIST, sep="\t", dtype=str).set_index("sample", drop=False)
+
+# rules ------------------------------
+
+# a pseudo-rule that collects the target files
+rule all:
+    input:  
+        expand(OUTDIR + '/' + 'bams/{sample}_sorted_repTE.bam',
+             zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'bams/{sample}_sorted_repTE.bam.bai', 
+            zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'coverage/{sample}.mosdepth.global.dist.txt',
+             zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'coverage/{sample}.mosdepth.summary.txt', 
+            zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'coverage/{sample}.per-base.bed.gz',
+             zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'coverage/{sample}.per-base.bed.gz.csi', 
+            zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'pileup/{sample}_pileup_syncfile.gz', 
+            zip, sample=SAMPLES['sample'], keep_local=True),
+        expand(OUTDIR + '/' + 'mapstats/{sample}_mapstat.txt.gz', 
+            zip, sample=SAMPLES['sample'], keep_local=True),
+
+
+rule Download:
+    message: "Downloading sample: {wildcards.sample}."
+    params:
+        url =  lambda wildcards: SAMPLES.loc[wildcards.sample, 'url'],
+        md5sum =  lambda wildcards: SAMPLES.loc[wildcards.sample, 'md5sum'],
+    output:
+        temp(OUTDIR + '/' + 'download_crams/{sample}.cram'),
+    log:
+        OUTDIR + '/' + 'logs/{sample}_aria2c_download.log',
+    resources:
+        mem_mb = lambda wildcards, attempt: attempt * 4 * 1024,
+        disk_mb = 80 * 1024,
+    threads: 2
+    shell:
+        """
+        # Create aria2 input file
+        echo "{params.url}" > humRepTE_out/download_crams/tmp.{wildcards.sample}.uri
+        echo "  dir=$(dirname {output})" >> humRepTE_out/download_crams/tmp.{wildcards.sample}.uri
+        echo "  out=$(basename {output})" >> humRepTE_out/download_crams/tmp.{wildcards.sample}.uri
+        
+        aria2c \
+        --split=10 \
+        --retry-wait=180 \
+        --max-concurrent-downloads=10 \
+        --checksum=md5={params.md5sum} \
+        --input=humRepTE_out/download_crams/tmp.{wildcards.sample}.uri
+
+        # Remove aria2 input file
+        rm humRepTE_out/download_crams/tmp.{wildcards.sample}.uri
+
+        # Make sure the downloaded file isn't empty
+        [[ -s {output} ]]
+        """
+
+rule Align:
+    message: "Aligning sample: {wildcards.sample}."
+    input:
+        cram = rules.Download.output,
+        in_fasta = IN_REF,
+        rep_fasta = REP_REF,
+    output:
+        bam = OUTDIR + '/' + 'bams/{sample}_sorted_repTE.bam',
+        bai = OUTDIR + '/' + 'bams/{sample}_sorted_repTE.bam.bai',
+    log:
+        OUTDIR + '/' + 'logs/{sample}_align.log',
+    resources:
+        mem_mb = lambda wildcards, attempt: attempt * 64 * 1024,
+        disk_mb = 80 * 1024,
+    threads: 32,
+    params:
+        ncpu_samtools = 4,
+        ncpu_bwa = 16, 
+        samtoolsmaxmem = '16G',
+    shell:
+        """
+        #CRAM_REFERENCE={workflow.basedir}/{input.in_fasta}; bedtools bamtofastq -i {input.cram} -fq /dev/stdout 
+        
+        samtools fastq -@ {params.ncpu_samtools} -N -o - {input.cram} \
+            | bwa-mem2 mem -t {params.ncpu_bwa} {input.rep_fasta} - \
+            | samtools view -h -F 0x04 -@ {params.ncpu_samtools}  \
+            | samtools sort -@ {params.ncpu_samtools} -m {params.samtoolsmaxmem} -T {wildcards.sample}_TMP \
+            | samtools view -b -o {output.bam} 
+
+        samtools index {output.bam}
+        """
+
+
+rule Coverage:
+    message: "Compute coverage sample: {wildcards.sample}."
+    input:
+        rules.Align.output.bam,
+    threads: 2
+    resources:
+        mem_mb = lambda wildcards, attempt: attempt * 4 * 1024,
+    output:
+        multiext("humRepTE_out/coverage/{sample}", 
+            ".mosdepth.global.dist.txt", 
+            ".mosdepth.summary.txt", 
+            ".per-base.bed.gz",
+            ".per-base.bed.gz.csi"),
+    log:
+        OUTDIR + '/' + 'logs/{sample}_coverage.log',
+    shell:
+        """
+        mosdepth $(dirname {output[0]})/$(basename {output[0]} .mosdepth.global.dist.txt) {input}
+        """
+
+
+rule Pileup:
+    message: "Create pileup for sample: {wildcards.sample}."
+    input:
+        bam = rules.Align.output.bam,
+        rep_fasta = REP_REF,
+        mptsync_jar = MPTSYNC,
+    threads: 2
+    resources:
+        mem_mb = lambda wildcards, attempt: attempt * 4 * 1024,
+    params:
+        ncpu_sync = 1,
+    output:
+        OUTDIR + '/' + 'pileup/{sample}_pileup_syncfile.gz',
+    log:
+        OUTDIR + '/' + 'logs/{sample}_pileup.log',
+    shell:
+        """
+        samtools mpileup -B --min-BQ 0 -d 100000 -A -f {input.rep_fasta} {input.bam} \
+        | java -jar {input.mptsync_jar} --threads {params.ncpu_sync} --input /dev/stdin --output /dev/stdout \
+        | bgzip -c > {output}
+        """
+
+rule Mapstats:
+    message: "Mapping stats for sample: {wildcards.sample}."
+    input:
+        bam = rules.Align.output.bam,
+        rep_fasta = REP_REF,
+        mapstat_py = MAPSTAT,
+    resources:
+        mem_mb = lambda wildcards, attempt: attempt * 4 * 1024,
+    params:
+        minmapq = '10',
+    output:
+        OUTDIR + '/' + 'mapstats/{sample}_mapstat.txt.gz',
+    log:
+        OUTDIR + '/' + 'logs/{sample}_mapstats.log',
+    shell:
+        """
+        samtools view {input.bam} \
+        | python {input.mapstat_py} --sam - --fai {input.rep_fasta}.fai --min-mq {params.minmapq} \
+        | bgzip -c  > {output}
+        """
+
+
+# cleaning rules ---------------------
+rule clean:
+    params:
+        outdir = OUTDIR,
+    shell:
+        "rm -rf {params.outdir} .snakemake"
+
+ 

@@ -1,0 +1,65 @@
+Question: samtools fastq which options -s -0
+-s kicks out singletons
+-0 kicks out reads not having the designation READ1 or READ2
+Robert would argue that we should use no option because our appraoch relies on all reads, so we do not need to filter singletons, it could actually result in a bias.
+Also a question is how many reads we will loose with the options -s -0.
+
+I converted a cram to fastq.gz using the options i) -s -0, ii) -s, iii) -0 and iv) no option
+
+OUTPUT
+-rw-r--r--   1 fschwarz  staff  35929602217 Feb 24 18:06 out-o.fastq.gz  	; options = -o 
+-rw-r--r--   1 fschwarz  staff  35929602217 Feb 24 18:06 out-o0.fastq.gz 	; options = -o -0
+-rw-r--r--   1 fschwarz  staff    868967928 Feb 24 12:17 out-o0s.fastq.gz	; options = -o -0 -s
+-rw-r--r--   1 fschwarz  staff    868967928 Feb 24 12:17 out-os.fastq.gz	; options = -o -s
+
+
+I converted a cram to fastq.gz using the options i) -s -0, ii) -s, iii) -0 and iv) no option
+
+Final command:
+samtools fastq -@10 -N -o - $cramfile
+
+
+Question: should we provide a reference in samtools to fastq conversion
+
+Begin Robert
+I investigated the reference-thing a bit further and converted one cram to a fastq with and without reference:
+
+samtools fastq --reference /Volumes/Temp2/human_TEs/pipeline_test/GRCh38_full_analysis_set_plus_decoy_hla.fa -N -o - HGDP00001-Brahui.cram |gzip -c >out-o-ref.fastq.gz &
+samtools fastq -N -o - HGDP00001-Brahui.cram |gzip -c >out-o.fastq.gz &
+
+The resulting fastqs are very similar in size but not identical.
+
+-rw-r--r--   1 fschwarz  staff  35929602510 Feb 25 14:54 out-o-ref.fastq.gz
+-rw-r--r--   1 fschwarz  staff  35929602217 Feb 24 18:06 out-o.fastq.gz
+
+The file with the --reference is a bit longer and weirdly has a word-count NOT divisible by 4! 
+
+cat wc-o-ref.txt
+2547225609 2547225634 209287320262
+cat wc-o.txt
+2547225604 2547225604 209287320001
+
+I checked the first 20 lines of both files and they were identical. Then I checked the first 100million lines and they were also identical
+
+gzip -cd out-o-ref.fastq.gz|head -100000000|md5                     15a74a782b75e498bcb62e45b45c0740
+gzip -cd out-o.fastq.gz|head -100000000|md5                         15a74a782b75e498bcb62e45b45c0740
+
+However when I did the tail, there were some differences. I think the fastq ordering was a bit different.
+
+Anyhow, I think it is best if we proceed with the simple approach, i.e. not providing a reference.
+The files are almost identical anyway. Furthermore the fastq with the reference would not work (indivisible by 4). Finally, if the reference is included in the cram, it seems the smart way to rely on the included reference and not to generate potential incompatibilities by unknowingly using a slightly different reference. 
+What do you think?
+End Robert
+
+Begin Yassine
+I  think that makes sense to me. I’ll look a bit at the documentation of getting reference information out of the cram files and investigate a bit more. In the meantime
+I agree the simple approach is better.
+
+End Yassine
+
+
+
+
+
+
+

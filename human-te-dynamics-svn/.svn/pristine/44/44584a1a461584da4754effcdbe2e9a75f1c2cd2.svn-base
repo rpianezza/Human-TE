@@ -1,0 +1,33 @@
+__default__ :
+        job-name      : "{rule}"
+        output        : "{OUTDIR}/{rule}/{wildcards}.out"
+        ntasks        : 1
+        cpus-per-task : 1
+        mem           : "200M"
+        time          : "01-00:00:00"
+        gres          : null
+        account       : "my_account"
+        partition     : "my_partition"
+
+# Override the above defaults with job specific values
+#bwa_mem :
+#        cpus-per-task : 16
+#        mem           : "10000M"
+#        time          : "00-01:00:00"
+
+#fastqc_raw :
+#	cpus-per-task  : 1
+#	mem	       : "200M"
+#	time           : "00-01:40:00"
+
+# Job specific resource requirements can be passed from the rule, in the Snakefile, via the "resources" keyword
+
+#example:
+#        cpus-per-task : "{resources.cpu}"
+#        mem           : "{resources.mem_mb}"
+#        time          : "00-00:{resources.time}:00"
+
+bwa_map:
+        cpus-per-task : 2
+        mem           : "3000"
+        time          : "00-00:30:00"

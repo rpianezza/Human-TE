@@ -1,0 +1,5 @@
+HGDP00001-Brahui	ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/Brahui/HGDP00001/alignment/HGDP00001.alt_bwamem_GRCh38DH.20181023.Brahui.cram	9f6bf872cca008536bb8904fb0443bd8
+HGDP00003-Brahui	ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/Brahui/HGDP00003/alignment/HGDP00003.alt_bwamem_GRCh38DH.20181023.Brahui.cram	a67ef28bd22772aeec2cd52895eae466
+HGDP00005-Brahui	ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/Brahui/HGDP00005/alignment/HGDP00005.alt_bwamem_GRCh38DH.20181023.Brahui.cram	8365dfbfef0fb7245a9e6c476f3f9c0d
+HGDP00007-Brahui	ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/Brahui/HGDP00007/alignment/HGDP00007.alt_bwamem_GRCh38DH.20181023.Brahui.cram	00180141a4c8a80678abe424f9f838ce
+HGDP00009-Brahui	ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/HGDP/data/Brahui/HGDP00009/alignment/HGDP00009.alt_bwamem_GRCh38DH.20181023.Brahui.cram	bdd730e7702c887f1f644b8860d5d635
