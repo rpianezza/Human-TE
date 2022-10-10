@@ -1,0 +1,136 @@
+---
+title: "PCA - Abundance comparison of all HGDP samples"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/human-data')
+```
+
+# Unbiased Population Variation of Human Transposable Elements - Script 8
+This is the eigth out of eight scripts describing the creation and analysis of the dataset of human TE abundance.
+This script works with the version of the HGDP dataset created in Script 2.
+Additionally, we perform all analyses seperately for males and females, as we established there are differences between the sexes in Script 5.
+```{r}
+library(tidyverse)
+HGDPcutoff<-read_delim("summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt",comment="#")
+names(HGDPcutoff)<-c("ID","Pop","sex","Country","type","familyname","length","reads","copynumber","batch")
+```
+```{r}
+library(ggfortify)
+ftecutoff<-subset(HGDPcutoff, sex=="female" & type=="te")
+mtecutoff<-subset(HGDPcutoff, sex=="male" & type=="te")
+```
+
+The idea of this code is to create a principal component analysis (PCA) to detect potentially meaningful patterns underlying the copy number estimation data.
+
+We perform the PCA independently for males and females.
+
+###Females
+
+```{r}
+ftecutoffmatrix<-matrix(as.vector(ftecutoff$copynumber),nrow=275,ncol=965,byrow=T)
+ftecutofffram<-data.frame(ftecutoffmatrix)
+names(ftecutofffram)<-unique(ftecutoff$familyname)
+```
+This part creates vectors containing the values of TE copy number in a dataframe in the correct format to be able to be used as input for the PCA. 
+
+Additionally, we create a similar frame for the information about the continents. This is only necessary to create the vector containing the color information to use in the PCA command. 
+```{r}
+ftecutoffmatrixcont<-matrix(as.vector(ftecutoff$Country),nrow=275,ncol=965,byrow=T)
+ftecutoffframcont<-data.frame(ftecutoffmatrixcont)
+contcol<-c(ftecutoffframcont$X1)
+```
+
+The colors for the continent I chose manually. The colors are as follows: Red=Africa ; Blue= America ; Green= Central_South_Asia ; yellow= East_Asia; Brown= Europe; Purple= Middle_East; Orange= Oceania
+```{r}
+colveccont<-c('red','blue','green','yellow','brown','purple','orange')
+#Red=Africa ; Blue= America ; Green= Central_South_Asia ; yellow= East_Asia; Brown= Europe; Purple= Middle_East; Orange= Oceania
+colvecftecont<-c()
+for (i in contcol){
+  colvecftecont<-c(colvecftecont,colveccont[i])}
+```
+
+Now we create the PCA. I would recommend to look up online guides on how to create a PCA with ggplot/tidyverse.
+For example: https://clauswilke.com/blog/2020/09/07/pca-tidyverse-style/
+```{r}
+f_te <- ftecutofffram %>% 
+  rownames_to_column(var = "sample") %>% 
+  as_tibble()
+
+f_te_pca <- f_te %>% 
+  nest(data=everything()) %>% 
+  mutate(pca = map(data, ~prcomp(.x %>% select(-sample), center = TRUE, scale = TRUE)), 
+         pca_tidy = map2(pca, data, ~broom::augment(.x, data = .y))) 
+
+f_te_pca %>%
+  unnest(pca_tidy) %>% 
+  summarize_at(.vars = vars(contains(".fittedPC")), list(variance = var)) %>% 
+  pivot_longer(everything(), names_to = "pc", values_to = "variance") %>% 
+  mutate(var_explained = variance / sum(variance))
+
+f_te_pca %>% 
+  mutate(
+    pca_graph = map2(
+      .x = pca, 
+      .y = data,
+      ~ autoplot(.x, #loadings = TRUE, loadings.label = TRUE, 
+                 data = .y, colour = colvecftecont)+theme_bw())) %>% 
+  pull(pca_graph)
+```
+I recommend to experiment with the 'loadings' to find out how different TEs inform the PCA.
+I would also recommend to perform the PCA with subsets of TEs, e.g. only using ALU, L1ME5 and SVA_A (the three TEs thought to be active in the human genome)
+
+
+###Males
+
+```{r}
+mtecutoffmatrix<-matrix(as.vector(mtecutoff$copynumber),nrow=553,ncol=965,byrow=T)# DOESTHISWORKCORRECTLY
+mtecutofffram<-data.frame(mtecutoffmatrix)
+names(mtecutofffram)<-unique(mtecutoff$familyname)
+rownames(mtecutofffram)<-unique(mtecutoff$X1)
+
+mtecutoffmatrixcont<-matrix(as.vector(mtecutoff$Country),nrow=553,ncol=965,byrow=T)
+mtecutoffframcont<-data.frame(mtecutoffmatrixcont)
+contcol<-c(mtecutoffframcont$X1)
+colveccont<-c('red','blue','green','yellow','brown','purple','orange')
+#Red=Africa ; Blue= America ; Green= Central_South_Asia ; yellow= East_Asia; Brown= Europe; Purple= Middle_East Magenta,Orange= Oceania
+
+colvecmtecont<-c()
+for (i in contcol){
+  colvecmtecont<-c(colvecmtecont,colveccont[i])}
+
+m_te <- mtecutofffram %>% 
+  rownames_to_column(var = "sample") %>% 
+  as_tibble()
+
+m_te_pca <- m_te %>% 
+  nest(data=everything()) %>% 
+  mutate(pca = map(data, ~prcomp(.x %>% select(-sample), center = TRUE, scale = TRUE)), 
+         pca_tidy = map2(pca, data, ~broom::augment(.x, data = .y))) 
+
+m_te_pca %>%
+  unnest(pca_tidy) %>% 
+  summarize_at(.vars = vars(contains(".fittedPC")), list(variance = var)) %>% 
+  pivot_longer(everything(), names_to = "pc", values_to = "variance") %>% 
+  mutate(var_explained = variance / sum(variance))
+
+#calculateLoadingsContribution(m_te_pca)
+
+m_te_pca %>% 
+  mutate(
+    pca_graph = map2(
+      .x = pca, 
+      .y = data,
+      ~ autoplot(.x, #loadings = TRUE, loadings.label = TRUE, 
+                 data = .y, colour = colvecmtecont)+theme_bw()
+    )
+  ) %>% 
+  pull(pca_graph)
+```
+
+Overall, we see some interesting things in these plots. The clear separation between AFrica and the rest in the female plot is especially noteworthy. Note that you can see such a trend for specific TEs, mainly L1ME5, in the MinMax-Differences plots from Script 7.
+Also, The absence of such a clear separation in the male version of the plot is quite exciting. A possible explanation that I thought of is a reduced level of divergence of the Y-chromosome. This is a phenomenon that I have heard of quite a few times, though I did struggle a bit to find suitable literature. I did find this paper though that mentions such an effect for a specific population: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6436108/
+The Idea of this concept is that for human population history, during migratory events, military campains etc, men have dispersed, i.e. migrated, more than females, and the evolutionary history of the Y-chromosome does reflect this by a reduced level of variation compared to autosomes.
+However, if this is actually the correct explanation, or if another ffect can explain the osberved patterns, e.g. the higher amount of both samples and represented populations for males compared to females remains to be tested.
