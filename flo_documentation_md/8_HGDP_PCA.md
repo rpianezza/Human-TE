@@ -51,7 +51,7 @@ estimation data.
 
 We perform the PCA independently for males and females.
 
-\###Females
+\### Females
 
 This part creates vectors containing the values of TE copy number in a
 dataframe in the correct format to be able to be used as input for the
@@ -155,7 +155,7 @@ ggbiplot(fHGDP.pca, var.axes=FALSE, groups = contcol)
 
 ![](8_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-\###Males
+\### Males
 
 ``` r
 mtecutoffmatrix<-matrix(as.vector(mtecutoff$copynumber),nrow=553,ncol=965,byrow=T)
