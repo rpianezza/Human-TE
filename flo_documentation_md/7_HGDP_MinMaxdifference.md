@@ -115,7 +115,7 @@ ggplot(fteoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) #Most of this is pretty uninteresting. How do I subset for the most variable TEs instead of the most abundant?
 ```
 
-![](7_HumanTEs_Rmarkdown_MinMaxdifference_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](7_HGDP_MinMaxdifference_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 One quite exciting thing about this plot is the L1 variant L1ME5. This
 TE was already behaving quite interestingly in the male-female
 comparison and it does again not disappoint here. It gets especially
@@ -179,7 +179,7 @@ ggplot(mteoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](7_HumanTEs_Rmarkdown_MinMaxdifference_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](7_HGDP_MinMaxdifference_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 Notably, the results specific to L1ME5 seem not nearly as clear, and low
 copy number estimates exist in many other Continents. Definitely worth
 more investigation!
@@ -224,7 +224,7 @@ ggplot(fteoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](7_HumanTEs_Rmarkdown_MinMaxdifference_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](7_HGDP_MinMaxdifference_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 #### Males
 
@@ -237,7 +237,7 @@ ggplot(mteoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](7_HumanTEs_Rmarkdown_MinMaxdifference_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](7_HGDP_MinMaxdifference_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 My general issue with this whole series of plots is that we show the TEs
 with the highest differences, but do these actually represent the TEs

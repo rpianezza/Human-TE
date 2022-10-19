@@ -109,7 +109,7 @@ ggplot(data=malefemale_means, mapping = aes(x=femalemean, y=malemean))+
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 As you might realize, the vast majority of data points shown in the
 above plot are found in the lower left corner. This is caused due to the
@@ -141,7 +141,7 @@ ggplot(data=malefemale_means_log, mapping = aes(x=femalemean_log, y=malemean_log
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 Either way, the main take away from this plot, for me at least, is that
 we do see quite some differences in the mean abundance comparison of
@@ -200,7 +200,7 @@ ggplot(data=meandiffframe, aes(x=tenames, y=relmeandiff))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 As you might see, producing a plot with all 965 TEs is quite difficult
 to interpret. Also, a random order of the TEs does not help the
 interpretability of the plot. Ordering the display order of the TEs by
@@ -214,7 +214,7 @@ ggplot(data=ordermeandiffframe, aes(x=tenames, y=relmeandiff))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 While this most certainly helps, wouldn’t it be nice to focus on just a
 few TEs that show the highest abundance differences? Worry not,
@@ -228,7 +228,7 @@ ggplot(data=subsampleordermeandiffframe, aes(x=tenames, y=relmeandiff))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 The sequence with the highest abundance difference is actually a
 satellite, and we have also seen in Script 1 that this sequence is quite
 vulnerable to estimation differences caused by differences in the data.
@@ -269,7 +269,7 @@ ggplot(data=subsampleordermeandifabsframe, aes(x=tenames, y=absmeandiff))+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](5_HumanTEs_Rmarkdown_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](5_HGDP_MaleFemaleComparison_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 I am not sure if there is much additional information to obtain from the
 absolute comparison. Thus, I did not include the plot version for the
 full dataset. However, it shouldn’t be hard to produce it using the

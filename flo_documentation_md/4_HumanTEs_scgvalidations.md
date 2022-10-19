@@ -115,7 +115,7 @@ BioCircos(genome = "hg19", tracklist, genomeFillColor = "PuOr",
           chrPad = 0.05, genomeTicksDisplay = FALSE)
 ```
 
-![](4_HumanTEs_Rmarkdown_scgvalidations_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](4_HumanTEs_scgvalidations_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ### Comparisons of SCGS and TEs
 
@@ -165,7 +165,7 @@ names(logsdscgvste)<-c('value','colors','numbers')
 ggplot(logsdscgvste,aes(x=numbers,y=value))+geom_point(color=logsdscgvste$colors)+theme_bw()
 ```
 
-![](4_HumanTEs_Rmarkdown_scgvalidations_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](4_HumanTEs_scgvalidations_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ##### Coverage comparison for a single sample
 
@@ -206,7 +206,7 @@ ggplot(HGDP00750tescg,aes(x=familyname,y=log(normcov)))+geom_point(color=colvec0
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](4_HumanTEs_Rmarkdown_scgvalidations_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](4_HumanTEs_scgvalidations_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 At this point, we have now created a dataset with 965 TEs and 483 SCGs,
 and we have confirmed that the SCG normalization seems to work nicely.

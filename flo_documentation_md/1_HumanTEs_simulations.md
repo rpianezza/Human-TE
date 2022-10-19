@@ -257,7 +257,7 @@ com_v_random[com_v_random<1]<-1/com_v_random[com_v_random<1]
 plot(com_v_random,col=colorvector)
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 #common[com_v_random>1.15,]$V2
@@ -301,7 +301,7 @@ library(gridExtra)
 grid.arrange(common_plot,cov_75_plot,cov_5_plot,rl_50_plot,rl_100_plot,rl_200_plot,error_0.1_plot,error_0.05_plot,error_0.01_plot,random_plot,ncol=2,nrow=5)
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Human reference Genome - Simulated reads
 
@@ -380,7 +380,7 @@ plot(random_hg38[random_hg38$V1=='te',]$V5,ylim = c(0,550000))
 par(mfrow=c(3,3))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 plot(common_hg38[common_hg38$V1=='te',]$V5,ylim = c(0,10000))
@@ -396,7 +396,7 @@ plot(random_hg38[random_hg38$V1=='te',]$V5,ylim = c(0,10000))
 par(mfrow=c(3,3))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 plot(common_hg38[common_hg38$V1=='scg',]$V5,ylim = c(0.6,3.2))
@@ -412,7 +412,7 @@ plot(random_hg38[random_hg38$V1=='scg',]$V5,ylim = c(0.6,3.2))
 par(mfrow=c(3,3))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 ``` r
 plot(common_hg38[common_hg38$V1=='krab',]$V5,ylim = c(0,28))
@@ -425,7 +425,7 @@ plot(error_0.01_hg38[error_0.01_hg38$V1=='krab',]$V5,ylim = c(0,28))
 plot(random_hg38[random_hg38$V1=='krab',]$V5,ylim = c(0,28))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
 
 ### Real Data
 
@@ -450,7 +450,7 @@ plot(brahui_03[brahui_03$V1=='scg',]$V5,ylim=c(0.3,2.8))
 plot(brahui_05[brahui_05$V1=='scg',]$V5,ylim=c(0.3,2.8))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 #scgs to be removed: chr13:76880174-76886405 ; chr3:169769648-169772043
@@ -461,7 +461,7 @@ plot(brahui_03[brahui_03$V1=='krab',]$V5,ylim=c(0,20.2))
 plot(brahui_05[brahui_05$V1=='krab',]$V5,ylim=c(0,20.2))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 par(mfrow=c(1,3))
@@ -470,7 +470,7 @@ plot(brahui_03[brahui_03$V1=='te',]$V5,ylim=c(0,350000))
 plot(brahui_05[brahui_05$V1=='te',]$V5,ylim=c(0,350000))
 ```
 
-![](1_HumanTEs_Rmarkdown_simulations_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
+![](1_HumanTEs_simulations_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
 
 ``` r
 par(mfrow=c(1,1))

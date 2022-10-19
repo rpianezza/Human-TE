@@ -153,7 +153,7 @@ library(ggbiplot)
 ggbiplot(fHGDP.pca, var.axes=FALSE, groups = contcol)
 ```
 
-![](8_HumanTEs_Rmarkdown_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](8_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 \###Males
 
@@ -180,7 +180,7 @@ mHGDP.pca <- prcomp(mtecutofffram, center = TRUE, scale = TRUE)
 ggbiplot(mHGDP.pca, var.axes=FALSE, groups = contcol)
 ```
 
-![](8_HumanTEs_Rmarkdown_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](8_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 Overall, we see some interesting things in these plots. The clear
 separation between Africa and the rest in the female plot is especially
