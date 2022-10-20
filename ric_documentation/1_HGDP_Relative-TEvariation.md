@@ -1,8 +1,6 @@
-Analyzing the TEs with the highest relative or absolute difference
-between their minimum and maximum abundance estimate
+Analyzing the TEs with the highest relative difference between their
+minimum and maximum abundance estimate
 ================
-
-# Unbiased Population Variation of Human Transposable Elements - Script 1
 
 This is the first script written by me, Riccardo. This script works with
 the version of the HGDP dataset created in Script 2 by Florian. We
@@ -66,9 +64,6 @@ f_MMM_frame<-data.frame(TEnames,f_MMM_matrix)
 names(f_MMM_frame)<-c('tenames','min','mean','max')
 ```
 
-This analysis was done for both a **relative** and an **absolute**
-comparison.
-
 ## Relative comparison
 
 ### Females
@@ -113,7 +108,7 @@ ggplot(fTEoutlier_order,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ### Males
 
@@ -139,7 +134,7 @@ ggplot(mTEoutlier_order,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ### L1ME5
 
@@ -158,7 +153,7 @@ ggplot(data = mL1ME5, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 0.3)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 ggplot(data = fL1ME5, mapping = aes(x = copynumber, fill = Country)) +
@@ -166,7 +161,7 @@ ggplot(data = fL1ME5, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 0.3)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 #### Sex distribution
 
@@ -210,7 +205,7 @@ ggplot(data = mTAR1, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 1)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 ggplot(data = fTAR1, mapping = aes(x = copynumber, fill = Country)) +
@@ -218,7 +213,8 @@ ggplot(data = fTAR1, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 1)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
 This plots, showing the distribution of **TAR1** copynumbers, are going
 in the same direction as previously seen for L1ME5. All the africans
 individuals are in the lower copynumber size of the distribution, while
@@ -238,7 +234,7 @@ ggplot(data = m, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 0.3)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 ggplot(data = f, mapping = aes(x = copynumber, fill = Country)) +
@@ -246,7 +242,8 @@ ggplot(data = f, mapping = aes(x = copynumber, fill = Country)) +
   geom_histogram(binwidth = 0.3)
 ```
 
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](1_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
 For **HERVI**, we see something against the tide. The african
 individuals are not in the lower-copynumber part of the distribution,
 but more in the middle, in both sexes. We also see possible invasion(s)
@@ -258,7 +255,7 @@ individuals with high copynumber (maybe they are part of small or
 bottlenecked populations as well?). HERV-K are considered the most
 active human endogenous retroviruses.
 
-### Other TE
+### Other TEs
 
 I used this code to investigate every TE contained in the outlier subset
 one-by-one. Just remove the `#` and insert the TE family name in the
@@ -281,46 +278,3 @@ satellites.
   #ggtitle("Female") + theme(plot.title = element_text(hjust = 0.5)) +
   #geom_histogram(binwidth = 0.1)
 ```
-
-## Absolute comparison
-
-### Females
-
-We use the same dataset for the mean, minimum and maximum values as
-those do not change. The only thing that changes is our definition of
-**outliers**. Instead of a relative fold-difference between the minimum
-and maximum value, we now want to use an absolute value of maximum copy
-number vs minimum copy number as a threshold. Again, experimenting with
-the value will lead to the inclusion of more or less TEs in the plot.
-
-``` r
-outlierTEnames<-f_MMM_frame$tenames[f_MMM_frame$max-f_MMM_frame$min>200 & f_MMM_frame$max-f_MMM_frame$min<Inf]
-fTEoutlier<-fTE[fTE$familyname %in% outlierTEnames,]
-fTEoutlierorder<-fTEoutlier[order(fTEoutlier$copynumber,decreasing=T),]
-fTEoutlierorder$familyname<-factor(fTEoutlierorder$familyname,levels=unique(fTEoutlierorder$familyname))
-
-ggplot(fTEoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
-```
-
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-### Males
-
-``` r
-outlierTEnames<-m_MMM_frame$tenames[m_MMM_frame$max-m_MMM_frame$min>200 & m_MMM_frame$max-m_MMM_frame$min<Inf]
-mTEoutlier<-mTE[mTE$familyname %in% outlierTEnames,]
-mTEoutlierorder<-mTEoutlier[order(mTEoutlier$copynumber,decreasing=T),]
-mTEoutlierorder$familyname<-factor(mTEoutlierorder$familyname,levels=unique(mTEoutlierorder$familyname))
-
-ggplot(mTEoutlierorder,aes(x=familyname,y=log(copynumber)))+geom_boxplot(notch=F)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
-```
-
-![](1_HGDP_MinMax_TEvariation_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
-My general issue with this whole series of plots is that we show the TEs
-with the highest differences, but do these actually represent the TEs
-that are most variable within/between the populations? And if not, what
-is a better analyses to focus on the TEs whose variations in copy
-numbers are the most interesting?
