@@ -225,6 +225,10 @@ both from Neandertals and Denisovans among human populations. To confirm
 this hypothesis, I have to look into Denisovans and Neandertals genomes
 and look for TEs abundance.
 
+Another possible explanation is that **oceanians**, as reported in
+different papers, are directly closer to Africans due to an early
+migration that followed the South Coast of Middle East and Asia.
+
 #### L1PA7_5
 
 ``` r
@@ -322,6 +326,7 @@ plot_map(data, "GSATII")
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
 The only idea I have about why we see this distribution also in a
 satellite may be the fact that they are known to arise from TEs
 insertions as reported in <https://doi.org/10.1038/nrg2640>.
