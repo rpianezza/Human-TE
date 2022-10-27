@@ -1,9 +1,8 @@
-Analyzing the TEs with the highest relative difference between their
-minimum and maximum abundance estimate
+Geographic distribution by population for the most interesting TEs
 ================
 
-This is the third script written by me, Riccardo. This script works with
-the version of the HGDP dataset created in Script 2 by Florian. We
+This is the fourth script written by me, Riccardo. This script works
+with the version of the HGDP dataset created in Script 2 by Florian. We
 perform all analyses separately for males and females, as we established
 that there are significant differences between the sexes in Script 5
 from Florian.
@@ -69,6 +68,8 @@ coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordin
 
 ``` r
 coord <- select(coordinates, pop, latitude, longitude)
+
+TE <- filter(HGDPcutoff, type=='te')
 ```
 
 Then, I create the final dataset in which we have every useful
@@ -78,7 +79,7 @@ by `sex`. I use the function `inner_join` to add `latitude` and
 `longitude` to the initial dataset.
 
 ``` r
-by_pop <- group_by(HGDPcutoff, pop, familyname, sex) %>% summarise(copynumber = mean(copynumber))
+by_pop <- group_by(TE, pop, familyname, sex) %>% summarise(copynumber = mean(copynumber))
 ```
 
     ## `summarise()` has grouped output by 'pop', 'familyname'. You can override using
@@ -86,10 +87,43 @@ by_pop <- group_by(HGDPcutoff, pop, familyname, sex) %>% summarise(copynumber = 
 
 ``` r
 data <- inner_join(x = coord, y = by_pop, by = "pop")
+data
 ```
 
+    ## # A tibble: 94,570 × 6
+    ##    pop    latitude longitude familyname sex    copynumber
+    ##    <chr>     <dbl>     <dbl> <chr>      <chr>       <dbl>
+    ##  1 Adygei       44        39 6kbHsap    female    324.   
+    ##  2 Adygei       44        39 6kbHsap    male      325.   
+    ##  3 Adygei       44        39 ALINE      female      0.148
+    ##  4 Adygei       44        39 ALINE      male        0.117
+    ##  5 Adygei       44        39 ALR        female  33669.   
+    ##  6 Adygei       44        39 ALR        male    30977.   
+    ##  7 Adygei       44        39 ALR_       female  78781.   
+    ##  8 Adygei       44        39 ALR_       male    75401.   
+    ##  9 Adygei       44        39 ALR1       female  74650.   
+    ## 10 Adygei       44        39 ALR1       male    70058.   
+    ## # … with 94,560 more rows
+
 We are now ready to analyze the geographic distribution of the most
-interesting TE.
+interesting TE. I first create a function which I will use to plot each
+TE family.
+
+``` r
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(longitude, latitude, color = copynumber, size = copynumber)
+  ) + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname)}
+```
 
 ## Details for every interesting TE
 
@@ -125,24 +159,6 @@ males with low copynumber (in particular **north americans**).
 
 There is one important exception which shows an opposite pattern, which
 is `L1PA7_5`.
-
-I first create a function which I will use to plot each TE family.
-
-``` r
-plot_map <- function(data, famname){
-TE <- filter(data, familyname == famname)
-world_map = map_data("world")
-
-ggplot() +
-  geom_map(
-    data = world_map, map = world_map,
-    aes(long, lat, map_id = region),
-    color = "white", fill = "lightgray", size = 0) +
-  geom_point(
-    data = TE, aes(longitude, latitude, color = copynumber, size = copynumber)
-  ) + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
-  facet_wrap(~sex) + ggtitle(famname)}
-```
 
 ### LINEs
 
@@ -218,6 +234,7 @@ plot_map(data, "L1PA7_5")
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
 In `L1PA7_5`, the abundance distribution looks reversed to the one
 previously observed. We have **subsaharian africans** with high
 copynumbers and **eurasians** and **americans** with lower copynumbers.
@@ -249,6 +266,7 @@ plot_map(data, "SVA_A")
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
 Also for these two SINEs, we have a distribution consistent with the
 previous LINEs. Again, we have some interesting **Oceanians**.
 
@@ -257,7 +275,7 @@ males** and **females**. Interestingly, we have this strong difference
 also for 1/3 Oceanian population. Can this be another sign of archaic
 admixture, maybe related to the Y chromosome? If this TE was rare in
 Neandertal/Denisovans **Y chromosome**, modern human males with strong
-admixture would show few TE than modern females.
+admixture would show fewer TE than modern females.
 
 #### DNA transposons
 
@@ -268,6 +286,7 @@ plot_map(data, "MER2")
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
 We notice the same pattern also for the only DNA transposon analysed
 here, `MER2`.
 
@@ -303,3 +322,81 @@ plot_map(data, "GSATII")
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+The only idea I have about why we see this distribution also in a
+satellite may be the fact that they are known to arise from TEs
+insertions as reported in <https://doi.org/10.1038/nrg2640>.
+
+## Ancient transposons as controls
+
+### DNA transposons
+
+To finish this analysis, I also plot the geographical distribution of 3
+among the most ancient DNA transposons (`MER106B`, `MER63C`,
+`CHARLIE1A`), as estimated in <https://doi.org/10.1101/gr.5826307>. We
+expect to see low variance and no particularly relevant distribution.
+
+``` r
+plot_map(data, "MER106B")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+plot_map(data, 'MER63C')
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
+plot_map(data, "CHARLIE1A")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+
+We see **low variance**, as expected. On the other hand, we still see
+specific geographic distributions, with **Eurasia** having the
+populations with higher copynumber and **Africa** the lowers.
+**Oceanians** still look closer to africans than to Eurasians.
+
+The only idea that came into my mind to explain this data is that, even
+if this TEs are inactive and are not able to mobilize anymore, they can
+still cause **ectopic recombination**. Something similar is explained in
+<https://doi.org/10.1186/s13059-018-1577-z>.
+
+### RNA transposons
+
+As reported in <https://doi.org/10.1016/s0959-437x(99)00031-3>, `LINE2`
+TEs are considered to be ancient and inactive.
+
+``` r
+plot_map(data, "L2")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+plot_map(data, 'L2B')
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+plot_map(data, "L2C")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+
+Here we see both **low variance** and no particular distribution, as
+expected.
