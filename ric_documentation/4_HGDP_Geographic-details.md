@@ -79,7 +79,7 @@ by `sex`. I use the function `inner_join` to add `latitude` and
 `longitude` to the initial dataset.
 
 ``` r
-by_pop <- group_by(TE, pop, familyname, sex) %>% summarise(copynumber = mean(copynumber))
+by_pop <- group_by(TE, pop, familyname, sex) %>% summarise(copynumber = mean(copynumber), count=n())
 ```
 
     ## `summarise()` has grouped output by 'pop', 'familyname'. You can override using
@@ -90,19 +90,19 @@ data <- inner_join(x = coord, y = by_pop, by = "pop")
 data
 ```
 
-    ## # A tibble: 94,570 × 6
-    ##    pop    latitude longitude familyname sex    copynumber
-    ##    <chr>     <dbl>     <dbl> <chr>      <chr>       <dbl>
-    ##  1 Adygei       44        39 6kbHsap    female    324.   
-    ##  2 Adygei       44        39 6kbHsap    male      325.   
-    ##  3 Adygei       44        39 ALINE      female      0.148
-    ##  4 Adygei       44        39 ALINE      male        0.117
-    ##  5 Adygei       44        39 ALR        female  33669.   
-    ##  6 Adygei       44        39 ALR        male    30977.   
-    ##  7 Adygei       44        39 ALR_       female  78781.   
-    ##  8 Adygei       44        39 ALR_       male    75401.   
-    ##  9 Adygei       44        39 ALR1       female  74650.   
-    ## 10 Adygei       44        39 ALR1       male    70058.   
+    ## # A tibble: 94,570 × 7
+    ##    pop    latitude longitude familyname sex    copynumber count
+    ##    <chr>     <dbl>     <dbl> <chr>      <chr>       <dbl> <int>
+    ##  1 Adygei       44        39 6kbHsap    female    324.        9
+    ##  2 Adygei       44        39 6kbHsap    male      325.        6
+    ##  3 Adygei       44        39 ALINE      female      0.148     9
+    ##  4 Adygei       44        39 ALINE      male        0.117     6
+    ##  5 Adygei       44        39 ALR        female  33669.        9
+    ##  6 Adygei       44        39 ALR        male    30977.        6
+    ##  7 Adygei       44        39 ALR_       female  78781.        9
+    ##  8 Adygei       44        39 ALR_       male    75401.        6
+    ##  9 Adygei       44        39 ALR1       female  74650.        9
+    ## 10 Adygei       44        39 ALR1       male    70058.        6
     ## # … with 94,560 more rows
 
 We are now ready to analyze the geographic distribution of the most
@@ -120,7 +120,7 @@ ggplot() +
     aes(long, lat, map_id = region),
     color = "white", fill = "lightgray", size = 0) +
   geom_point(
-    data = TE, aes(longitude, latitude, color = copynumber, size = copynumber)
+    data = TE, aes(longitude, latitude, color = copynumber, size = count)
   ) + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~sex) + ggtitle(famname)}
 ```
