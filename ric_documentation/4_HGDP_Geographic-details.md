@@ -243,7 +243,7 @@ In `L1PA7_5`, the abundance distribution looks reversed to the one
 previously observed. We have **subsaharian africans** with high
 copynumbers and **eurasians** and **americans** with lower copynumbers.
 Again, the **oceanians** looks similar to Africans than to the other
-populations. This is, in my opinion, a clear example of a loss of TE
+populations. This could be, in my opinion, an example of a loss of TE
 during the OOU bottleneck.
 
 To explain the fact that some oceanians has high copynumber for this TE,
@@ -253,7 +253,7 @@ we have two hypothesis to test:
 - The **archaic humans** “gave back” to them the African high copynumber
   parts of the genome.
 
-#### SINEs
+### SINEs
 
 ``` r
 plot_map(data, "ALU")
@@ -281,7 +281,7 @@ admixture, maybe related to the Y chromosome? If this TE was rare in
 Neandertal/Denisovans **Y chromosome**, modern human males with strong
 admixture would show fewer TE than modern females.
 
-#### DNA transposons
+### DNA transposons
 
 ``` r
 plot_map(data, "MER2")
@@ -294,7 +294,7 @@ plot_map(data, "MER2")
 We notice the same pattern also for the only DNA transposon analysed
 here, `MER2`.
 
-#### Endogenous retroviruses
+### Endogenous retroviruses
 
 ``` r
 plot_map(data, "MLT2A1")
@@ -317,7 +317,7 @@ previously described. Instead, `HERVI` shows something different. Looks
 like a lost of TE during the bottleneck (OOA), even though the
 copynumber change only from 4.4 to 5.5.
 
-#### Satellites
+### Satellites
 
 ``` r
 plot_map(data, "GSATII")
@@ -331,22 +331,35 @@ The only idea I have about why we see this distribution also in a
 satellite may be the fact that they are known to arise from TEs
 insertions as reported in <https://doi.org/10.1038/nrg2640>.
 
+## Final comments
+
+All together, these maps show us:
+
+- **Eurasians** populations always cluster together and separately from
+  **africans**.
+- **African** populations cluster almost always together with the two
+  most western **oceanians** populations, which are the
+  `PapuanHighlands` and the `PapuanSepik`, but **never** with the third
+  oceanian population, the `Bougainville` (BG).
+- The `Bougainville` population **always** cluster together with
+  **native american** populations. This is striking, and this is also
+  reflected in the two sexes. See for example the `L1ME5` map: **BG
+  females** has high copynumber and **BG males** has high. The same
+  sex-specific pattern is reflected in **americans**.
+
+How do we interprete these data? There is a genetic relationship between
+these oceanians and the native americans? There are some hypothesis
+about a gene flow from oceanians into native americans, or even that
+native **south americans** were originally from Oceania.
+
 ## Ancient transposons as controls
 
 ### DNA transposons
 
-To finish this analysis, I also plot the geographical distribution of 3
-among the most ancient DNA transposons (`MER106B`, `MER63C`,
-`CHARLIE1A`), as estimated in <https://doi.org/10.1101/gr.5826307>. We
-expect to see low variance and no particularly relevant distribution.
-
-``` r
-plot_map(data, "MER106B")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+To finish this analysis, I also plot the geographical distribution of 2
+among the most ancient DNA transposons (`MER63C`, `CHARLIE1A`), as
+estimated in <https://doi.org/10.1101/gr.5826307>. We expect to see low
+variance and no particularly relevant distribution.
 
 ``` r
 plot_map(data, 'MER63C')
@@ -354,7 +367,7 @@ plot_map(data, 'MER63C')
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 plot_map(data, "CHARLIE1A")
@@ -362,7 +375,7 @@ plot_map(data, "CHARLIE1A")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 We see **low variance**, as expected. On the other hand, we still see
 specific geographic distributions, with **Eurasia** having the
@@ -394,14 +407,6 @@ plot_map(data, 'L2B')
     ## Warning: Ignoring unknown aesthetics: x, y
 
 ![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
-
-``` r
-plot_map(data, "L2C")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
 
 Here we see both **low variance** and no particular distribution, as
 expected.
