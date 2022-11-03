@@ -344,7 +344,7 @@ All together, these maps show us:
 - The `Bougainville` population **always** cluster together with
   **native american** populations. This is striking, and this is also
   reflected in the two sexes. See for example the `L1ME5` map: **BG
-  females** has high copynumber and **BG males** has low The same
+  females** has high copynumber and **BG males** has low. The same
   sex-specific pattern is reflected in **americans**.
 
 How do we interprete these data? There is a genetic relationship between
