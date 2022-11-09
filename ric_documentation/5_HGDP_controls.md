@@ -657,3 +657,273 @@ here further suggest genetic similarities among **Africa** and
 some way inherited some variants on the **Y chromosome** private to
 **Africans** and **Oceanians**, while their **X chromosome** is more
 close to **Eurasians**.
+
+But are this patterns consistent among all the individuals? I checked
+this in 3 males and 3 females from these 3 populations: `Yoruba`,
+`French` and `Maya` (only 2 males samples for Maya were available).
+
+``` r
+# Yoruba: Males (HGDP00929, HGDP00937, HGDP00944) - Females (HGDP00920, HGDP00933, HGDP00939)
+# French: Males (HGDP00511, HGDP00528, HGDP00538) - Females (HGDP00513, HGDP00527, HGDP00539)
+# Maya: Males (HGDP00856, HGDP00877) - Females (HGDP00854, HGDP00865, HGDP00876)
+
+# Yoruba
+yoruba_m1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00929-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1598233 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_m2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00937-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1597044 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_m3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00944-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1621390 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_f1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00920-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1578086 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_f2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00933-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1607449 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_f3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/yoruba/HGDP00939-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1614735 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# French
+french_m1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00511-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1569668 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_m2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00528-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1660335 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_m3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00538-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1538839 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_f1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00513-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1605551 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_f2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00527-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1552357 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_f3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/french/HGDP00539-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1645414 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# Maya
+maya_m1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/maya/HGDP00856-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1578810 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+maya_m2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/maya/HGDP00877-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1623345 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+maya_f1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/maya/HGDP00854-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1697676 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+maya_f2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/maya/HGDP00865-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1690256 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+maya_f3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/full_pops/maya/HGDP00876-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1677014 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+m1_L1ME5_yoruba <- plot_bed(yoruba_m1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+m2_L1ME5_yoruba <- plot_bed(yoruba_m2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+m3_L1ME5_yoruba <- plot_bed(yoruba_m3, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+m1_L1ME5_french <- plot_bed(french_m1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 1")
+m2_L1ME5_french <- plot_bed(french_m2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 2")
+m3_L1ME5_french <- plot_bed(french_m3, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 3")
+m1_L1ME5_maya <- plot_bed(maya_m1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+m2_L1ME5_maya <- plot_bed(maya_m2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+
+m_pop3_figure <- ggarrange(m1_L1ME5_yoruba, m2_L1ME5_yoruba, m3_L1ME5_yoruba, m1_L1ME5_french, m2_L1ME5_french, m3_L1ME5_french, m1_L1ME5_maya,  m2_L1ME5_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop3_final <- annotate_figure(m_pop3_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Males", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` r
+f1_L1ME5_yoruba <- plot_bed(yoruba_f1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+f2_L1ME5_yoruba <- plot_bed(yoruba_f2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+f3_L1ME5_yoruba <- plot_bed(yoruba_f3, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+f1_L1ME5_french <- plot_bed(french_f1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 1")
+f2_L1ME5_french <- plot_bed(french_f2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 2")
+f3_L1ME5_french <- plot_bed(french_f3, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French 3")
+f1_L1ME5_maya <- plot_bed(maya_f1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+f2_L1ME5_maya <- plot_bed(maya_f2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+f3_L1ME5_maya <- plot_bed(maya_f2, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 3")
+
+f_pop3_figure <- ggarrange(f1_L1ME5_yoruba, f2_L1ME5_yoruba, f3_L1ME5_yoruba, f1_L1ME5_french, f2_L1ME5_french, f3_L1ME5_french, f1_L1ME5_maya,  f2_L1ME5_maya, f3_L1ME5_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop3_final <- annotate_figure(f_pop3_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Females", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+
+I conclude that the pattern previously observed are consistent among the
+different individuals composing the populations.
