@@ -18,7 +18,9 @@ library(tidyverse)
     ## ✖ dplyr::lag()    masks stats::lag()
 
 ``` r
-HGDPcutoff<-read_delim("/Users/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt",comment="#")
+library(ggpubr)
+
+(HGDPcutoff<-read_delim("/Users/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt",comment="#"))
 ```
 
     ## Rows: 1394352 Columns: 10
@@ -29,6 +31,22 @@ HGDPcutoff<-read_delim("/Users/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_ref
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## # A tibble: 1,394,352 × 10
+    ##    ID        Pop    sex   Country       type  famil…¹ length reads copyn…² batch
+    ##    <chr>     <chr>  <chr> <chr>         <chr> <chr>    <dbl> <dbl>   <dbl> <chr>
+    ##  1 HGDP00001 Brahui male  Central_Sout… scg   chr1:9…   4152 1052.   1.02  ro   
+    ##  2 HGDP00001 Brahui male  Central_Sout… scg   chr1:9…   5136 1092.   0.852 ro   
+    ##  3 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   3064  832.   1.09  ro   
+    ##  4 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   3239  901.   1.11  ro   
+    ##  5 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   4035 1102.   1.09  ro   
+    ##  6 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   2500  733.   1.18  ro   
+    ##  7 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   2599  580.   0.895 ro   
+    ##  8 HGDP00001 Brahui male  Central_Sout… scg   chr1:1…   2124  477.   0.900 ro   
+    ##  9 HGDP00001 Brahui male  Central_Sout… scg   chr1:2…   6284 1527.   0.974 ro   
+    ## 10 HGDP00001 Brahui male  Central_Sout… scg   chr1:2…   3222  884.   1.10  ro   
+    ## # … with 1,394,342 more rows, and abbreviated variable names ¹​familyname,
+    ## #   ²​copynumber
 
 ``` r
 names(HGDPcutoff)<-c("ID","Pop","sex","Country","type","familyname","length","reads","copynumber","batch")
@@ -149,9 +167,10 @@ flo_data <- inner_join(x = coord, y = flo_by_pop, by = "Pop")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-5-2.png)<!-- --> I do
-not notice significant differences among the two batches, in neither of
-the two figures.
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+I do not notice significant differences among the two batches, in
+neither of the two figures.
 
 ## Read length
 
@@ -166,7 +185,7 @@ I import the report in R as `HGDP_report` and I add the column
 `read_count`.
 
 ``` r
-(HGDP_report <- read_tsv('/Users/rpianezza/TE/ric-documentation-Rmd/other-files/filereport_read_run_PRJEB6463_tsv.txt') %>% mutate(read_length = base_count/read_count))
+HGDP_report <- read_tsv('/Users/rpianezza/TE/ric-documentation-Rmd/other-files/filereport_read_run_PRJEB6463_tsv.txt') %>% mutate(read_length = base_count/read_count)
 ```
 
     ## Rows: 7942 Columns: 7
@@ -177,23 +196,6 @@ I import the report in R as `HGDP_report` and I add the column
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    ## # A tibble: 7,942 × 8
-    ##    study_accession sample_acce…¹ exper…² run_a…³ read_…⁴ base_…⁵ sampl…⁶ read_…⁷
-    ##    <chr>           <chr>         <chr>   <chr>     <dbl>   <dbl> <chr>     <dbl>
-    ##  1 PRJEB6463       SAMEA2580809  ERX132… ERR125…  8.40e7 1.27e10 HGDP00…     151
-    ##  2 PRJEB6463       SAMEA2580910  ERX132… ERR125…  6.83e7 1.03e10 HGDP00…     151
-    ##  3 PRJEB6463       SAMEA2580921  ERX132… ERR125…  7.51e7 1.13e10 HGDP00…     151
-    ##  4 PRJEB6463       SAMEA2580929  ERX132… ERR125…  7.36e7 1.11e10 HGDP00…     151
-    ##  5 PRJEB6463       SAMEA2580937  ERX132… ERR125…  7.38e7 1.11e10 HGDP00…     151
-    ##  6 PRJEB6463       SAMEA2580945  ERX132… ERR125…  8.66e7 1.31e10 HGDP01…     151
-    ##  7 PRJEB6463       SAMEA2580957  ERX132… ERR125…  7.08e7 1.07e10 HGDP01…     151
-    ##  8 PRJEB6463       SAMEA2580969  ERX132… ERR125…  7.14e7 1.08e10 HGDP01…     151
-    ##  9 PRJEB6463       SAMEA2580981  ERX132… ERR125…  6.67e7 1.01e10 HGDP01…     151
-    ## 10 PRJEB6463       SAMEA2580992  ERX132… ERR125…  7.36e7 1.11e10 HGDP01…     151
-    ## # … with 7,932 more rows, and abbreviated variable names ¹​sample_accession,
-    ## #   ²​experiment_accession, ³​run_accession, ⁴​read_count, ⁵​base_count,
-    ## #   ⁶​sample_alias, ⁷​read_length
 
 First I wanted to check if the dataset used for my data analysis was
 still complete respect to the original one, so I compared the number of
@@ -260,3 +262,398 @@ out_rl <- filter(HGDPcutoff, type == "te", ID %in% out_rl_names)
 
 The samples are distributed among 9 different populations, confirming
 the non significance of these outliers on the final results.
+
+## Coverage of the aligned reads by position
+
+Another possible problem that may create some artefacts in the data is
+the sequence coverage by position: a TE copynumber may be overestimated
+if only a small portion of the consensus sequence has many reads
+aligned, while the rest of the sequence being at low coverage. To test
+for this, I downloaded 5/828 samples (randomly) to check the coverage
+for some of the most interesting TEs. The files has extension *.bed.gz*
+and can be downloaded from
+<https://sourceforge.net/p/human-te-dynamics/data/HEAD/tree/raw-data/>,
+divided among the folders **flo_vetgrid** and **ro_vetgrid**.
+
+``` r
+bedfile1 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/HGDP00001-Brahui.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1585579 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+bedfile2 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/HGDP00052-Balochi.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1523078 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+bedfile3 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/HGDP00099-Hazara.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1623633 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+bedfile4 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/HGDP00130-Makrani.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1546697 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+bedfile5 <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/HGDP00163-Sindhi.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1602132 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+Then I wrote this function to plot the coverage for a set of TEs
+(`familynames`) in an individual (`data`). The other arguments are
+purely for visualization (to include/exclude title, scale and ticks on
+the two axes).
+
+``` r
+plot_bed <- function(data, familynames, x_title, y_title, x_numbers, y_numbers){
+
+  bed <- filter(data, familyname %in% familynames)
+
+  ggplot(bed)+
+    geom_segment(aes(x=start_pos, xend=end_pos, y=coverage, yend=coverage))+
+    ylab("Coverage") + xlab("Base number") +
+    ggtitle(paste0(familynames)) + theme(plot.title = element_text(size = 8, hjust = 0.5)) +
+    {if(x_title=='n'){
+    theme(axis.title.x=element_blank())}} +
+    {if(y_title=='n'){
+    theme(axis.title.y=element_blank())}} +
+    {if(x_numbers=='n'){
+    theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())}} +
+    {if(y_numbers=='n'){
+    theme(axis.text.y=element_blank(), axis.ticks.y=element_blank())}}
+}
+```
+
+This second function put together the plots created with the first
+function in a single figure. To change the TEs investigated, change the
+names here in this function.
+
+``` r
+create_figure_mix <- function(file){
+  
+  scg <- plot_bed(file, "chr1:916864-921016_scg", 'n', 'n', 'n', 'n')
+  L2 <- plot_bed(file, "L2_te", 'n', 'n', 'n', 'n')
+  L1PB1 <- plot_bed(file, "L1PB1_te", 'n', 'n', 'n', 'n')
+  L1ME5 <- plot_bed(file, "L1ME5_te", 'n', 'n', 'n', 'n')
+  L1PA7_5 <- plot_bed(file, "L1PA7_5_te", 'n', 'n', 'n', 'n')
+  ALU <- plot_bed(file, "ALU_te", 'n', 'n', 'n', 'n')
+  SVA_A <- plot_bed(file, "SVA_A_te", 'n', 'n', 'n', 'n')
+  MER2 <- plot_bed(file, "MER2_te", 'n', 'n', 'n', 'n')
+  MLT2A1 <- plot_bed(file, "MLT2A1_te", 'n', 'n', 'n', 'n')
+  
+  bed_figure <- ggarrange(scg, L2, L1PB1, L1ME5, L1PA7_5, ALU, SVA_A, MER2, MLT2A1, ncol = 3, nrow = 3, common.legend = TRUE, legend = "top", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+  bed_final <- annotate_figure(bed_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), fig.lab = "")
+}
+```
+
+Here I use the 2 functions to create 5 figures for 5 individuals
+previously downloaded for a set of chosen sequences. I choose to
+include:
+
+- A **single copy gene** as a control (`chr1:916864-921016_scg`).
+- An **ancient** TE, expected to be inactive in the human genome (`L2`).
+- 3 **L1 TEs** previously noticed to show interesting geographical
+  distributions (`L1PB1`, `L1ME5`, `L1PA7_5`).
+- 2 **SINEs**, `ALU` and `SVA_A` known to be active humans and with
+  interesting geographical distributions.
+- A **DNA transposon** which showed an interesting geographical
+  distribution (`MER2`)
+- An **endogenous retrovirus** which showed an interesting geographical
+  distribution (`MLT2A1`)
+
+I removed the last 2 figures because they didn’t show other interesting
+patterns.
+
+``` r
+# File 1: HGDP00001-Brahui.per-base.bed.gz
+(create_figure_mix(bedfile1))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+# File 2: HGDP00052-Balochi.per-base.bed.gz
+(create_figure_mix(bedfile2))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+# File 3: HGDP00099-Hazara.per-base.bed.gz
+(create_figure_mix(bedfile3))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
+# File 4: HGDP00130-Makrani.per-base.bed.gz
+#(create_figure_mix(bedfile4))
+
+# File 5: HGDP00163-Sindhi.per-base.bed.gz
+#(create_figure_mix(bedfile5))
+```
+
+Note that each plot has is own scale. What we can say from this plot is
+that all the analyzed sequences show similar coverage distributions
+between different individuals, with the exception of `L1ME5_te`. This
+the shows a “**spiked**” pattern is some individuals (2, 3) and a
+“**dashed**” pattern in others (1).
+
+I wonder how we can explain this patterns. To check if it’s related to
+**sex** or to **population** or to both, I checked the coverage
+distribution for `L1ME5` in 6 different populations, represented by 1
+individuals per sex each, for a total of 12 individuals. I choose the 6
+populations across the different continents:
+
+- `Yoruba` from **Africa**
+- `French` from **Europe**
+- `Maya` from **America**
+- `PapuanSepik` from **Oceania**
+- `Japanese` from **East Asia**
+- `Kalash` from **Central Asia**
+
+``` r
+# Yoruba
+yoruba_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00929-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1598233 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+yoruba_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00920-Yoruba.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1578086 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# French
+french_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00511-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1569668 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+french_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00513-French.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1605551 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# Maya
+maya_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00856-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1578810 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+maya_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00854-Maya.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1697676 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# PapuanSepik
+papuansepik_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00540-PapuanSepik.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1571394 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+papuansepik_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00544-PapuanSepik.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1584494 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# Japanese
+japanese_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00747-Japanese.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1490655 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+japanese_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00754-Japanese.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1513894 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+# Kalash
+kalash_m <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00277-Kalash.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1548214 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+kalash_f <- read_tsv("/Users/rpianezza/TE/coverage_validation/data/by_pop/HGDP00274-Kalash.per-base.bed.gz", col_names = c("familyname", "start_pos", "end_pos", "coverage"))
+```
+
+    ## Rows: 1619198 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): familyname
+    ## dbl (3): start_pos, end_pos, coverage
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+m_L1ME5_yoruba <- plot_bed(yoruba_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba")
+m_L1ME5_french <- plot_bed(french_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French")
+m_L1ME5_maya <- plot_bed(maya_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya")
+m_L1ME5_papuan <- plot_bed(papuansepik_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("PapuanSepik")
+m_L1ME5_japanese <- plot_bed(japanese_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Japanese")
+m_L1ME5_kalash <- plot_bed(kalash_m, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Kalash")
+
+m_pop_figure <- ggarrange(m_L1ME5_yoruba, m_L1ME5_french, m_L1ME5_maya, m_L1ME5_papuan, m_L1ME5_japanese, m_L1ME5_kalash, ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop_final <- annotate_figure(m_pop_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Males", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+f_L1ME5_yoruba <- plot_bed(yoruba_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba")
+f_L1ME5_french <- plot_bed(french_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("French")
+f_L1ME5_maya <- plot_bed(maya_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Maya")
+f_L1ME5_papuan <- plot_bed(papuansepik_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("PapuanSepik")
+f_L1ME5_japanese <- plot_bed(japanese_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Japanese")
+f_L1ME5_kalash <- plot_bed(kalash_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Kalash")
+
+f_pop_figure <- ggarrange(f_L1ME5_yoruba, f_L1ME5_french, f_L1ME5_maya, f_L1ME5_papuan, f_L1ME5_japanese, f_L1ME5_kalash, ncol = 3, nrow = 2, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop_final <- annotate_figure(f_pop_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Females", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+The **dashed** pattern is private to **Africans (m/f)**, **Oceanians
+(m/f)** and to **American males**, while **American females** show the
+**spiked** pattern, together with all the other samples.
+
+I think it’s interesting: despite that this weird coverage distribution
+is probably invalidating some of our results on `L1ME5`, what we see
+here further suggest genetic similarities among **Africa** and
+**Oceania**. About the **Americans** this plots suggest that they in
+some way inherited some variants on the **Y chromosome** private to
+**Africans** and **Oceanians**, while their **X chromosome** is more
+close to **Eurasians**.
