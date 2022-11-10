@@ -925,5 +925,40 @@ f_pop3_figure <- ggarrange(f1_L1ME5_yoruba, f2_L1ME5_yoruba, f3_L1ME5_yoruba, f1
 
 ![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
+``` r
+m1_L1PB1_yoruba <- plot_bed(yoruba_m1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+m2_L1PB1_yoruba <- plot_bed(yoruba_m2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+m3_L1PB1_yoruba <- plot_bed(yoruba_m3, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+m1_L1PB1_french <- plot_bed(french_m1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 1")
+m2_L1PB1_french <- plot_bed(french_m2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 2")
+m3_L1PB1_french <- plot_bed(french_m3, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 3")
+m1_L1PB1_maya <- plot_bed(maya_m1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+m2_L1PB1_maya <- plot_bed(maya_m2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+
+m_pop3_L1PB1 <- ggarrange(m1_L1PB1_yoruba, m2_L1PB1_yoruba, m3_L1PB1_yoruba, m1_L1PB1_french, m2_L1PB1_french, m3_L1PB1_french, m1_L1PB1_maya,  m2_L1PB1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop3_L1PB1_final <- annotate_figure(m_pop3_L1PB1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1PB1 - Males", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
+f1_L1PB1_yoruba <- plot_bed(yoruba_f1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+f2_L1PB1_yoruba <- plot_bed(yoruba_f2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+f3_L1PB1_yoruba <- plot_bed(yoruba_f3, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+f1_L1PB1_french <- plot_bed(french_f1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 1")
+f2_L1PB1_french <- plot_bed(french_f2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 2")
+f3_L1PB1_french <- plot_bed(french_f3, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("French 3")
+f1_L1PB1_maya <- plot_bed(maya_f1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+f2_L1PB1_maya <- plot_bed(maya_f2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+f3_L1PB1_maya <- plot_bed(maya_f2, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Maya 3")
+
+f_pop3_L1PB1 <- ggarrange(f1_L1PB1_yoruba, f2_L1PB1_yoruba, f3_L1PB1_yoruba, f1_L1PB1_french, f2_L1PB1_french, f3_L1PB1_french, f1_L1PB1_maya,  f2_L1PB1_maya, f3_L1PB1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop3_L1PB1_final <- annotate_figure(f_pop3_L1PB1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1PB1 - Females", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+
 I conclude that the pattern previously observed are consistent among the
 different individuals composing the populations.

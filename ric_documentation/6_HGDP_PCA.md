@@ -174,6 +174,46 @@ increased for both the plots and both axes.
 
 # PCA for different RepSeq families
 
+``` r
+classification_tot <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/other-files/repbase_classification.txt", col_names = c("familyname", "superfamily", "shared_with"))
+```
+
+    ## Rows: 1386 Columns: 3
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (3): familyname, superfamily, shared_with
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+families_in_HGDP <- filter(HGDPcutoff, type=="te") %>% distinct(familyname) %>% pull()
+
+classification <- filter(classification_tot, familyname %in% families_in_HGDP)
+
+(HGDP_class <- inner_join(HGDPcutoff, classification, by="familyname"))
+```
+
+    ## # A tibble: 799,020 × 12
+    ##    ID      Pop   sex   Country type  famil…¹ length  reads copyn…² batch super…³
+    ##    <chr>   <chr> <chr> <chr>   <chr> <chr>    <dbl>  <dbl>   <dbl> <chr> <chr>  
+    ##  1 HGDP00… Brah… male  Centra… te    LTR65      669 1.10e3 6.57e+0 ro    ERV1   
+    ##  2 HGDP00… Brah… male  Centra… te    HERVK3I   7242 3.89e4 2.15e+1 ro    ERV2   
+    ##  3 HGDP00… Brah… male  Centra… te    HERV9     8399 3.12e5 1.49e+2 ro    ERV1   
+    ##  4 HGDP00… Brah… male  Centra… te    L1PA12…   3072 6.41e4 8.36e+1 ro    L1     
+    ##  5 HGDP00… Brah… male  Centra… te    LTR27C     767 3.13e3 1.63e+1 ro    ERV1   
+    ##  6 HGDP00… Brah… male  Centra… te    LTR16A1    457 4.14e2 3.63e+0 ro    ERV3   
+    ##  7 HGDP00… Brah… male  Centra… te    Tigger…    933 9.32e0 4.01e-2 ro    Marine…
+    ##  8 HGDP00… Brah… male  Centra… te    LTR23      437 7.70e3 7.06e+1 ro    ERV1   
+    ##  9 HGDP00… Brah… male  Centra… te    X32_DNA    336 4.38e1 5.22e-1 ro    Marine…
+    ## 10 HGDP00… Brah… male  Centra… te    LTR53      519 1.36e3 1.05e+1 ro    ERV3   
+    ## # … with 799,010 more rows, 1 more variable: shared_with <chr>, and abbreviated
+    ## #   variable names ¹​familyname, ²​copynumber, ³​superfamily
+
+``` r
+#write_tsv(HGDP_class, "HGDP_cutoff_classified.tsv", col_names = TRUE)
+```
+
 This part of the code is work in progress. My idea was to give a bit of
 context to each RepSeq in the dataset, adding a column with the family
 of the sequence. Anyway, I did not find a way to do that apart from
@@ -190,8 +230,6 @@ list_nonLTR <- c("ALINE", "ALU", "CR1_Mam", "HAL1", "HAL1B", "HAL1M8", "IN25", "
 
 list_simple_repeats <- c('ALR', 'ALR_', 'ALR1', 'ALR2', 'ALRa', 'ALRa_', 'ALRb', 'BSRf', 'CER', 'GSAT', 'GSATII', 'GSATX', 'HSATI', 'HSATII', 'LSAU', 'MSR1', 'REP522', 'SATR1', 'SATR2', 'SN5', 'SVA2', 'TAR1')
 
-#list_ERV <- c('ERV24_Prim', 'ERV24B_Prim', 'ERV3-16A3_I', 'ERV3-16A3_LTR', 'ERVL', 'ERVL-B4', 'ERVL-E', 'ERVL47', 'EUTREP10', 'EUTREP13', 'HARLEQUIN', 'HARLEQUINLTR', 'HERV-K14CI', 'HERV-K14I', 'HERV1_LTR', 'HERV15I', 'HERV16', 'HERV17', 'HERV18', 'HERV19I', 'HERV23', 'HERV3', 'HERV30I', 'HERV35I', 'HERV38I', 'HERV39', 'HERV4_I', 'HERV4_LTR', 'HERV46I', 'HERV49I', 'HERV52I', 'HERV57I', 'HERV9', 'HERVE', 'HERVFH19I', 'HERVFH21I', 'HERVG25', 'HERVH', 'HERVH48I', 'HERVI', 'HERVIP10F', 'HERVIP10FH', 'HERVK', 'HERVK11DI', 'HERVK11I', 'HERVK13I', 'HERVK22I', 'HERVK3I', 'HERVK9I', 'HERVK9I', 'HERVKC4', 'HERVL', 'HERVL_40', 'HERVL66I', 'HERVL68', 'HERVL74', 'HERVP71A_I', 'HERVS71', 'HUERS-P1', 'HUERS-P2', 'HUERS-P3', 'HUERS-P3B', 'LOR1', 'LOR1a_LTR', 'LOR1b_LTR', 'LOR1I', 'LTR06', 'LTR1', 'LTR108d_Mam', 'LTR108e_Mam', 'LTR10A', 'LTR10B', 'LTR10B1', 'LTR10B2', 'LTR10C', 'LTR10D', 'LTR10E', 'LTR10F', 'LTR10G', 'LTR12', 'LTR12B', 'LTR12C', 'LTR12D', 'LTR12E', 'LTR12F', 'LTR13', 'LTR13A', 'LTR14', 'LTR14A', 'LTR14B', 'LTR14C', 'LTR15', 'LTR16', 'LTR16A', 'LTR16A1', 'LTR16A2', 'LTR16B', 'LTR16B1', 'LTR16B2', 'LTR16C', 'LTR16D', 'LTR16D1', 'LTR16D2', 'LTR16E', 'LTR16E1', 'LTR16E2', 'LTR17', 'LTR18A', 'LTR18B', 'LTR18C', 'LTR19A', 'LTR19B', 'LTR19C', 'LTR1A1', 'LTR1A2', 'LTR1B', 'LTR1B0', 'LTR1B1', 'LTR1C', 'LTR1C2', 'LTR1C3', 'LTR1D', 'LTR1D1', 'LTR1E', 'LTR1F', 'LTR1F1', 'LTR1F2', 'LTR2', 'LTR21A', 'LTR21B', 'LTR21C', 'LTR22', 'LTR22A', 'LTR22B', 'LTR22B1', 'LTR22B2', 'LTR22C', 'LTR22C2', 'LTR22E', 'LTR23', 'LTR24', 'LTR24B', 'LTR24C', 'LTR25', 'LTR25-int', 'LTR26', 'LTR26B', 'LTR26C', 'LTR26D', 'LTR26E', 'LTR27', 'LTR2752', 'LTR27B', 'LTR27C', 'LTR27D', 'LTR27E', 'LTR28', 'LTR28B', 'LTR28C', 'LTR29', 'LTR2B', 'LTR2C', 'LTR3', 'LTR30', 'LTR31', 'LTR32', 'LTR33', 'LTR33A', 'LTR33B', 'LTR33C', 'LTR34', 'LTR35', 'LTR35A', 'LTR35B', 'LTR36', 'LTR37-int', 'LTR37A', 'LTR37B', 'LTR38', 'LTR38A1', 'LTR38B', 'LTR38C', 'LTR39', 'LTR3A', 'LTR3B', 'LTR4', 'LTR40A', 'LTR40A1', 'LTR40B', 'LTR40C', 'LTR41', 'LTR41B', 'LTR41C', 'LTR42', 'LTR43', 'LTR43_I', 'LTR43B', 'LTR44', 'LTR45', 'LTR45B', 'LTR45C', 'LTR46', 'LTR47A', 'LTR47A2', 'LTR47B', 'LTR47B2', 'LTR47B3', 'LTR47B4', 'LTR48', 'LTR48B', 'LTR49', 'LTR5', 'LTR5_Hs', 'LTR50', 'LTR51', 'LTR52', 'LTR53', 'LTR53-int', 'LTR53B', 'LTR54', 'LTR54B', 'LTR55', 'LTR56', 'LTR57', 'LTR58', 'LTR59', 'LTR5A', 'LTR5B', 'LTR60', 'LTR60B', 'LTR61', 'LTR62', 'LTR64', 'LTR65', 'LTR66', 'LTR67B', 'LTR68', 'LTR69', 'LTR6A', 'LTR6B', 'LTR70', 'LTR71A', 'LTR71B', 'LTR72', 'LTR72B', 'LTR73', 'LTR75', 'LTR75_1', 'LTR75B', 'LTR76', 'LTR77', 'LTR77B', 'LTR78', 'LTR78B', 'LTR79', 'LTR7A', 'LTR7B', 'LTR7C', 'LTR7Y', 'LTR8', 'LTR80A', 'LTR80B', 'LTR81A', 'LTR81AB', 'LTR82A', 'LTR82B', 'LTR83', 'LTR84a', 'LTR84b', 'LTR86A1', 'LTR86A2', 'LTR86B2', 'LTR87', 'LTR8A', 'LTR8B', 'LTR9', 'LTR9A1', 'LTR9B', 'LTR9C', 'LTR9D', 'LTR1C1', 'MER101', 'MER101_I', 'MER101B', 'MER110', 'MER110A', 'MER110I', 'MER11A', 'MER11B', 'MER11C', 'MER11D', 'MER21', 'MER21A', 'MER21B', 'MER21C', 'MER21C_BT', 'MER21I', 'MER31', 'MER31_I', 'MER31A', 'MER31B', 'MER34', 'MER34-int', 'MER34A', 'MER34A1', 'MER34B', 'MER34B_I', 'MER34C', 'MER34C2', 'MER34D', 'MER39', 'MER39B', 'MER41A', 'MER41B', 'MER41C', 'MER41D', 'MER41E', 'MER41F', 'MER41G', 'MER41I', 'MER48', 'MER4BI', 'MER4C', 'MER4CL34', 'MER4D', 'MER4D_LTR', 'MER4D1', 'MER4E', 'MER4E1', 'MER4I', 'MER50', 'MER50B', 'MER50C', 'MER50I', 'MER51A', 'MER51B', 'MER51C', 'MER51D', 'MER51E', 'MER51I', 'MER52A', 'MER52AI', 'MER52B', 'MER52C', 'MER52D', 'MER54A', 'MER54B', 'MER57A_I', 'MER57A1', 'MER57B1', 'MER57B2', 'MER57C1', 'MER57C2', 'MER57D', 'MER57E1', 'MER57E2', 'MER57E3', 'MER57F', 'MER57I', 'MER61A', 'MER61B', 'MER61C', 'MER61D', 'MER61E', 'MER61F', 'MER61I', 'MER65A', 'MER65B', 'MER65C', 'MER65D', 'MER65I', 'MER66_I', 'MER66A', 'MER66B', 'MER66C', 'MER66D', 'MER67A', 'MER67B', 'MER67C', 'MER67D', 'MER68_I', 'MER68A', 'MER68B', 'MER68C', 'MER70_I', 'MER70A', 'MER70B', 'MER70C', 'MER72', 'MER72B', 'MER73', 'MER74', 'MER74A', 'MER74B', 'MER74C', 'MER76', 'MER76-int', 'MER77', 'MER83', 'MER83AI', 'MER83B', 'MER83BI', 'MER83C', 'MER84', 'MER84I', 'MER87', 'MER87B', 'MER88', 'MER89', 'MER89I', 'MER9', 'MER90', 'MER90a_LTR', 'MER92A', 'MER92B', 'MER92C', 'MER93', 'MER95', 'MER9B', 'MLT-int', 'MLT1_I', 'MLT1A0', 'MLT1A1', 'MLT1B', 'MLT1C', 'MLT1C1', 'MLT1C2', 'MLT1D', 'MLT1E', 'MLT1E1', 'MLT1E1A', 'MLT1E2', 'MLT1F', 'MLT1F_I', 'MLT1F1', 'MLT1F2', 'MLT1G', 'MLT1G1', 'MLT1G2', 'MLT1G3', 'MLT1H', 'MLT1H_I', 'MLT1H1', 'MLT1H2', 'MLT1I', 'MLT1J', 'MLT1J-int', 'MLT1J1', 'MLT1J2', 'MLT1K', 'MLT1L', 'MLT1M', 'MLT1N2', 'MLT1O', 'MLT2A1', 'MLT2A2', 'MLT2B2', 'MLT2B3', 'MLT2B4', 'MLT2C2', 'MLT2D', 'MLT2E', 'MLT2F', 'MST_I')
-
 list_non_classified <- c('Eutr1', 'Eutr10', 'Eutr11', 'Eutr12', 'Eutr13', 'Eutr14', 'Eutr15', 'Eutr16', 'Eutr18', 'Eutr2', 'Eutr4', 'Eutr5', 'Eutr6', 'EUTREP11', 'EUTREP12', 'EUTREP14', 'EUTREP15', 'EUTREP2', 'EUTREP5', 'EUTREP6', 'EUTREP7', 'EUTREP8', 'MamRep564', 'MamRep605', 'MER35', 'MER122', 'MER124', 'UCON103', 'UCON105', 'UCON106', 'UCON32', 'UCON33', 'UCON38', 'UCON40', 'UCON43', 'UCON44', 'UCON45', 'UCON46', 'UCON47', 'UCON48', 'UCON53', 'UCON54', 'UCON63', 'UCON64', 'UCON65', 'UCON72', 'UCON75', 'UCON76', 'UCON84', 'UCON89', 'UCON93', 'UCON96')
 
 #(TE_list <- filter(HGDPcutoff, type=='te', !(familyname %in% list_ERV), !(familyname %in% list_DNA), !(familyname %in% list_LTR), !(familyname %in% list_nonLTR), !(familyname %in% list_simple_repeats), !(familyname %in% list_non_classified)) %>% distinct(familyname) %>% arrange(familyname))
@@ -202,21 +240,21 @@ nonLTR <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_nonLTR)
 PCA(nonLTR, "Non-LTR retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 DNA <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_DNA)
 PCA(DNA, "DNA transposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 simple_repeats <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_simple_repeats)
 PCA(simple_repeats, "Simple repeats")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 I notice that the pattern previously described is evident in **non-LTR
 retrotransposons** as well as in **DNA transposons**, but not in
@@ -229,14 +267,14 @@ L1 <- subset(HGDPcutoff, type=="te") %>% filter(grepl("L1", familyname))
 PCA(L1, "LINE-1 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 L2 <- subset(HGDPcutoff, type=="te") %>% filter(grepl("L2|L3|L4",familyname))
 PCA(L2, "LINE-2/3/4 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 ``` r
 #SINEs <- subset(HGDPcutoff, type=="te") %>% filter(grepl("ALU|SVA_A", familyname))
@@ -270,21 +308,21 @@ HGDP_mod <- HGDPcutoff %>% mutate(Country = replace(Country, Country == 'Central
 PCA(HGDP_mod, "All the repetitive sequences")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 L1_mod <- subset(HGDP_mod, type=="te") %>% filter(grepl("L1", familyname))
 PCA(L1_mod, "LINE-1 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 nonLTR_mod <- subset(HGDP_mod, type=="te") %>% filter(familyname %in% list_nonLTR)
 PCA(nonLTR_mod, "Non-LTR retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-3.png)<!-- -->
+![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
 
 I notice that the `Bougainville` **females** always fall inside the
 ellipse of the **americans** and are far away in the plot to the
