@@ -26,13 +26,13 @@ The python script takes as arguments:
 
 <!-- -->
 
-    python /Users/rpianezza/TE/human-te-dynamics-svn/scripts/create-reads-for-human.py --fasta /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta --coverage 150 --read-length 150 --output /Users/rpianezza/TE/cross-mapping/reads.fastq --method uniform
+    python /Users/rpianezza/TE/human-te-dynamics-svn/scripts/create-reads-for-human.py --fasta /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta --coverage 150 --read-length 150 --output /Users/rpianezza/TE/cross-mapping/reads.fastq.gz --method uniform
 
 After creating the reads, I aligned them on the reference library using
 `bwa mem`. Subsequently, I split the output file (`cross.sam`) into
 `metadata` (the first lines) and `data`.
 
-    bwa mem /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta /Users/rpianezza/TE/cross-mapping/reads.fastq > /Users/rpianezza/TE/cross-mapping/cross.sam
+    bwa mem /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta /Users/rpianezza/TE/cross-mapping/reads.fastq.gz > /Users/rpianezza/TE/cross-mapping/cross.sam
 
     less /Users/rpianezza/TE/cross-mapping/cross.sam | grep '@' | >/Users/rpianezza/TE/cross-mapping/cross.metadata.sam
     less /Users/rpianezza/TE/cross-mapping/cross.sam | grep -v '@' | >/Users/rpianezza/TE/cross-mapping/cross.data.sam
@@ -275,3 +275,70 @@ crossmapped_te_names <- filter(cross_matrix, percentage > 25) %>% select(qname)
 
 crossmapped_te <- c("CHARLIE2A","CHARLIE2B","CHARLIE8A","FORDPREFECT_A","GOLEM_A","L1PA3","MER1A","MER44A","MER44C","MER44D", "MER63C", "MER69B", "MER6A", "MER70A", "MER70B", "MER80", "MER97A", "MER97B", "MER97C", "Tigger2b_Pri", "Tigger3b", "Tigger3c", "TIGGER5_A", "TIGGER5_B")
 ```
+
+## Cross-mapping of ALU reads
+
+One possible source of contamination could be cross-mapping of `ALU`.
+This is the most numerous TE in humans, with copynumbers in the order of
+magnitude of 10^5. To check this, I created reads from the ALU consensus
+sequence and mapped them to the whole reference library. I increased the
+coverage from 150 to 150000, a number of ALU which is in line with the
+one observed in one genome.
+
+    less /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta | grep -A 1 'ALU' > /Users/rpianezza/TE/cross-mapping/alu.fasta
+
+    python /Users/rpianezza/TE/human-te-dynamics-svn/scripts/create-reads-for-human.py --fasta /Users/rpianezza/TE/cross-mapping/alu.fasta  --coverage 150000 --read-length 150 --output /Users/rpianezza/TE/cross-mapping/alu_reads.fastq.gz --method uniform
+
+    bwa mem /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta /Users/rpianezza/TE/cross-mapping/alu_reads.fastq.gz > /Users/rpianezza/TE/cross-mapping/alu_cross.sam
+
+    less /Users/rpianezza/TE/cross-mapping/alu_cross.sam | grep '@' | >/Users/rpianezza/TE/cross-mapping/alu_cross.metadata.sam
+
+    less /Users/rpianezza/TE/cross-mapping/alu_cross.sam | grep -v '@' | >/Users/rpianezza/TE/cross-mapping/alu_cross.data.sam
+
+Despite the very high number of reads generated, none is mapping to the
+wrong TE. We can thus exclude ALU contamination to be one of the source
+of contamination in our dataset.
+
+``` r
+ALU <- read_tsv("/Users/rpianezza/TE/cross-mapping/alu_cross.data.sam", col_names=c("qname", "flag", "rname", "pos", "mapq", "cigar", "mrnm", "mpos", "isize", "seq"))
+```
+
+    ## Rows: 162000 Columns: 15
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (10): qname, rname, cigar, mrnm, seq, X11, X12, X13, X14, X15
+    ## dbl  (5): flag, pos, mapq, mpos, isize
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+(ALU_mapped <- ALU  %>% filter(!(rname == "*")) %>% separate(qname, c("qname", "qnumber"), sep = ":"))
+```
+
+    ## # A tibble: 162,000 × 16
+    ##    qname  qnumber  flag rname    pos  mapq cigar mrnm   mpos isize seq     X11  
+    ##    <chr>  <chr>   <dbl> <chr>  <dbl> <dbl> <chr> <chr> <dbl> <dbl> <chr>   <chr>
+    ##  1 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  2 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  3 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  4 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  5 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  6 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  7 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  8 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ##  9 ALU_te 0           0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ## 10 ALU_te 0/10        0 ALU_te     1    60 150M  *         0     0 GGCCGG… IIII…
+    ## # … with 161,990 more rows, and 4 more variables: X12 <chr>, X13 <chr>,
+    ## #   X14 <chr>, X15 <chr>
+
+``` r
+ALU_unmapped <- aligned %>% filter(rname == "*")
+
+(crossed_ALU <- filter(ALU_mapped, !(rname == qname)))
+```
+
+    ## # A tibble: 0 × 16
+    ## # … with 16 variables: qname <chr>, qnumber <chr>, flag <dbl>, rname <chr>,
+    ## #   pos <dbl>, mapq <dbl>, cigar <chr>, mrnm <chr>, mpos <dbl>, isize <dbl>,
+    ## #   seq <chr>, X11 <chr>, X12 <chr>, X13 <chr>, X14 <chr>, X15 <chr>
