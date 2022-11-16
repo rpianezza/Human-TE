@@ -1,6 +1,10 @@
 HGDP - KRAB-ZNF
 ================
 
+In this script I will use the analysis previously established for TE to
+look at the KRAB-ZNF proteins copynumber in the dataset. These proteins
+are known to be one of the main host defense against TEs.
+
 ``` r
 library(tidyverse)
 ```
@@ -33,6 +37,12 @@ HGDPcutoff<-read_delim("/Users/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_ref
 names(HGDPcutoff)<-c("ID","pop","sex","Country","type","familyname","length","reads","copynumber","batch")
 ```
 
+## Select the most variable KRAB-ZNF
+
+I first create a dataset with `min`, `max`, and `mean` copynumber of
+each KRAB. Then, I filter for the most variable KRABs (`diff>1`) and I
+plot the selected KRABs in a boxplot.
+
 ``` r
 KRAB_ZNF <- filter(HGDPcutoff, type == "krab") %>% group_by(familyname) %>% summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
 
@@ -47,6 +57,11 @@ ggplot(KRAB_outliers, aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F) +
 ```
 
 ![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+## Plot the copynumber distribution and the geographic distribution of the copynumbers
+
+Then I plot the **copynumber distribution** of the 3 most variable
+KRABs, dividing the colours by continent.
 
 ``` r
 plotTEfamily <- function(data, famname, binwidht, x_title, y_title, x_numbers, y_numbers){
@@ -83,11 +98,14 @@ ggplot(data = filtered, mapping = aes(x = copynumber, fill = Country)) +
 
 ![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
-``` r
-(a_ZNF138_5_plot<-plotTEfamily(KRAB_outliers, 'a_ZNF658_2', 0.3, 'y', 'y', 'y', 'y'))
-```
+I notice that in the first 2 KRABs (`a_ZNF138_5` and `a_ZNF718_1`) we
+have the **africans**, the **oceanians** and the **native americans** in
+the left part (low copynumber). This look promising, so I plot the
+geographical distribution of the copynumbers grouping by population.
 
-![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
+Note that, differently from what I did for the TEs, I do not divide the
+dataset between males and females. This is because I did not notice
+significant differences among the two sexes about the KRAB copynumbers.
 
 ``` r
 coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude"))
@@ -155,8 +173,26 @@ plot_map(data, "a_ZNF844_1")
 
 ![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
+## Linear regressions
+
+For the first 2 KRABs, I see a pattern that reflect the pattern of lot
+of interesting TEs (few TE in africans, oceanians, americans, lots in
+eurasians). The third KRAB do not show a particular geographic pattern.
+
+To confirm this correlations, I then check for a linear correlation
+between the copynumber of the most interesting TEs and the KRABs
+copynumber.
+
+To complete the figures, I add `L1PA16` (another interesting L1) and a
+**single copy gene** (`chr1:916864-921016`) as negative control.
+
 ``` r
 KRAB_TE_regression <- function(data, TE, KRAB, r){
+  
+  # data = the sync file, final output of the pipeline or a subset of it
+  # TE, KRAB = the names of the two (es. "ALU")
+  # r = y coordinate where the R^2 value is gonna be print on the plots
+  
   TE_data <- data %>% filter(familyname==TE) %>% select(ID, copynumber, Country)
   KRAB_data <- data %>% filter(familyname==KRAB) %>% select(ID, copynumber, Country)
   
@@ -171,6 +207,7 @@ KRAB_TE_regression <- function(data, TE, KRAB, r){
 ```
 
 ``` r
+# KRAB = a_ZNF138_5
 L1PB_138 <- KRAB_TE_regression(HGDPcutoff, "L1PB1", "a_ZNF138_5", 15)
 L1PA16_138 <- KRAB_TE_regression(HGDPcutoff, "L1PA16", "a_ZNF138_5", 15)
 L1PA_138 <- KRAB_TE_regression(HGDPcutoff, "L1PA7_5", "a_ZNF138_5", 15)
@@ -197,6 +234,7 @@ scg_138 <- KRAB_TE_regression(HGDPcutoff, "chr1:916864-921016", "a_ZNF138_5", 15
 ![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
+# KRAB = a_ZNF718_1
 L1PB_718 <- KRAB_TE_regression(HGDPcutoff, "L1PB1", "a_ZNF718_1", 9)
 L1PA16_718 <- KRAB_TE_regression(HGDPcutoff, "L1PA16", "a_ZNF718_1", 9)
 L1PA_718 <- KRAB_TE_regression(HGDPcutoff, "L1PA7_5", "a_ZNF718_1", 9)
@@ -220,7 +258,7 @@ scg_718 <- KRAB_TE_regression(HGDPcutoff, "chr1:916864-921016", "a_ZNF718_1", 9)
     ## `geom_smooth()` using formula 'y ~ x'
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 L1PB_844 <- KRAB_TE_regression(HGDPcutoff, "L1PB1", "a_ZNF844_1", 5)
@@ -246,4 +284,26 @@ scg_844 <- KRAB_TE_regression(HGDPcutoff, "chr1:916864-921016", "a_ZNF844_1", 5)
     ## `geom_smooth()` using formula 'y ~ x'
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](10_HGDP_KRAB-ZNF_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+For the first two KRABs we have a nice correlation with their
+copynumbers and the copynumber of: `L1PB1`, `L1PA16`, `ALU`, `MER2` and
+`MLT2A1`. The third one can be used as negative control since no
+transposon shows a significant correlation with it.
+
+We do not expect `L1PA7_5` to have a correlation with the two KRABs,
+because this TE is showing a reverse geographical distribution compared
+to the others.
+
+## Controls
+
+### Coverage
+
+The coverages for all three the KRABs are analyzed in script 5. Their
+coverage distribution is not even, but it’s not showing substantial
+differences between individuals, populations or sexes.
+
+### Cross-mapping
+
+There are some KRABs which have few cross-mapped reads (see script 8),
+but the 3 analyzed here have zero.

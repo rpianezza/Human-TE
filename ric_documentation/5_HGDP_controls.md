@@ -960,5 +960,76 @@ f_pop3_L1PB1 <- ggarrange(f1_L1PB1_yoruba, f2_L1PB1_yoruba, f3_L1PB1_yoruba, f1_
 
 ![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
-I conclude that the pattern previously observed are consistent among the
-different individuals composing the populations.
+I conclude that the patterns previously observed are consistent among
+the different individuals composing the populations.
+
+Now I want to check the scale of the plots to see if the different
+patterns may be explained like this.
+
+``` r
+m1_L1ME5_yoruba <- plot_bed(yoruba_m1, "L1ME5_te", 'n', 'n', 'y', 'y') + ggtitle("Yoruba male")
+m1_L1ME5_french <- plot_bed(french_m1, "L1ME5_te", 'n', 'n', 'y', 'y') + ggtitle("French male") + ylim(0,50)
+f1_L1ME5_yoruba <- plot_bed(yoruba_f1, "L1ME5_te", 'n', 'n', 'y', 'y') + ggtitle("Yoruba female")
+f1_L1ME5_french <- plot_bed(french_f1, "L1ME5_te", 'n', 'n', 'y', 'y') + ggtitle("French female") + ylim(0,50)
+
+L1ME5_scale <- ggarrange(m1_L1ME5_yoruba, m1_L1ME5_french, f1_L1ME5_yoruba, f1_L1ME5_french, ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+```
+
+    ## Warning: Removed 68 rows containing missing values (geom_segment).
+
+    ## Warning: Removed 78 rows containing missing values (geom_segment).
+
+    ## Warning: Removed 68 rows containing missing values (geom_segment).
+
+    ## Warning: Removed 78 rows containing missing values (geom_segment).
+
+``` r
+(L1ME5_scale_final <- annotate_figure(L1ME5_scale, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5", color = "black"), fig.lab = ""))
+```
+
+![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+By setting 50 as limit for the y-axis, the patterns are not so different
+anymore. I conclude that the main difference is given by a short
+sequence, mapping around positions 250-300 of the L1ME5 reference
+sequence and which coverage is enormously different among populations.
+Now I want to get the exact positions of the interesting sequence.
+
+Thus, I select for the positions in which the **coverage** is `> 1000`.
+The sequence is around **30 bases long** and it’s spanning between
+positions `274-311`.
+
+``` r
+filter(french_m1, familyname == "L1ME5_te") %>% filter(coverage>1000)
+```
+
+    ## # A tibble: 31 × 4
+    ##    familyname start_pos end_pos coverage
+    ##    <chr>          <dbl>   <dbl>    <dbl>
+    ##  1 L1ME5_te         274     275     1092
+    ##  2 L1ME5_te         275     276     1158
+    ##  3 L1ME5_te         276     277     1218
+    ##  4 L1ME5_te         277     278     1240
+    ##  5 L1ME5_te         278     279     1247
+    ##  6 L1ME5_te         279     280     1214
+    ##  7 L1ME5_te         280     281     1532
+    ##  8 L1ME5_te         281     282     4011
+    ##  9 L1ME5_te         282     283     4037
+    ## 10 L1ME5_te         283     284     4073
+    ## # … with 21 more rows
+
+``` r
+L1ME5_fullsequence <- "ctaaggaaagaattaaaaaaagtacaaaaatatatattcaagaattttcatttcaatattggntttaaaacaataaaatatttggaaacaatctaaatgtctaataatgggagaataaataaattatagtatatctataaaataaaatattatatagctattaaaawtatatttttaaaaaatatttaatgatataaaaaaatntttataatataatattaaataaaaaaaataaattataaaattatatatataatataattttatatnttaaatatataatatatatataaatatatatatatatatatnaaataaaaaaaaaagactgaaaggaaatatacaccaaaatgttaacagtggttatctctgggtggtgggattataggtgatttttatttttttttttttttttatattttctgtattttctaaattttttntaaattttctacaataaatatgtattacttttataatcagaaaaaaaataaaaataataaaaat"
+
+str_sub(L1ME5_fullsequence, start = 274, end = 311) %>% toupper()
+```
+
+    ## [1] "AATATATAATATATATATAAATATATATATATATATAT"
+
+Aligning the sequence with BLAST did not produce any result. Probably
+the sequence is too short for this. This question remains: why it is
+present in `Maya` **females** but not in the **males**? Could it be a
+**mtDNA** variant which was absent from Africans and then evolved in
+Eurasians and in some way spread into America? This would explain the
+pattern in Maya, but not in Eurasians (see `French`) in which this
+variant is present in both sexes.
