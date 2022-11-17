@@ -145,49 +145,49 @@ do not look of particular interest.
 plotTEfamily(TE, 'male', "L1MA4", 1, 'y', 'y', 'y', 'y') 
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'female', "L1MA4", 1, 'y', 'y', 'y', 'y')
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'male', "L1PA13", 1, 'y', 'y', 'y', 'y') 
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'female', "L1PA13", 1, 'y', 'y', 'y', 'y')
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'male', "L1MA1", 1, 'y', 'y', 'y', 'y') 
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'female', "L1MA1", 1, 'y', 'y', 'y', 'y')
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-6.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-6.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'male', "L1MA3", 1, 'y', 'y', 'y', 'y') 
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-7.png)<!-- -->
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-7.png)<!-- -->
 
 ``` r
 plotTEfamily(TE, 'female', "L1MA3", 1, 'y', 'y', 'y', 'y')
 ```
 
-![](3_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-8.png)<!-- --> It
+![](03_HGDP_Other_TEs_files/figure-gfm/unnamed-chunk-6-8.png)<!-- --> It
 may be interesting a comprehensive analysis of all **L1s**?
 
 ### Filter 2
@@ -249,7 +249,7 @@ Lastly, I filtered for TEs with a `max > 1`, to remove all these TEs
 with superlow copynumber.
 
 ``` r
-gaps <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/gaps.csv")
+gaps <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/other-files/gaps.csv")
 ```
 
     ## Rows: 1967 Columns: 3

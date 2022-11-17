@@ -173,7 +173,7 @@ plot_map(data, "L1PB1")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 plot_map(data, "L1PA3")
@@ -181,7 +181,7 @@ plot_map(data, "L1PA3")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ``` r
 plot_map(data, "L1ME5")
@@ -189,7 +189,7 @@ plot_map(data, "L1ME5")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
 
 The similarity among these TEs distributions is striking:
 
@@ -237,7 +237,7 @@ plot_map(data, "L1PA7_5")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 In `L1PA7_5`, the abundance distribution looks reversed to the one
 previously observed. We have **subsaharian africans** with high
@@ -253,6 +253,136 @@ we have two hypothesis to test:
 - The **archaic humans** “gave back” to them the African high copynumber
   parts of the genome.
 
+### Other LINEs
+
+``` r
+plot_map(data, "L1PA4")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+plot_map(data, "L1")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+plot_map(data, "L1PREC1")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA16")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA6")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-5.png)<!-- -->
+
+``` r
+plot_map(data, "L1HS")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-6.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA7")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-7.png)<!-- -->
+
+``` r
+plot_map(data, "L1PB2c")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-8.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA10")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-9.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA8")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-10.png)<!-- -->
+
+``` r
+plot_map(data, "L1PREC2")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-11.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA15")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-12.png)<!-- -->
+
+``` r
+plot_map(data, "L1P_MA2")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-13.png)<!-- -->
+
+``` r
+plot_map(data, "L1MC1")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-14.png)<!-- -->
+
+``` r
+plot_map(data, "L1PB2")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-15.png)<!-- -->
+
+``` r
+plot_map(data, "L1PB4")
+```
+
+    ## Warning: Ignoring unknown aesthetics: x, y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-16.png)<!-- -->
+
 ### SINEs
 
 ``` r
@@ -261,7 +391,7 @@ plot_map(data, "ALU")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 plot_map(data, "SVA_A")
@@ -269,7 +399,7 @@ plot_map(data, "SVA_A")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 Also for these two SINEs, we have a distribution consistent with the
 previous LINEs. Again, we have some interesting **Oceanians**.
@@ -289,7 +419,7 @@ plot_map(data, "MER2")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 We notice the same pattern also for the only DNA transposon analysed
 here, `MER2`.
@@ -302,7 +432,7 @@ plot_map(data, "MLT2A1")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 plot_map(data, "HERVI")
@@ -310,7 +440,7 @@ plot_map(data, "HERVI")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
 For `MLT2A1`, we have a pattern super consistent with the most common
 previously described. Instead, `HERVI` shows something different. Looks
@@ -325,7 +455,7 @@ plot_map(data, "GSATII")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 The only idea I have about why we see this distribution also in a
 satellite may be the fact that they are known to arise from TEs
@@ -367,7 +497,7 @@ plot_map(data, 'MER63C')
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 plot_map(data, "CHARLIE1A")
@@ -375,7 +505,7 @@ plot_map(data, "CHARLIE1A")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 We see **low variance**, as expected. On the other hand, we still see
 specific geographic distributions, with **Eurasia** having the
@@ -398,7 +528,7 @@ plot_map(data, "L2")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 plot_map(data, 'L2B')
@@ -406,7 +536,7 @@ plot_map(data, 'L2B')
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](4_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 Here we see both **low variance** and no particular distribution, as
 expected.

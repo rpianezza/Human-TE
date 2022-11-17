@@ -84,7 +84,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Males
 
@@ -99,7 +99,7 @@ ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Details for each relevant TE
 
@@ -297,13 +297,13 @@ f_L1_final <- annotate_figure(f_L1_figure, left = text_grob("Count", color = "bl
 f_L1_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 m_L1_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 What do we understand from these plots? I try to summarize my ideas:
 
@@ -382,13 +382,13 @@ f_L1_Y_final <- annotate_figure(f_L1_Y_figure, left = text_grob("Count", color =
 f_L1_Y_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 m_L1_Y_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 - First, I notice that, even if these sequences were not included in the
   female subset, their absolute variance is very close to 200.
@@ -410,13 +410,13 @@ The most variant sequences found in the dataset is, not suprisingly,
 (mALU_plot<-plotTEfamily(males, 'Males', 'ALU', 750, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 (fALU_plot<-plotTEfamily(females, 'Females', 'ALU', 1000, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 Also for `ALU`, we see the same **bimodal** pattern already present in
 some L1 families. We also see a **sex-specific** pattern: for the
@@ -433,13 +433,13 @@ highest absolute variance: `SVA_A`.
 (mSVA_A_plot<-plotTEfamily(males, 'Males', 'SVA_A', 8, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 (fSVA_A_plot<-plotTEfamily(females, 'Females', 'SVA_A', 10, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 Also here we see a **bimodal** distribution with **africans** on the
 left side of the distribution. I also notice the same pattern
@@ -457,13 +457,13 @@ The only **DNA transposons** present in the dataset are `MER2` and
 (mMER2_plot<-plotTEfamily(males, 'Males', 'MER2', 8, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 (fMER2_plot<-plotTEfamily(females, 'Females', 'MER2', 8, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 Again, **bimodal** distribution with the same **africans-OOU** and
 **males-females** pattern.
@@ -472,13 +472,13 @@ Again, **bimodal** distribution with the same **africans-OOU** and
 (mTIGGER1_plot<-plotTEfamily(males, 'Males', 'TIGGER1', 10, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 (fTIGGER1_plot<-plotTEfamily(females, 'Females', 'TIGGER1', 10, 'y', 'y', 'y', 'y'))
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 I do not notice anything interesting in this pattern. It makes sense to
 me because we expect DNA transposons to be much more stable than
@@ -541,13 +541,13 @@ f_ERV3_final <- annotate_figure(f_ERV3_figure, left = text_grob("Count", color =
 f_ERV3_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 m_ERV3_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
 
 We see 8/9 distributions close to a **normal**, and 1/9 **bimodal**
 (`MLT2A1`). In the `MLT2A1` distribution we do notice the usual pattern
@@ -628,13 +628,13 @@ f_SAT_final <- annotate_figure(f_SAT_figure, left = text_grob("Count", color = "
 f_SAT_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 m_SAT_final
 ```
 
-![](1_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](01_HGDP_Absolute-TEvariation_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
 I notice only **normal** distributions. Is there something interesting
 here?

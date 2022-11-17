@@ -97,7 +97,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 Now we have a dataset containing only the TEs with the highest
 differences in abundance between minimum and maximum value.
@@ -115,7 +115,7 @@ ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ## Details for each relevant TE
 
@@ -200,13 +200,13 @@ distribution in the two datasets.
 (mL1ME5_plot<-plotTEfamily(males, 'Males', 'L1ME5', 0.5, 'y', 'y', 'y', 'y'))
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 (fL1ME5_plot<-plotTEfamily(females, 'Females', 'L1ME5', 0.5, 'y', 'y', 'y', 'y'))
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 **Sex distribution**: we notice a clear separation in both sexes between
 low copynumber and high copynumber individuals. Relatively to the
@@ -239,13 +239,13 @@ invasion.
 (mAmnSINE1_HS_plot<-plotTEfamily(males, 'Males', 'AmnSINE1_HS', 0.1, 'y', 'y', 'y', 'y'))
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 (fAmnSINE1_HS_plot<-plotTEfamily(females, 'Females', 'AmnSINE1_HS', 0.1, 'y', 'y', 'y', 'y'))
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 This sequence entered the dataset only for 1 outliers, seen in the male
 plot from `Central South Asia`. I think this is not interesting.
@@ -280,13 +280,13 @@ f_ERV_final <- annotate_figure(f_ERV_figure, left = text_grob("Count", color = "
 f_ERV_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 m_ERV_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 For **HERVI**, we see something against the tide. The african
 individuals are not in the lower-copynumber part of the distribution,
@@ -333,13 +333,13 @@ f_DNA_final <- annotate_figure(f_DNA_figure, left = text_grob("Count", color = "
 f_DNA_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 m_DNA_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 The copynumber for these 3 DNA transposons is not changing that much. I
 can only note that the **africans** are always less abundant in the
@@ -384,13 +384,13 @@ f_NI_final <- annotate_figure(f_NI_figure, fUCON75_plot, left = text_grob("Count
 f_NI_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 m_NI_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 Their copynumber is not changing that much. I don’t think these are
 relevant in our analysis.
 
@@ -423,13 +423,13 @@ f_SAT_final <- annotate_figure(f_SAT_figure, fUCON75_plot, left = text_grob("Cou
 f_SAT_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ``` r
 m_SAT_final
 ```
 
-![](2_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
+![](02_HGDP_Relative-TEvariation_files/figure-gfm/unnamed-chunk-17-2.png)<!-- -->
 
 - `TAR1`: **africans** are, as always, in the left part of the plot. We
   can also notice some individuals from `Middle East` with high
