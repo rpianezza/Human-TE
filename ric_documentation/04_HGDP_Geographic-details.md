@@ -27,7 +27,8 @@ library(tidyverse)
     ## ✖ dplyr::lag()    masks stats::lag()
 
 ``` r
-library("ggpubr")
+library(ggpubr)
+library(forcats)
 
 HGDPcutoff <- read_delim("/Users/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt",comment="#")
 ```
@@ -79,31 +80,31 @@ by `sex`. I use the function `inner_join` to add `latitude` and
 `longitude` to the initial dataset.
 
 ``` r
-by_pop <- group_by(TE, pop, familyname, sex) %>% summarise(copynumber = mean(copynumber), count=n())
+by_pop <- group_by(TE, pop, country, familyname, sex) %>% summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
 ```
 
-    ## `summarise()` has grouped output by 'pop', 'familyname'. You can override using
-    ## the `.groups` argument.
+    ## `summarise()` has grouped output by 'pop', 'country', 'familyname'. You can
+    ## override using the `.groups` argument.
 
 ``` r
 data <- inner_join(x = coord, y = by_pop, by = "pop")
 data
 ```
 
-    ## # A tibble: 94,570 × 7
-    ##    pop    latitude longitude familyname sex    copynumber count
-    ##    <chr>     <dbl>     <dbl> <chr>      <chr>       <dbl> <int>
-    ##  1 Adygei       44        39 6kbHsap    female    324.        9
-    ##  2 Adygei       44        39 6kbHsap    male      325.        6
-    ##  3 Adygei       44        39 ALINE      female      0.148     9
-    ##  4 Adygei       44        39 ALINE      male        0.117     6
-    ##  5 Adygei       44        39 ALR        female  33669.        9
-    ##  6 Adygei       44        39 ALR        male    30977.        6
-    ##  7 Adygei       44        39 ALR_       female  78781.        9
-    ##  8 Adygei       44        39 ALR_       male    75401.        6
-    ##  9 Adygei       44        39 ALR1       female  74650.        9
-    ## 10 Adygei       44        39 ALR1       male    70058.        6
-    ## # … with 94,560 more rows
+    ## # A tibble: 94,570 × 9
+    ##    pop    latitude longitude country familyname sex           sd copynum…¹ count
+    ##    <chr>     <dbl>     <dbl> <chr>   <chr>      <chr>      <dbl>     <dbl> <int>
+    ##  1 Adygei       44        39 Europe  6kbHsap    female   36.4      324.        9
+    ##  2 Adygei       44        39 Europe  6kbHsap    male     52.4      325.        6
+    ##  3 Adygei       44        39 Europe  ALINE      female    0.0240     0.148     9
+    ##  4 Adygei       44        39 Europe  ALINE      male      0.0204     0.117     6
+    ##  5 Adygei       44        39 Europe  ALR        female 3200.     33669.        9
+    ##  6 Adygei       44        39 Europe  ALR        male   5231.     30977.        6
+    ##  7 Adygei       44        39 Europe  ALR_       female 5256.     78781.        9
+    ##  8 Adygei       44        39 Europe  ALR_       male   4910.     75401.        6
+    ##  9 Adygei       44        39 Europe  ALR1       female 5306.     74650.        9
+    ## 10 Adygei       44        39 Europe  ALR1       male   8910.     70058.        6
+    ## # … with 94,560 more rows, and abbreviated variable name ¹​copynumber
 
 We are now ready to analyze the geographic distribution of the most
 interesting TE. I first create a function which I will use to plot each
@@ -121,7 +122,7 @@ ggplot() +
     color = "white", fill = "lightgray", size = 0) +
   geom_point(
     data = TE, aes(longitude, latitude, color = copynumber, size = count)
-  ) + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~sex) + ggtitle(famname)}
 ```
 
@@ -256,132 +257,23 @@ we have two hypothesis to test:
 ### Other LINEs
 
 ``` r
-plot_map(data, "L1PA4")
+#plot_map(data, "L1PA4")
+#plot_map(data, "L1")
+#plot_map(data, "L1PREC1")
+#plot_map(data, "L1PA16")
+#plot_map(data, "L1PA6")
+#plot_map(data, "L1HS")
+#plot_map(data, "L1PA7")
+#plot_map(data, "L1PB2c")
+#plot_map(data, "L1PA10")
+#plot_map(data, "L1PA8")
+#plot_map(data, "L1PREC2")
+#plot_map(data, "L1PA15")
+#plot_map(data, "L1P_MA2")
+#plot_map(data, "L1MC1")
+#plot_map(data, "L1PB2")
+#plot_map(data, "L1PB4")
 ```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
-``` r
-plot_map(data, "L1")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
-
-``` r
-plot_map(data, "L1PREC1")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA16")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA6")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-5.png)<!-- -->
-
-``` r
-plot_map(data, "L1HS")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-6.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA7")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-7.png)<!-- -->
-
-``` r
-plot_map(data, "L1PB2c")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-8.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA10")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-9.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA8")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-10.png)<!-- -->
-
-``` r
-plot_map(data, "L1PREC2")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-11.png)<!-- -->
-
-``` r
-plot_map(data, "L1PA15")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-12.png)<!-- -->
-
-``` r
-plot_map(data, "L1P_MA2")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-13.png)<!-- -->
-
-``` r
-plot_map(data, "L1MC1")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-14.png)<!-- -->
-
-``` r
-plot_map(data, "L1PB2")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-15.png)<!-- -->
-
-``` r
-plot_map(data, "L1PB4")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-16.png)<!-- -->
 
 ### SINEs
 
@@ -540,3 +432,64 @@ plot_map(data, 'L2B')
 
 Here we see both **low variance** and no particular distribution, as
 expected.
+
+## Copynumber standard deviation by population
+
+Closely related to the previous analysis there is the standard deviation
+by population for each TE.
+
+``` r
+plot_cn_sd <- function(data, TE, ylimits){
+singleTE = filter(data, familyname==TE) %>% arrange(sex, copynumber)
+ggplot(singleTE, aes(reorder(pop, copynumber), copynumber, fill=country))+
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=copynumber-sd, ymax=copynumber+sd), alpha=0.5)+
+  facet_wrap(~sex) + ggtitle(TE) + ylab("Mean copynumber") + xlab("Population") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)) + coord_cartesian(ylim=ylimits) +
+  theme(plot.title = element_text(hjust = 0.5))
+}
+
+plot_cn_sd(data, "L1PB1", c(950, 1450))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "L1PA7_5", c(1700, 2200))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "ALU", c(150000, 220000))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "SVA_A", c(1750, 2150))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "MER2", c(700, 950))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-5.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "MLT2A1", c(900, 1350))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-6.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "L2", c(5, 11))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-7.png)<!-- -->
+
+We see that the SD are sometimes very consistent. Nevertheless, I think
+that the trend is still clear among all the analyzed TEs, with some
+populations being less reliable than others.
