@@ -144,7 +144,7 @@ PCA(HGDPcutoff, "All the repetitive sequences")
 
     ## Loading required package: grid
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 - **Africans** are clearly separated from the others.
 - **Eurasians**, which comprehend `Europe`, `Middle_East`,
@@ -166,7 +166,7 @@ Scripts 1-2.
 PCA(most_variable, "Most variable repetitive sequences")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 Filtering for the most variable sequences does not change the figure so
 much. I only notice that the percentage of **explained variability** has
@@ -240,21 +240,21 @@ nonLTR <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_nonLTR)
 PCA(nonLTR, "Non-LTR retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 DNA <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_DNA)
 PCA(DNA, "DNA transposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
 ``` r
 simple_repeats <- subset(HGDPcutoff, type=="te") %>% filter(familyname %in% list_simple_repeats)
 PCA(simple_repeats, "Simple repeats")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
 
 I notice that the pattern previously described is evident in **non-LTR
 retrotransposons** as well as in **DNA transposons**, but not in
@@ -267,14 +267,14 @@ L1 <- subset(HGDPcutoff, type=="te") %>% filter(grepl("L1", familyname))
 PCA(L1, "LINE-1 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 L2 <- subset(HGDPcutoff, type=="te") %>% filter(grepl("L2|L3|L4",familyname))
 PCA(L2, "LINE-2/3/4 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 ``` r
 #SINEs <- subset(HGDPcutoff, type=="te") %>% filter(grepl("ALU|SVA_A", familyname))
@@ -308,21 +308,21 @@ HGDP_mod <- HGDPcutoff %>% mutate(Country = replace(Country, Country == 'Central
 PCA(HGDP_mod, "All the repetitive sequences")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 L1_mod <- subset(HGDP_mod, type=="te") %>% filter(grepl("L1", familyname))
 PCA(L1_mod, "LINE-1 retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 nonLTR_mod <- subset(HGDP_mod, type=="te") %>% filter(familyname %in% list_nonLTR)
 PCA(nonLTR_mod, "Non-LTR retrotransposons")
 ```
 
-![](6_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
 
 I notice that the `Bougainville` **females** always fall inside the
 ellipse of the **americans** and are far away in the plot to the
