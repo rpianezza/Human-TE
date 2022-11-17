@@ -109,13 +109,13 @@ the most interesting.
 (ro_L1ME5_plot<-plotTEfamily(HGDPcutoff, 'L1ME5', 'ro', 1, 'y', 'y', 'y', 'y'))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 (flo_L1ME5_plot<-plotTEfamily(HGDPcutoff, 'L1ME5', 'flo', 1, 'y', 'y', 'y', 'y'))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
 coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("Pop", "region", "latitude", "longitude"))
@@ -159,7 +159,7 @@ flo_data <- inner_join(x = coord, y = flo_by_pop, by = "Pop")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 (flo_L1ME5_map<-plot_map(flo_data, 'L1ME5', 'flo'))
@@ -167,7 +167,7 @@ flo_data <- inner_join(x = coord, y = flo_by_pop, by = "Pop")
 
     ## Warning: Ignoring unknown aesthetics: x, y
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 I do not notice significant differences among the two batches, in
 neither of the two figures.
@@ -411,21 +411,21 @@ patterns.
 (create_figure_mix(bedfile1))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 # File 2: HGDP00052-Balochi.per-base.bed.gz
 (create_figure_mix(bedfile2))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 ``` r
 # File 3: HGDP00099-Hazara.per-base.bed.gz
 (create_figure_mix(bedfile3))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
 
 ``` r
 # File 4: HGDP00130-Makrani.per-base.bed.gz
@@ -629,7 +629,7 @@ m_pop_figure <- ggarrange(m_L1ME5_yoruba, m_L1ME5_french, m_L1ME5_maya, m_L1ME5_
 (m_pop_final <- annotate_figure(m_pop_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Males", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 f_L1ME5_yoruba <- plot_bed(yoruba_f, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba")
@@ -644,7 +644,7 @@ f_pop_figure <- ggarrange(f_L1ME5_yoruba, f_L1ME5_french, f_L1ME5_maya, f_L1ME5_
 (f_pop_final <- annotate_figure(f_pop_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Females", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
 
 The **dashed** pattern is private to **Africans (m/f)**, **Oceanians
 (m/f)** and to **American males**, while **American females** show the
@@ -905,7 +905,7 @@ m_pop3_figure <- ggarrange(m1_L1ME5_yoruba, m2_L1ME5_yoruba, m3_L1ME5_yoruba, m1
 (m_pop3_final <- annotate_figure(m_pop3_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Males", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 f1_L1ME5_yoruba <- plot_bed(yoruba_f1, "L1ME5_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
@@ -923,7 +923,7 @@ f_pop3_figure <- ggarrange(f1_L1ME5_yoruba, f2_L1ME5_yoruba, f3_L1ME5_yoruba, f1
 (f_pop3_final <- annotate_figure(f_pop3_figure, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5 - Females", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
 
 ``` r
 m1_L1PB1_yoruba <- plot_bed(yoruba_m1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
@@ -940,7 +940,7 @@ m_pop3_L1PB1 <- ggarrange(m1_L1PB1_yoruba, m2_L1PB1_yoruba, m3_L1PB1_yoruba, m1_
 (m_pop3_L1PB1_final <- annotate_figure(m_pop3_L1PB1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1PB1 - Males", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 f1_L1PB1_yoruba <- plot_bed(yoruba_f1, "L1PB1_te", 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
@@ -958,7 +958,7 @@ f_pop3_L1PB1 <- ggarrange(f1_L1PB1_yoruba, f2_L1PB1_yoruba, f3_L1PB1_yoruba, f1_
 (f_pop3_L1PB1_final <- annotate_figure(f_pop3_L1PB1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1PB1 - Females", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->
 
 I conclude that the patterns previously observed are consistent among
 the different individuals composing the populations.
@@ -987,7 +987,7 @@ L1ME5_scale <- ggarrange(m1_L1ME5_yoruba, m1_L1ME5_french, f1_L1ME5_yoruba, f1_L
 (L1ME5_scale_final <- annotate_figure(L1ME5_scale, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("L1ME5", color = "black"), fig.lab = ""))
 ```
 
-![](5_HGDP_controls_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 By setting 50 as limit for the y-axis, the patterns are not so different
 anymore. I conclude that the main difference is given by a short
@@ -1033,3 +1033,113 @@ present in `Maya` **females** but not in the **males**? Could it be a
 Eurasians and in some way spread into America? This would explain the
 pattern in Maya, but not in Eurasians (see `French`) in which this
 variant is present in both sexes.
+
+### KRAB-ZNF coverage
+
+``` r
+KRAB = "a_ZNF138_5_krab"
+m1_a_ZNF138_5_yoruba <- plot_bed(yoruba_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+m2_a_ZNF138_5_yoruba <- plot_bed(yoruba_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+m3_a_ZNF138_5_yoruba <- plot_bed(yoruba_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+m1_a_ZNF138_5_french <- plot_bed(french_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+m2_a_ZNF138_5_french <- plot_bed(french_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+m3_a_ZNF138_5_french <- plot_bed(french_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+m1_a_ZNF138_5_maya <- plot_bed(maya_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+m2_a_ZNF138_5_maya <- plot_bed(maya_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+
+m_pop3_a_ZNF138_5 <- ggarrange(m1_a_ZNF138_5_yoruba, m2_a_ZNF138_5_yoruba, m3_a_ZNF138_5_yoruba, m1_a_ZNF138_5_french, m2_a_ZNF138_5_french, m3_a_ZNF138_5_french, m1_a_ZNF138_5_maya,  m2_a_ZNF138_5_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop3_a_ZNF138_5_final <- annotate_figure(m_pop3_a_ZNF138_5, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF138_5 - Males", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+``` r
+f1_a_ZNF138_5_yoruba <- plot_bed(yoruba_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+f2_a_ZNF138_5_yoruba <- plot_bed(yoruba_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+f3_a_ZNF138_5_yoruba <- plot_bed(yoruba_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+f1_a_ZNF138_5_french <- plot_bed(french_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+f2_a_ZNF138_5_french <- plot_bed(french_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+f3_a_ZNF138_5_french <- plot_bed(french_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+f1_a_ZNF138_5_maya <- plot_bed(maya_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+f2_a_ZNF138_5_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+f3_a_ZNF138_5_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 3")
+
+f_pop3_a_ZNF138_5 <- ggarrange(f1_a_ZNF138_5_yoruba, f2_a_ZNF138_5_yoruba, f3_a_ZNF138_5_yoruba, f1_a_ZNF138_5_french, f2_a_ZNF138_5_french, f3_a_ZNF138_5_french, f1_a_ZNF138_5_maya,  f2_a_ZNF138_5_maya, f3_a_ZNF138_5_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop3_a_ZNF138_5_final <- annotate_figure(f_pop3_a_ZNF138_5, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF138_5 - Females", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
+
+``` r
+KRAB = "a_ZNF718_1_krab"
+m1_a_ZNF718_1_yoruba <- plot_bed(yoruba_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+m2_a_ZNF718_1_yoruba <- plot_bed(yoruba_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+m3_a_ZNF718_1_yoruba <- plot_bed(yoruba_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+m1_a_ZNF718_1_french <- plot_bed(french_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+m2_a_ZNF718_1_french <- plot_bed(french_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+m3_a_ZNF718_1_french <- plot_bed(french_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+m1_a_ZNF718_1_maya <- plot_bed(maya_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+m2_a_ZNF718_1_maya <- plot_bed(maya_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+
+m_pop3_a_ZNF718_1 <- ggarrange(m1_a_ZNF718_1_yoruba, m2_a_ZNF718_1_yoruba, m3_a_ZNF718_1_yoruba, m1_a_ZNF718_1_french, m2_a_ZNF718_1_french, m3_a_ZNF718_1_french, m1_a_ZNF718_1_maya,  m2_a_ZNF718_1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop3_a_ZNF718_1_final <- annotate_figure(m_pop3_a_ZNF718_1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF718_1 - Males", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+``` r
+f1_a_ZNF718_1_yoruba <- plot_bed(yoruba_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+f2_a_ZNF718_1_yoruba <- plot_bed(yoruba_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+f3_a_ZNF718_1_yoruba <- plot_bed(yoruba_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+f1_a_ZNF718_1_french <- plot_bed(french_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+f2_a_ZNF718_1_french <- plot_bed(french_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+f3_a_ZNF718_1_french <- plot_bed(french_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+f1_a_ZNF718_1_maya <- plot_bed(maya_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+f2_a_ZNF718_1_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+f3_a_ZNF718_1_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 3")
+
+f_pop3_a_ZNF718_1 <- ggarrange(f1_a_ZNF718_1_yoruba, f2_a_ZNF718_1_yoruba, f3_a_ZNF718_1_yoruba, f1_a_ZNF718_1_french, f2_a_ZNF718_1_french, f3_a_ZNF718_1_french, f1_a_ZNF718_1_maya,  f2_a_ZNF718_1_maya, f3_a_ZNF718_1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop3_a_ZNF718_1_final <- annotate_figure(f_pop3_a_ZNF718_1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF718_1 - Females", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->
+
+``` r
+KRAB = "a_ZNF844_1_krab"
+m1_a_ZNF844_1_yoruba <- plot_bed(yoruba_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+m2_a_ZNF844_1_yoruba <- plot_bed(yoruba_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+m3_a_ZNF844_1_yoruba <- plot_bed(yoruba_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+m1_a_ZNF844_1_french <- plot_bed(french_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+m2_a_ZNF844_1_french <- plot_bed(french_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+m3_a_ZNF844_1_french <- plot_bed(french_m3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+m1_a_ZNF844_1_maya <- plot_bed(maya_m1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+m2_a_ZNF844_1_maya <- plot_bed(maya_m2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+
+m_pop3_a_ZNF844_1 <- ggarrange(m1_a_ZNF844_1_yoruba, m2_a_ZNF844_1_yoruba, m3_a_ZNF844_1_yoruba, m1_a_ZNF844_1_french, m2_a_ZNF844_1_french, m3_a_ZNF844_1_french, m1_a_ZNF844_1_maya,  m2_a_ZNF844_1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(m_pop3_a_ZNF844_1_final <- annotate_figure(m_pop3_a_ZNF844_1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF844_1 - Males", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+``` r
+f1_a_ZNF844_1_yoruba <- plot_bed(yoruba_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 1")
+f2_a_ZNF844_1_yoruba <- plot_bed(yoruba_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 2")
+f3_a_ZNF844_1_yoruba <- plot_bed(yoruba_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Yoruba 3")
+f1_a_ZNF844_1_french <- plot_bed(french_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 1")
+f2_a_ZNF844_1_french <- plot_bed(french_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 2")
+f3_a_ZNF844_1_french <- plot_bed(french_f3, KRAB, 'n', 'n', 'n', 'n') + ggtitle("French 3")
+f1_a_ZNF844_1_maya <- plot_bed(maya_f1, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 1")
+f2_a_ZNF844_1_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 2")
+f3_a_ZNF844_1_maya <- plot_bed(maya_f2, KRAB, 'n', 'n', 'n', 'n') + ggtitle("Maya 3")
+
+f_pop3_a_ZNF844_1 <- ggarrange(f1_a_ZNF844_1_yoruba, f2_a_ZNF844_1_yoruba, f3_a_ZNF844_1_yoruba, f1_a_ZNF844_1_french, f2_a_ZNF844_1_french, f3_a_ZNF844_1_french, f1_a_ZNF844_1_maya,  f2_a_ZNF844_1_maya, f3_a_ZNF844_1_maya, ncol = 3, nrow = 3, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+(f_pop3_a_ZNF844_1_final <- annotate_figure(f_pop3_a_ZNF844_1, left = text_grob("Coverage", color = "black", rot = 90), bottom = text_grob("Base number", color = "black"), top = text_grob("a_ZNF844_1 - Females", color = "black"), fig.lab = ""))
+```
+
+![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-24-2.png)<!-- -->
