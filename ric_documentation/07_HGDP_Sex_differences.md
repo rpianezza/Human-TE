@@ -104,7 +104,7 @@ ggplot(final_data, aes(x=f_mean, y=m_mean, color=more_in))+ labs(color = "More a
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 ggplot(final_data, aes(f_mean_log, m_mean_log, color=more_in))+ labs(color = "More abundant in:") +
@@ -114,7 +114,7 @@ ggplot(final_data, aes(f_mean_log, m_mean_log, color=more_in))+ labs(color = "Mo
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
 
 ## Relative and absolute mean differences between the sexes
 
@@ -133,7 +133,7 @@ ggplot(abs_subset, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in))
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ### Relative differences
 
@@ -147,7 +147,7 @@ ggplot(final_data, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs
   geom_bar(stat="identity") + ylab("Ratio between sex abundances") + xlab("Repetitive sequence families") + theme(axis.text.x=element_blank())
 ```
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 rel_subset<- filter(final_data, ratio>1.25) # This number is arbitrary, feel free to look at more/less TEs in the plot
@@ -157,7 +157,7 @@ ggplot(rel_subset, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ## L1 family differences between the two sexes
 
@@ -176,7 +176,7 @@ ggplot(L1, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in)) + labs(
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4))
 ```
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 (L1_male <- filter(L1, more_in == "male"))
@@ -211,7 +211,7 @@ ggplot(L1_rel, aes(reorder(familyname, -abs(ratio)), ratio, fill=more_in)) + lab
   geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families")
 ```
 
-![](7_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](07_HGDP_Sex_differences_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 If we filter for the L1’s with the highest `ratio` between the two sexes
 copynumber abundances, we find that the most relevant TE is again

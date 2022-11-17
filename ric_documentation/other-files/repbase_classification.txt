@@ -1,0 +1,1386 @@
+(A)n	Simple Repeat	Eukaryota
+(AC)n	Simple Repeat	Eukaryota
+(AG)n	Simple Repeat	Eukaryota
+(AT)n	Simple Repeat	Eukaryota
+(C)n	Simple Repeat	Eukaryota
+(CAA)n	Simple Repeat	Eukaryota
+(CAAA)n	Simple Repeat	Eukaryota
+(CAAAA)n	Simple Repeat	Eukaryota
+(CAAAAA)n	Simple Repeat	Eukaryota
+(CCA)n	Simple Repeat	Eukaryota
+(CCCCA)n	Simple Repeat	Eukaryota
+(CCCCAA)n	Simple Repeat	Eukaryota
+(CCCCCA)n	Simple Repeat	Eukaryota
+(CCCGAA)n	Simple Repeat	Eukaryota
+(CCCTAA)n	Simple Repeat	Eukaryota
+(CCCTCA)n	Simple Repeat	Eukaryota
+(CCTA)n	Simple Repeat	Eukaryota
+(CG)n	Simple Repeat	Eukaryota
+(CGAA)n	Simple Repeat	Eukaryota
+(CGGA)n	Simple Repeat	Eukaryota
+(CTA)n	Simple Repeat	Eukaryota
+(CTCCA)n	Simple Repeat	Eukaryota
+(GAA)n	Simple Repeat	Eukaryota
+(GAAA)n	Simple Repeat	Eukaryota
+(GAAAA)n	Simple Repeat	Eukaryota
+(GAAAAA)n	Simple Repeat	Eukaryota
+(GACA)n	Simple Repeat	Eukaryota
+(GAGACA)n	Simple Repeat	Eukaryota
+(GCA)n	Simple Repeat	Eukaryota
+(GCC)n	Simple Repeat	Eukaryota
+(GCCA)n	Simple Repeat	Eukaryota
+(GCCC)n	Simple Repeat	Eukaryota
+(GCCCA)n	Simple Repeat	Eukaryota
+(GCCCC)n	Simple Repeat	Eukaryota
+(GCCCCA)n	Simple Repeat	Eukaryota
+(GCCCCC)n	Simple Repeat	Eukaryota
+(GCGCA)n	Simple Repeat	Eukaryota
+(GCTCA)n	Simple Repeat	Eukaryota
+(GGA)n	Simple Repeat	Eukaryota
+(GGAA)n	Simple Repeat	Eukaryota
+(GGAGA)n	Simple Repeat	Eukaryota
+(GGAGAA)n	Simple Repeat	Eukaryota
+(GGCA)n	Simple Repeat	Eukaryota
+(GGCCC)n	Simple Repeat	Eukaryota
+(GGGA)n	Simple Repeat	Eukaryota
+(GGGAGA)n	Simple Repeat	Eukaryota
+(GGGGA)n	Simple Repeat	Eukaryota
+(GGGGGA)n	Simple Repeat	Eukaryota
+(TAA)n	Simple Repeat	Eukaryota
+(TAAA)n	Simple Repeat	Eukaryota
+(TAAAA)n	Simple Repeat	Eukaryota
+(TAAAAA)n	Simple Repeat	Eukaryota
+(TAACC)n	Simple Repeat	Eukaryota
+(TACA)n	Simple Repeat	Eukaryota
+(TACAA)n	Simple Repeat	Eukaryota
+(TAGA)n	Simple Repeat	Eukaryota
+(TAGAA)n	Simple Repeat	Eukaryota
+(TATACA)n	Simple Repeat	Eukaryota
+(TCA)n	Simple Repeat	Eukaryota
+(TCAA)n	Simple Repeat	Eukaryota
+(TCACCA)n	Simple Repeat	Eukaryota
+(TCCA)n	Simple Repeat	Eukaryota
+(TCCCA)n	Simple Repeat	Eukaryota
+(TCTAA)n	Simple Repeat	Eukaryota
+(TGAA)n	Simple Repeat	Eukaryota
+(TGGAA)n	Simple Repeat	Eukaryota
+(TGGCCC)n	Simple Repeat	Eukaryota
+(TTAA)n	Simple Repeat	Eukaryota
+(TTAAA)n	Simple Repeat	Eukaryota
+5S	rRNA	Homo sapiens
+6kbHsap	satellite	Homo sapiens
+7SK	Multicopy gene	Homo sapiens
+7SL	Multicopy gene	Homo sapiens
+ACRO1	SAT	Homo sapiens
+ALINE	RTEX	Mammalia
+ALR	SAT	Homo sapiens
+ALR1	SAT	Homo sapiens
+ALR2	SAT	Homo sapiens
+ALRa	SAT	Primates
+ALRa_	SAT	Primates
+ALRb	SAT	Primates
+ALR_	SAT	Primates
+ALU	SINE1/7SL	Primates
+AluJb	SINE1/7SL	Primates
+AluJo	SINE1/7SL	Primates
+AluJr	SINE1/7SL	Primates
+AluJr4	SINE1/7SL	Primates
+AluSc	SINE1/7SL	Primates
+AluSc5	SINE1/7SL	Primates
+AluSc8	SINE1/7SL	Primates
+AluSg	SINE1/7SL	Primates
+AluSg1	SINE1/7SL	Primates
+AluSg4	SINE1/7SL	Primates
+AluSg7	SINE1/7SL	Primates
+AluSp	SINE1/7SL	Primates
+AluSq	SINE1/7SL	Primates
+AluSq10	SINE1/7SL	Primates
+AluSq2	SINE1/7SL	Primates
+AluSq4	SINE1/7SL	Primates
+AluSx	SINE1/7SL	Primates
+AluSx1	SINE1/7SL	Primates
+AluSx3	SINE1/7SL	Primates
+AluSx4	SINE1/7SL	Primates
+AluSz	SINE1/7SL	Primates
+AluSz6	SINE1/7SL	Primates
+AluY	SINE1/7SL	Primates
+AluYa1	SINE1/7SL	Primates
+AluYa4	SINE1/7SL	Primates
+AluYa5	SINE1/7SL	Homo sapiens
+AluYa8	SINE1/7SL	Primates
+AluYb10	SINE1/7SL	Homo sapiens
+AluYb11	SINE1/7SL	Homo sapiens
+AluYb3a1	SINE1/7SL	Primates
+AluYb3a2	SINE1/7SL	Primates
+AluYb8	SINE1/7SL	Homo sapiens
+AluYb8a1	SINE1/7SL	Homo sapiens
+AluYb9	SINE1/7SL	Homo sapiens
+AluYbc3a	SINE1/7SL	Primates
+AluYc1	SINE1/7SL	Primates
+AluYc2	SINE1/7SL	Primates
+AluYc5	SINE1/7SL	Primates
+AluYd2	SINE1/7SL	Primates
+AluYd3	SINE1/7SL	Primates
+AluYd3a1	SINE1/7SL	Primates
+AluYd8	SINE1/7SL	Primates
+AluYe2	SINE1/7SL	Primates
+AluYe5	SINE1/7SL	Primates
+AluYf1	SINE1/7SL	Primates
+AluYf2	SINE1/7SL	Primates
+AluYf5	SINE1/7SL	Primates
+AluYg6	SINE1/7SL	Primates
+AluYh9	SINE1/7SL	Primates
+AluYi6	SINE1/7SL	Primates
+AluYk11	SINE1/7SL	Primates
+AluYk12	SINE1/7SL	Primates
+AluYk13	SINE1/7SL	Homo sapiens
+AmnSINE1_HS	SINE3/5S	Homo sapiens
+BLACKJACK	hAT	Eutheria
+BSR	SAT	Homo sapiens
+BSRa	Satellite	Primates
+BSRb	Satellite	Primates
+BSRd	Satellite	Primates
+BSRf	Satellite	Primates
+CER	SAT	Homo sapiens
+CHARLIE1	hAT	Eutheria
+CHARLIE10	hAT	Homo sapiens
+Charlie11	hAT	Eutheria
+Charlie12	hAT	Primates
+Charlie13a	hAT	Mammalia
+Charlie13b	hAT	Mammalia
+Charlie15a	hAT	Eutheria
+Charlie16a	hAT	Mammalia
+Charlie17a	hAT	Mammalia
+Charlie18a	hAT	Mammalia
+Charlie19a	hAT	Mammalia
+CHARLIE1A	hAT	Eutheria
+CHARLIE1B	hAT	Eutheria
+CHARLIE2	hAT	Eutheria
+Charlie21a	hAT	Eutheria
+Charlie22a	hAT	Mammalia
+Charlie24	hAT	Mammalia
+Charlie25	hAT	Mammalia
+Charlie26a	hAT	Mammalia
+Charlie27	hAT	Eutheria
+Charlie28	hAT	Eutheria
+CHARLIE2A	hAT	Homo sapiens
+CHARLIE2B	hAT	Homo sapiens
+CHARLIE3	hAT	Homo sapiens
+CHARLIE4	hAT	Eutheria
+CHARLIE5	hAT	Homo sapiens
+CHARLIE6	hAT	Homo sapiens
+CHARLIE7	hAT	Homo sapiens
+CHARLIE8	hAT	Homo sapiens
+CHARLIE8A	hAT	Eutheria
+CHARLIE9	hAT	Homo sapiens
+CHESHIRE	hAT	Homo sapiens
+CHESHIRE_A	hAT	Homo sapiens
+CHESHIRE_B	hAT	Homo sapiens
+CR1L	CR1	Vertebrata
+CR1_HS	CR1	Homo sapiens
+CR1_Mam	CR1	Mammalia
+CYCLO	Multicopy gene	Homo sapiens
+D20S16	SAT	Primates
+DeuSINE	SINE3/5S	Deuterostomia
+DNA1_Mam	DNA transposon	Eutheria
+E1	snRNA	Homo sapiens
+E2	snRNA	Homo sapiens
+E3	snRNA	Homo sapiens
+ERV24B_Prim	ERV1	Primates
+ERV24_Prim	ERV1	Primates
+ERV3-16A3_I	ERV3	Homo sapiens
+ERV3-16A3_LTR	ERV3	Homo sapiens
+ERVL	ERV3	Homo sapiens
+ERVL-B4	ERV3	Eutheria
+ERVL-E	ERV3	Eutheria
+ERVL47	ERV3	Primates
+Eulor1	Transposable Element	Amniota
+Eulor10	Transposable Element	Amniota
+Eulor11	Transposable Element	Amniota
+Eulor12	Transposable Element	Amniota
+Eulor12B_CM	Transposable Element	Amniota
+Eulor12_CM	Transposable Element	Amniota
+Eulor2A	Transposable Element	Euteleostomi
+Eulor2B	Transposable Element	Amniota
+Eulor2C	Transposable Element	Amniota
+Eulor3	Transposable Element	Amniota
+Eulor4	Transposable Element	Tetrapoda
+Eulor5A	Crypton	Tetrapoda
+Eulor5B	Crypton	Tetrapoda
+Eulor6A	Crypton	Tetrapoda
+Eulor6B	Crypton	Tetrapoda
+Eulor6C	Crypton	Tetrapoda
+Eulor6D	Crypton	Tetrapoda
+Eulor6E	Crypton	Tetrapoda
+Eulor7	Transposable Element	Amniota
+Eulor8	Transposable Element	Amniota
+Eulor9A	Transposable Element	Amniota
+Eulor9B	Transposable Element	Amniota
+Eulor9C	Transposable Element	Amniota
+EuthAT-1	hAT	Eutheria
+EuthAT-2	hAT	Eutheria
+EuthAT-2B	hAT	Eutheria
+EuthAT-N1	hAT	Eutheria
+Eutr1	Eutr1	Eutheria
+Eutr10	Eutr10	Eutheria
+Eutr11	Eutr11	Eutheria
+Eutr12	Eutr12	Eutheria
+Eutr13	Eutr13	Eutheria
+Eutr14	Eutr14	Eutheria
+Eutr15	Eutr15	Eutheria
+Eutr16	Eutr16	Eutheria
+Eutr17	hAT	Eutheria
+Eutr18	Eutr18	Eutheria
+Eutr2	Eutr2	Eutheria
+Eutr3	Eutr3	Eutheria
+Eutr4	Eutr4	Eutheria
+Eutr5	Eutr5	Eutheria
+Eutr6	Eutr6	Eutheria
+Eutr7	hAT	Eutheria
+Eutr8	hAT	Eutheria
+Eutr9	Eutr9	Eutheria
+EUTREP1	hAT	Eutheria
+EUTREP10	Endogenous Retrovirus	Eutheria
+EUTREP11	EUTREP11	Eutheria
+EUTREP12	EUTREP12	Eutheria
+EUTREP13	Endogenous Retrovirus	Eutheria
+EUTREP14	EUTREP14	Eutheria
+EUTREP15	EUTREP15	Eutheria
+EUTREP16	EUTREP16	Eutheria
+EUTREP2	EUTREP2	Eutheria
+EUTREP3	hAT	Eutheria
+EUTREP4	EUTREP4	Eutheria
+EUTREP5	EUTREP5	Eutheria
+EUTREP6	EUTREP6	Eutheria
+EUTREP7	EUTREP7	Eutheria
+EUTREP8	EUTREP8	Eutheria
+EutTc1-N1	Mariner/Tc1	Eutheria
+FAM	SINE1/7SL	Primates
+FLAM	SINE1/7SL	Primates
+FORDPREFECT	hAT	Homo sapiens
+FORDPREFECT_A	hAT	Homo sapiens
+FRAM	SINE1/7SL	Primates
+GGAAT	SAT	Homo sapiens
+GOLEM	Mariner/Tc1	Eutheria
+GOLEM_A	Mariner/Tc1	Homo sapiens
+GOLEM_B	Mariner/Tc1	Eutheria
+GOLEM_C	Mariner/Tc1	Homo sapiens
+GSAT	SAT	Primates
+GSATII	SAT	Homo sapiens
+GSATX	SAT	Primates
+HAL1	L1	Eutheria
+HAL1B	L1	Homo sapiens
+HAL1M8	L1	Theria
+HARLEQUIN	ERV1	Homo sapiens
+HARLEQUINLTR	ERV1	Homo sapiens
+Helitron1Nb_Mam	Helitron	Eutheria
+Helitron3Na_Mam	Helitron	Mammalia
+HERV-Fc1	ERV1	Hominidae
+HERV-Fc1_LTR1	ERV1	Hominidae
+HERV-Fc1_LTR2	ERV1	Hominidae
+HERV-Fc1_LTR3	ERV1	Hominidae
+HERV-Fc2	ERV1	Hominidae
+HERV-Fc2_LTR	ERV1	Hominidae
+HERV-K14CI	ERV2	Homo sapiens
+HERV-K14I	ERV2	Homo sapiens
+HERV15I	Endogenous Retrovirus	Homo sapiens
+HERV16	ERV3	Homo sapiens
+HERV17	ERV1	Homo sapiens
+HERV18	Endogenous Retrovirus	Homo sapiens
+HERV19I	ERV1	Homo sapiens
+HERV1_I	ERV1	Simiiformes
+HERV1_LTR	Endogenous Retrovirus	Homo sapiens
+HERV1_LTRa	ERV1	Haplorrhini
+HERV1_LTRb	ERV1	Haplorrhini
+HERV1_LTRc	ERV1	Haplorrhini
+HERV1_LTRd	ERV1	Haplorrhini
+HERV1_LTRe	ERV1	Haplorrhini
+HERV23	Endogenous Retrovirus	Homo sapiens
+HERV3	ERV1	Homo sapiens
+HERV30I	Endogenous Retrovirus	Homo sapiens
+HERV35I	ERV1	Homo sapiens
+HERV38I	Endogenous Retrovirus	Homo sapiens
+HERV39	Endogenous Retrovirus	Homo sapiens
+HERV46I	Endogenous Retrovirus	Homo sapiens
+HERV49I	ERV1	Homo sapiens
+HERV4_I	ERV1	Homo sapiens
+HERV4_LTR	Endogenous Retrovirus	Homo sapiens
+HERV50_I	ERV1	Primates
+HERV50_LTR	ERV1	Primates
+HERV52I	Endogenous Retrovirus	Homo sapiens
+HERV57I	Endogenous Retrovirus	Homo sapiens
+HERV9	ERV1	Homo sapiens
+HERVE	ERV1	Homo sapiens
+HERVE_a	ERV1	Catarrhini
+HERVFH19I	Endogenous Retrovirus	Homo sapiens
+HERVFH21I	Endogenous Retrovirus	Eutheria
+HERVG25	Endogenous Retrovirus	Homo sapiens
+HERVH	ERV1	Eutheria
+HERVH48I	Endogenous Retrovirus	Homo sapiens
+HERVI	ERV1	Homo sapiens
+HERVIP10F	ERV1	Homo sapiens
+HERVIP10FH	ERV1	Homo sapiens
+HERVK	ERV2	Primates
+HERVK11DI	ERV2	Homo sapiens
+HERVK11I	ERV2	Homo sapiens
+HERVK13I	ERV2	Homo sapiens
+HERVK22I	ERV2	Eutheria
+HERVK3I	ERV2	Homo sapiens
+HERVK9I	ERV2	Homo sapiens
+HERVKC4	ERV2	Eutheria
+HERVL	ERV3	Homo sapiens
+HERVL66I	ERV3	Eutheria
+HERVL68	Endogenous Retrovirus	Eutheria
+HERVL74	ERV3	Homo sapiens
+HERVL_40	Endogenous Retrovirus	Homo sapiens
+HERVP71A_I	Endogenous Retrovirus	Homo sapiens
+HERVS71	ERV1	Eutheria
+HSAT4	SAT	Homo sapiens
+HSAT5	SAT	Primates
+HSAT6	SAT	Homo sapiens
+HSATI	SAT	Primates
+HSATII	SAT	Primates
+HSFAU	HSFAU	Homo sapiens
+HSMAR1	Mariner/Tc1	Homo sapiens
+HSMAR2	Mariner/Tc1	Homo sapiens
+HSTC2	Mariner/Tc1	Homo sapiens
+HUERS-P1	ERV1	Primates
+HUERS-P2	Endogenous Retrovirus	Homo sapiens
+HUERS-P3	ERV1	Homo sapiens
+HUERS-P3B	ERV1	Homo sapiens
+HY1	Multicopy gene	Homo sapiens
+HY1_SINE	Multicopy gene	Homo sapiens
+HY3	Multicopy gene	Homo sapiens
+IN25	L1	Homo sapiens
+IndInd-1247	hAT	Primates
+Kanga1	Mariner/Tc1	Theria
+Kanga11a	Mariner/Tc1	Mammalia
+Kanga1d	Mariner/Tc1	Theria
+KANGA2_A	Mariner/Tc1	Homo sapiens
+KER	KER	Homo sapiens
+L1	L1	Homo sapiens
+L1HS	L1	Homo sapiens
+L1M1B_5	L1	Homo sapiens
+L1M1_5	L1	Eutheria
+L1M2A1_5	L1	Homo sapiens
+L1M2A_5	L1	Homo sapiens
+L1M2B_5	L1	Homo sapiens
+L1M2C_5	L1	Homo sapiens
+L1M2_5	L1	Homo sapiens
+L1M3A_5	L1	Eutheria
+L1M3B_5	L1	Homo sapiens
+L1M3C_5	L1	Homo sapiens
+L1M3DE_5	L1	Eutheria
+L1M3D_5	L1	Eutheria
+L1M4B	L1	Homo sapiens
+L1M6B_5end	L1	Homo sapiens
+L1M6_5end	L1	Mammalia
+L1M7_5end	L1	Mammalia
+L1MA1	L1	Homo sapiens
+L1MA10	L1	Eutheria
+L1MA2	L1	Homo sapiens
+L1MA3	L1	Homo sapiens
+L1MA4	L1	Homo sapiens
+L1MA4A	L1	Homo sapiens
+L1MA5	L1	Homo sapiens
+L1MA5A	L1	Homo sapiens
+L1MA6	L1	Homo sapiens
+L1MA7	L1	Homo sapiens
+L1MA8	L1	Homo sapiens
+L1MA9	L1	Homo sapiens
+L1MA9_5	L1	Eutheria
+L1MB1	L1	Homo sapiens
+L1MB2	L1	Homo sapiens
+L1MB3	L1	Homo sapiens
+L1MB3_5	L1	Homo sapiens
+L1MB4	L1	Homo sapiens
+L1MB4_5	L1	Eutheria
+L1MB5	L1	Homo sapiens
+L1MB6_5	L1	Eutheria
+L1MB7	L1	Eutheria
+L1MB8	L1	Homo sapiens
+L1MC1	L1	Homo sapiens
+L1MC2	L1	Homo sapiens
+L1MC3	L1	Eutheria
+L1MC4	L1	Homo sapiens
+L1MC4B	L1	Eutheria
+L1MC4_5end	L1	Eutheria
+L1MC5	L1	Eutheria
+L1MCA_5	L1	Homo sapiens
+L1MCB_5	L1	Homo sapiens
+L1MCC_5	L1	Homo sapiens
+L1MD1	L1	Homo sapiens
+L1MD1_5	L1	Eutheria
+L1MD2	L1	Homo sapiens
+L1MD3	L1	Homo sapiens
+L1MDA_5	L1	Eutheria
+L1MDB_5	L1	Homo sapiens
+L1ME1	L1	Homo sapiens
+L1ME2	L1	Homo sapiens
+L1ME3	L1	Homo sapiens
+L1ME3A	L1	Homo sapiens
+L1ME3C_3end	L1	Eutheria
+L1ME3D_3end	L1	Eutheria
+L1ME3E_3end	L1	Eutheria
+L1ME3F_3end	L1	Eutheria
+L1ME4	L1	Eutheria
+L1ME4A	L1	Homo sapiens
+L1ME5	L1	Eutheria
+L1ME5_3end	L1	Mammalia
+L1MEA_5	L1	Homo sapiens
+L1MEB_5	L1	Homo sapiens
+L1MEC_5	L1	Eutheria
+L1MED_5	L1	Homo sapiens
+L1MEE_5	L1	Homo sapiens
+L1MEe_5end	L1	Eutheria
+L1MEf_5end	L1	Mammalia
+L1MEg_5end	L1	Mammalia
+L1ME_ORF2	L1	Homo sapiens
+L1P4a_5end	L1	Primates
+L1P4b_5end	L1	Primates
+L1P4c_5end	L1	Primates
+L1P4d_5end	L1	Primates
+L1P4e_5end	L1	Primates
+L1PA10	L1	Homo sapiens
+L1PA11	L1	Homo sapiens
+L1PA12	L1	Homo sapiens
+L1PA12_5	L1	Homo sapiens
+L1PA13	L1	Homo sapiens
+L1PA13_5	L1	Homo sapiens
+L1PA14	L1	Homo sapiens
+L1PA14_5	L1	Homo sapiens
+L1PA15	L1	Homo sapiens
+L1PA16	L1	Homo sapiens
+L1PA16_5	L1	Homo sapiens
+L1PA17_5	L1	Homo sapiens
+L1PA2	L1	Homo sapiens
+L1PA3	L1	Homo sapiens
+L1PA4	L1	Homo sapiens
+L1PA5	L1	Homo sapiens
+L1PA6	L1	Homo sapiens
+L1PA7	L1	Homo sapiens
+L1PA7_5	L1	Homo sapiens
+L1PA8	L1	Homo sapiens
+L1PB1	L1	Homo sapiens
+L1PB2	L1	Homo sapiens
+L1PB2c	L1	Homo sapiens
+L1PB3	L1	Homo sapiens
+L1PB4	L1	Homo sapiens
+L1PBA1_5	L1	Homo sapiens
+L1PBA_5	L1	Homo sapiens
+L1PBB_5	L1	Homo sapiens
+L1PREC1	L1	Homo sapiens
+L1PREC2	L1	Homo sapiens
+L1P_MA2	L1	Eutheria
+L2	CR1	Eutheria
+L23	Multicopy gene	Homo sapiens
+L23A	Multicopy gene	Homo sapiens
+L28	Multicopy gene	Homo sapiens
+L2B	CR1	Eutheria
+L2C	L2	Eutheria
+L2D	L2	Eutheria
+L3	CR1	Homo sapiens
+L31	Multicopy gene	Homo sapiens
+L37	Multicopy gene	Homo sapiens
+L3b_3end	CR1	Mammalia
+L4	RTEX	Mammalia
+L5	RTEX	Mammalia
+L7	Multicopy gene	Homo sapiens
+L7A	Multicopy gene	Homo sapiens
+LmeSINE1b	SINE2/tRNA	Deuterostomia
+LmeSINE1c	SINE2/tRNA	Deuterostomia
+LOOPER	DNA transposon	Homo sapiens
+LOR1	ERV1	Homo sapiens
+LOR1a_LTR	ERV1	Primates
+LOR1b_LTR	ERV1	Primates
+LOR1I	ERV1	Homo sapiens
+LSAU	Satellite	Homo sapiens
+LSU-rRNA_Cel	rRNA	Metazoa
+LSU-rRNA_Dme	rRNA	Metazoa
+LSU-rRNA_Hsa	rRNA	Metazoa
+LTR06	ERV1	Homo sapiens
+LTR1	ERV1	Homo sapiens
+LTR104_Mam	Gypsy	Mammalia
+LTR108d_Mam	ERV3	Mammalia
+LTR108e_Mam	ERV3	Mammalia
+LTR10A	ERV1	Eutheria
+LTR10B	ERV1	Homo sapiens
+LTR10B1	ERV1	Primates
+LTR10B2	ERV1	Homo sapiens
+LTR10C	ERV1	Homo sapiens
+LTR10D	ERV1	Homo sapiens
+LTR10E	ERV1	Eutheria
+LTR10F	ERV1	Homo sapiens
+LTR10G	ERV1	Eutheria
+LTR11	LTR Retrotransposon	Homo sapiens
+LTR12	ERV1	Primates
+LTR12B	ERV1	Homo sapiens
+LTR12C	ERV1	Homo sapiens
+LTR12D	ERV1	Homo sapiens
+LTR12E	ERV1	Homo sapiens
+LTR12F	ERV1	Primates
+LTR13	ERV2	Homo sapiens
+LTR13A	ERV2	Homo sapiens
+LTR14	ERV2	Homo sapiens
+LTR14A	ERV2	Homo sapiens
+LTR14B	ERV2	Homo sapiens
+LTR14C	ERV2	Homo sapiens
+LTR15	ERV1	Homo sapiens
+LTR16	ERV3	Homo sapiens
+LTR16A	ERV3	Eutheria
+LTR16A1	ERV3	Homo sapiens
+LTR16A2	ERV3	Homo sapiens
+LTR16B	ERV3	Eutheria
+LTR16B1	ERV3	Eutheria
+LTR16B2	ERV3	Eutheria
+LTR16C	ERV3	Homo sapiens
+LTR16D	ERV3	Homo sapiens
+LTR16D1	ERV3	Eutheria
+LTR16D2	ERV3	Eutheria
+LTR16E	ERV3	Homo sapiens
+LTR16E1	ERV3	Eutheria
+LTR16E2	ERV3	Eutheria
+LTR17	ERV1	Homo sapiens
+LTR18A	ERV3	Homo sapiens
+LTR18B	ERV3	Homo sapiens
+LTR18C	ERV3	Homo sapiens
+LTR19A	ERV3	Homo sapiens
+LTR19B	ERV3	Homo sapiens
+LTR19C	ERV3	Homo sapiens
+LTR1A1	ERV1	Primates
+LTR1A2	ERV1	Primates
+LTR1B	ERV1	Homo sapiens
+LTR1B0	ERV1	Primates
+LTR1B1	ERV1	Homo sapiens
+LTR1C	ERV1	Homo sapiens
+LTR1C1	ERV1	Primates
+LTR1C2	ERV1	Homo sapiens
+LTR1C3	ERV1	Primates
+LTR1D	ERV1	Homo sapiens
+LTR1D1	ERV1	Primates
+LTR1E	ERV1	Homo sapiens
+LTR1F	ERV1	Homo sapiens
+LTR1F1	ERV1	Primates
+LTR1F2	ERV1	Primates
+LTR2	ERV1	Homo sapiens
+LTR21A	ERV1	Homo sapiens
+LTR21B	ERV1	Homo sapiens
+LTR21C	ERV1	Homo sapiens
+LTR22	ERV2	Primates
+LTR22A	ERV2	Homo sapiens
+LTR22B	ERV2	Homo sapiens
+LTR22B1	ERV2	Homo sapiens
+LTR22B2	ERV2	Homo sapiens
+LTR22C	ERV2	Primates
+LTR22C0	ERV2	Hominidae
+LTR22C2	ERV2	Homo sapiens
+LTR22E	ERV2	Homo sapiens
+LTR23	ERV1	Homo sapiens
+LTR24	ERV1	Homo sapiens
+LTR24B	ERV1	Homo sapiens
+LTR24C	ERV1	Homo sapiens
+LTR25	ERV1	Homo sapiens
+LTR25-int	ERV1	Primates
+LTR26	ERV1	Homo sapiens
+LTR26B	ERV1	Primates
+LTR26C	ERV1	Homo sapiens
+LTR26D	ERV1	Homo sapiens
+LTR26E	ERV1	Homo sapiens
+LTR27	ERV1	Homo sapiens
+LTR2752	ERV1	Homo sapiens
+LTR27B	ERV1	Homo sapiens
+LTR27C	ERV1	Homo sapiens
+LTR27D	ERV1	Homo sapiens
+LTR27E	ERV1	Homo sapiens
+LTR28	ERV1	Homo sapiens
+LTR28B	ERV1	Homo sapiens
+LTR28C	ERV1	Homo sapiens
+LTR29	ERV1	Homo sapiens
+LTR2B	ERV1	Homo sapiens
+LTR2C	ERV1	Homo sapiens
+LTR3	ERV2	Homo sapiens
+LTR30	ERV1	Homo sapiens
+LTR31	ERV1	Homo sapiens
+LTR32	ERV3	Homo sapiens
+LTR33	ERV3	Eutheria
+LTR33A	ERV3	Eutheria
+LTR33B	ERV3	Mammalia
+LTR33C	ERV3	Eutheria
+LTR34	ERV1	Homo sapiens
+LTR35	ERV1	Homo sapiens
+LTR35A	ERV1	Primates
+LTR35B	ERV1	Homo sapiens
+LTR36	ERV1	Homo sapiens
+LTR37-int	ERV1	Eutheria
+LTR37A	ERV1	Homo sapiens
+LTR37B	ERV1	Homo sapiens
+LTR38	ERV1	Homo sapiens
+LTR38A1	ERV1	Homo sapiens
+LTR38B	ERV1	Homo sapiens
+LTR38C	ERV1	Homo sapiens
+LTR39	ERV1	Homo sapiens
+LTR3A	ERV2	Primates
+LTR3B	ERV2	Homo sapiens
+LTR4	ERV1	Homo sapiens
+LTR40A	ERV3	Homo sapiens
+LTR40A1	ERV3	Eutheria
+LTR40B	ERV3	Homo sapiens
+LTR40C	ERV3	Homo sapiens
+LTR41	ERV3	Homo sapiens
+LTR41B	ERV3	Homo sapiens
+LTR41C	ERV3	Homo sapiens
+LTR42	ERV3	Homo sapiens
+LTR43	ERV1	Homo sapiens
+LTR43B	ERV1	Homo sapiens
+LTR43_I	ERV1	Primates
+LTR44	ERV1	Homo sapiens
+LTR45	ERV1	Homo sapiens
+LTR45B	ERV1	Homo sapiens
+LTR45C	ERV1	Homo sapiens
+LTR46	ERV1	Homo sapiens
+LTR47A	ERV3	Homo sapiens
+LTR47A2	ERV3	Homo sapiens
+LTR47B	ERV3	Homo sapiens
+LTR47B2	ERV3	Homo sapiens
+LTR47B3	ERV3	Primates
+LTR47B4	ERV3	Primates
+LTR48	ERV1	Homo sapiens
+LTR48B	ERV1	Homo sapiens
+LTR49	ERV1	Homo sapiens
+LTR5	ERV2	Homo sapiens
+LTR50	ERV3	Homo sapiens
+LTR51	ERV1	Homo sapiens
+LTR52	ERV3	Homo sapiens
+LTR53	ERV3	Homo sapiens
+LTR53-int	ERV3	Eutheria
+LTR53B	ERV3	Homo sapiens
+LTR54	ERV1	Eutheria
+LTR54B	ERV1	Eutheria
+LTR55	ERV3	Homo sapiens
+LTR56	ERV1	Homo sapiens
+LTR57	ERV3	Homo sapiens
+LTR58	ERV1	Homo sapiens
+LTR59	ERV1	Homo sapiens
+LTR5A	ERV2	Primates
+LTR5B	ERV2	Homo sapiens
+LTR5_Hs	ERV2	Primates
+LTR60	ERV1	Homo sapiens
+LTR60B	ERV1	Homo sapiens
+LTR61	ERV1	Homo sapiens
+LTR62	ERV3	Homo sapiens
+LTR64	ERV1	Homo sapiens
+LTR65	ERV1	Homo sapiens
+LTR66	ERV3	Homo sapiens
+LTR67B	ERV3	Eutheria
+LTR68	ERV1	Eutheria
+LTR69	ERV3	Homo sapiens
+LTR6A	ERV1	Homo sapiens
+LTR6B	ERV1	Homo sapiens
+LTR6C	ERV1	Homo sapiens
+LTR6D	ERV1	Homo sapiens
+LTR70	ERV1	Homo sapiens
+LTR71A	ERV1	Homo sapiens
+LTR71B	ERV1	Homo sapiens
+LTR72	ERV1	Homo sapiens
+LTR72B	ERV1	Homo sapiens
+LTR73	ERV1	Homo sapiens
+LTR75	ERV3	Homo sapiens
+LTR75B	ERV3	Homo sapiens
+LTR75_1	ERV1	Eutheria
+LTR76	ERV1	Homo sapiens
+LTR77	ERV1	Homo sapiens
+LTR77B	ERV3	Homo sapiens
+LTR78	ERV1	Mammalia
+LTR78B	ERV1	Homo sapiens
+LTR79	ERV3	Mammalia
+LTR7A	ERV3	Homo sapiens
+LTR7B	ERV3	Homo sapiens
+LTR7C	ERV3	Homo sapiens
+LTR7Y	ERV3	Primates
+LTR8	ERV1	Homo sapiens
+LTR80A	ERV3	Eutheria
+LTR80B	ERV3	Eutheria
+LTR81A	ERV1	Mammalia
+LTR81AB	ERV1	Homo sapiens
+LTR81B	ERV1	Mammalia
+LTR81C	ERV1	Mammalia
+LTR82A	ERV3	Eutheria
+LTR82B	ERV3	Mammalia
+LTR83	ERV3	Eutheria
+LTR84a	ERV3	Eutheria
+LTR84b	ERV3	Eutheria
+LTR85a	Gypsy	Mammalia
+LTR85b	Gypsy	Mammalia
+LTR85c	Gypsy	Mammalia
+LTR86A1	ERV3	Mammalia
+LTR86A2	ERV3	Mammalia
+LTR86B1	ERV3	Mammalia
+LTR86B2	ERV3	Mammalia
+LTR86C	ERV3	Mammalia
+LTR87	ERV3	Eutheria
+LTR88a	Gypsy	Mammalia
+LTR88b	Gypsy	Mammalia
+LTR88c	Gypsy	Mammalia
+LTR89	ERV3	Mammalia
+LTR8A	ERV1	Homo sapiens
+LTR8B	ERV1	Homo sapiens
+LTR9	ERV1	Homo sapiens
+LTR90A	LTR Retrotransposon	Mammalia
+LTR90B	LTR Retrotransposon	Mammalia
+LTR91	ERV3	Homo sapiens
+LTR9A1	ERV1	Homo sapiens
+LTR9B	ERV1	Homo sapiens
+LTR9C	ERV1	Homo sapiens
+LTR9D	ERV1	Homo sapiens
+MADE1	Mariner/Tc1	Homo sapiens
+MamGyp-int	Gypsy	Mammalia
+MamGypLTR1a	Gypsy	Mammalia
+MamGypLTR1b	Gypsy	Mammalia
+MamGypLTR1c	Gypsy	Mammalia
+MamGypLTR1d	Gypsy	Mammalia
+MamGypLTR2	Gypsy	Mammalia
+MamGypLTR2b	Gypsy	Mammalia
+MamGypLTR2c	Gypsy	Mammalia
+MamGypLTR3	Gypsy	Mammalia
+MamRep137	Mariner/Tc1	Mammalia
+MamRep1527	Transposable Element	Eutheria
+MamRep1879	hAT	Eutheria
+MamRep1894	hAT	Mammalia
+MamRep38	hAT	Mammalia
+MamRep4096	hAT	Mammalia
+MamRep434	Mariner/Tc1	Mammalia
+MamRep488	hAT	Mammalia
+MamRep564	Transposable Element	Mammalia
+MamRep605	Transposable Element	Mammalia
+MamSINE1	SINE2/tRNA	Mammalia
+MamTip2	hAT	Theria
+MARE1	Mariner/Tc1	Mammalia
+MARE10	Mariner/Tc1	Mammalia
+MARE11	MARE11	Mammalia
+MARE3	SINE2/tRNA	Mammalia
+MARE4	MARE4	Theria
+MARE5	hAT	Mammalia
+MARE6	Tx1	Mammalia
+MARE7	Integrated Virus	Theria
+MARE8	MARE8	Mammalia
+MARE9	MARE9	Mammalia
+MARNA	Mariner/Tc1	Homo sapiens
+MER101	ERV1	Homo sapiens
+MER101B	ERV1	Homo sapiens
+MER101_I	ERV1	Primates
+MER103	DNA transposon	Eutheria
+MER103B	hAT	Homo sapiens
+MER103C	hAT	Homo sapiens
+MER104	DNA transposon	Eutheria
+MER104A	DNA transposon	Eutheria
+MER104B	DNA transposon	Eutheria
+MER104C	DNA transposon	Eutheria
+MER105	hAT	Eutheria
+MER106	hAT	Homo sapiens
+MER106B	hAT	Homo sapiens
+MER107	hAT	Homo sapiens
+MER110	ERV1	Homo sapiens
+MER110A	ERV1	Homo sapiens
+MER110I	ERV1	Homo sapiens
+MER112	hAT	Homo sapiens
+MER113	hAT	Homo sapiens
+MER113B	hAT	Homo sapiens
+MER115	hAT	Eutheria
+MER116	Mariner/Tc1	Eutheria
+MER117	hAT	Homo sapiens
+MER119	hAT	Homo sapiens
+MER11A	ERV2	Homo sapiens
+MER11B	ERV2	Primates
+MER11C	ERV2	Homo sapiens
+MER11D	ERV2	Homo sapiens
+MER121	hAT	Mammalia
+MER122	MER122	Homo sapiens
+MER123	DNA transposon	Amniota
+MER124	Transposable Element	Theria
+MER125	DNA transposon	Amniota
+MER126	DNA transposon	Amniota
+MER127	Mariner/Tc1	Amniota
+MER129	SINE	Amniota
+MER130	Transposable Element	Amniota
+MER131	SINE	Amniota
+MER132	Mariner/Tc1	Amniota
+MER133A	Transposable Element	Amniota
+MER133B	Transposable Element	Amniota
+MER134	Transposable Element	Amniota
+MER135	Transposable Element	Mammalia
+MER136	DNA transposon	Amniota
+MER1A	hAT	Homo sapiens
+MER1B	hAT	Homo sapiens
+MER2	Mariner/Tc1	Eutheria
+MER20	hAT	Homo sapiens
+MER20B	hAT	Homo sapiens
+MER21	ERV3	Homo sapiens
+MER21A	ERV3	Homo sapiens
+MER21B	ERV3	Eutheria
+MER21C	ERV3	Eutheria
+MER21C_BT	ERV3	Eutheria
+MER21I	ERV1	Homo sapiens
+MER22	MER22	Homo sapiens
+MER25	L1	Eutheria
+MER28	Mariner/Tc1	Homo sapiens
+MER2B	Mariner/Tc1	Eutheria
+MER3	hAT	Eutheria
+MER30	hAT	Vertebrata
+MER30B	hAT	Homo sapiens
+MER31	Endogenous Retrovirus	Homo sapiens
+MER31A	ERV1	Eutheria
+MER31B	ERV1	Homo sapiens
+MER31_I	Endogenous Retrovirus	Homo sapiens
+MER33	hAT	Homo sapiens
+MER34	ERV1	Homo sapiens
+MER34-int	ERV1	Eutheria
+MER34A	ERV1	Eutheria
+MER34A1	ERV1	Eutheria
+MER34B	ERV1	Homo sapiens
+MER34B_I	Endogenous Retrovirus	Homo sapiens
+MER34C	ERV1	Homo sapiens
+MER34C2	ERV1	Homo sapiens
+MER34D	ERV1	Primates
+MER35	MER35	Homo sapiens
+MER39	ERV1	Homo sapiens
+MER39B	ERV1	Homo sapiens
+MER41A	ERV1	Homo sapiens
+MER41B	ERV1	Homo sapiens
+MER41C	ERV1	Homo sapiens
+MER41D	ERV1	Homo sapiens
+MER41E	ERV1	Primates
+MER41F	Endogenous Retrovirus	Homo sapiens
+MER41G	ERV1	Homo sapiens
+MER41I	Endogenous Retrovirus	Homo sapiens
+MER44A	Mariner/Tc1	Homo sapiens
+MER44B	Mariner/Tc1	Homo sapiens
+MER44C	Mariner/Tc1	Homo sapiens
+MER44D	Mariner/Tc1	Eutheria
+MER45	hAT	Homo sapiens
+MER45B	DNA transposon	Homo sapiens
+MER45C	hAT	Homo sapiens
+MER45R	DNA transposon	Homo sapiens
+MER46C	Mariner/Tc1	Eutheria
+MER47B	Mariner/Tc1	Eutheria
+MER47C	Mariner/Tc1	Eutheria
+MER48	ERV1	Homo sapiens
+MER49	ERV1	Homo sapiens
+MER4A	ERV1	Homo sapiens
+MER4A1	ERV1	Homo sapiens
+MER4A1_LTR	ERV1	Primates
+MER4B	ERV1	Homo sapiens
+MER4BI	Endogenous Retrovirus	Homo sapiens
+MER4C	ERV1	Homo sapiens
+MER4CL34	ERV1	Homo sapiens
+MER4D	ERV1	Homo sapiens
+MER4D1	ERV1	Homo sapiens
+MER4D_LTR	ERV1	Primates
+MER4E	ERV1	Homo sapiens
+MER4E1	ERV1	Homo sapiens
+MER4I	ERV1	Homo sapiens
+MER50	ERV1	Homo sapiens
+MER50B	ERV1	Homo sapiens
+MER50C	ERV1	Primates
+MER50I	ERV1	Homo sapiens
+MER51A	ERV1	Homo sapiens
+MER51B	ERV1	Homo sapiens
+MER51C	ERV1	Homo sapiens
+MER51D	ERV1	Homo sapiens
+MER51E	ERV1	Homo sapiens
+MER51I	ERV1	Homo sapiens
+MER52A	ERV1	Homo sapiens
+MER52AI	ERV1	Homo sapiens
+MER52B	ERV1	Homo sapiens
+MER52C	ERV1	Homo sapiens
+MER52D	ERV1	Homo sapiens
+MER53	DNA transposon	Homo sapiens
+MER54	Transposable Element	Homo sapiens
+MER54A	ERV3	Homo sapiens
+MER54B	ERV3	Homo sapiens
+MER57A1	ERV1	Homo sapiens
+MER57A_I	Endogenous Retrovirus	Homo sapiens
+MER57B1	ERV1	Eutheria
+MER57B2	ERV1	Homo sapiens
+MER57C1	ERV1	Eutheria
+MER57C2	ERV1	Eutheria
+MER57D	ERV1	Eutheria
+MER57E1	ERV1	Eutheria
+MER57E2	ERV1	Eutheria
+MER57E3	ERV1	Eutheria
+MER57F	ERV1	Homo sapiens
+MER57I	Endogenous Retrovirus	Homo sapiens
+MER58A	hAT	Eutheria
+MER58B	hAT	Eutheria
+MER58C	hAT	Eutheria
+MER58D	hAT	Eutheria
+MER5A	hAT	Eutheria
+MER5A1	hAT	Eutheria
+MER5B	hAT	Homo sapiens
+MER5C	hAT	Eutheria
+MER5C1	hAT	Eutheria
+MER6	Mariner/Tc1	Eutheria
+MER61A	Endogenous Retrovirus	Homo sapiens
+MER61B	ERV1	Homo sapiens
+MER61C	ERV1	Homo sapiens
+MER61D	ERV1	Homo sapiens
+MER61E	ERV1	Homo sapiens
+MER61F	ERV1	Homo sapiens
+MER61I	ERV1	Homo sapiens
+MER63A	DNA transposon	Homo sapiens
+MER63B	DNA transposon	Homo sapiens
+MER63C	hAT	Eutheria
+MER63D	hAT	Homo sapiens
+MER65A	ERV1	Eutheria
+MER65B	ERV1	Homo sapiens
+MER65C	ERV1	Homo sapiens
+MER65D	ERV1	Homo sapiens
+MER65I	Endogenous Retrovirus	Eutheria
+MER66A	ERV1	Homo sapiens
+MER66B	ERV1	Homo sapiens
+MER66C	ERV1	Homo sapiens
+MER66D	ERV1	Homo sapiens
+MER66_I	ERV1	Homo sapiens
+MER67A	ERV1	Homo sapiens
+MER67B	ERV1	Homo sapiens
+MER67C	ERV1	Homo sapiens
+MER67D	ERV1	Homo sapiens
+MER68A	ERV3	Eutheria
+MER68B	ERV3	Homo sapiens
+MER68C	ERV3	Homo sapiens
+MER68_I	ERV3	Eutheria
+MER69A	hAT	Eutheria
+MER69B	hAT	Eutheria
+MER69C	hAT	Homo sapiens
+MER6A	Mariner/Tc1	Primates
+MER6B	Mariner/Tc1	Homo sapiens
+MER6C	Mariner/Tc1	Eutheria
+MER70A	ERV3	Homo sapiens
+MER70B	ERV3	Homo sapiens
+MER70C	ERV3	Homo sapiens
+MER70_I	ERV3	Eutheria
+MER72	ERV1	Homo sapiens
+MER72B	ERV1	Homo sapiens
+MER73	ERV3	Homo sapiens
+MER74	Endogenous Retrovirus	Eutheria
+MER74A	ERV3	Eutheria
+MER74B	ERV3	Homo sapiens
+MER74C	ERV3	Homo sapiens
+MER75	piggyBac	Homo sapiens
+MER75A	piggyBac	Primates
+MER75B	DNA transposon	Homo sapiens
+MER76	ERV3	Homo sapiens
+MER76-int	ERV3	Eutheria
+MER77	ERV3	Homo sapiens
+MER8	Mariner/Tc1	Homo sapiens
+MER80	hAT	Eutheria
+MER80B	hAT	Homo sapiens
+MER81	hAT	Homo sapiens
+MER82	DNA transposon	Eutheria
+MER83	ERV1	Homo sapiens
+MER83AI	ERV1	Homo sapiens
+MER83B	ERV1	Homo sapiens
+MER83BI	ERV1	Homo sapiens
+MER83C	ERV1	Homo sapiens
+MER84	ERV1	Homo sapiens
+MER84I	Endogenous Retrovirus	Homo sapiens
+MER85	DNA transposon	Homo sapiens
+MER87	ERV1	Homo sapiens
+MER87B	ERV1	Homo sapiens
+MER88	ERV3	Homo sapiens
+MER89	ERV1	Homo sapiens
+MER89I	ERV1	Homo sapiens
+MER9	ERV2	Homo sapiens
+MER90	ERV1	Homo sapiens
+MER90a_LTR	ERV1	Eutheria
+MER91A	hAT	Homo sapiens
+MER91B	hAT	Eutheria
+MER91C	hAT	Homo sapiens
+MER92A	ERV1	Homo sapiens
+MER92B	ERV1	Homo sapiens
+MER92C	ERV1	Eutheria
+MER93	Long terminal repeat	Homo sapiens
+MER94	hAT	Homo sapiens
+MER94B	hAT	Homo sapiens
+MER95	ERV1	Homo sapiens
+MER96	hAT	Homo sapiens
+MER96B	hAT	Homo sapiens
+MER97A	hAT	Homo sapiens
+MER97B	hAT	Homo sapiens
+MER97C	hAT	Homo sapiens
+MER97d	hAT	Eutheria
+MER99	DNA transposon	Homo sapiens
+MER9a1	ERV2	Catarrhini
+MER9a2	ERV2	Catarrhini
+MER9a3	ERV2	Catarrhini
+MER9B	ERV2	Homo sapiens
+Merlin1_HS	Merlin	Homo sapiens
+MERX	Mariner/Tc1	Eutheria
+MIR	SINE2/tRNA	Mammalia
+MIR3	SINE2/tRNA	Mammalia
+MIRb	SINE2/tRNA	Mammalia
+MIRc	SINE2/tRNA	Mammalia
+MLT-int	ERV3	Eutheria
+MLT1A0	ERV3	Eutheria
+MLT1A1	ERV3	Eutheria
+MLT1B	ERV3	Eutheria
+MLT1C	ERV3	Eutheria
+MLT1C1	ERV3	Eutheria
+MLT1C2	ERV3	Eutheria
+MLT1D	ERV3	Eutheria
+MLT1E	ERV3	Eutheria
+MLT1E1	ERV3	Eutheria
+MLT1E1A	ERV3	Eutheria
+MLT1E2	ERV3	Eutheria
+MLT1F	ERV3	Eutheria
+MLT1F1	ERV3	Eutheria
+MLT1F2	ERV3	Eutheria
+MLT1F_I	ERV3	Eutheria
+MLT1G	ERV3	Homo sapiens
+MLT1G1	ERV3	Homo sapiens
+MLT1G2	ERV3	Homo sapiens
+MLT1G3	ERV3	Homo sapiens
+MLT1H	ERV3	Homo sapiens
+MLT1H1	ERV3	Homo sapiens
+MLT1H2	ERV3	Homo sapiens
+MLT1H_I	ERV3	Eutheria
+MLT1I	ERV3	Homo sapiens
+MLT1J	ERV3	Eutheria
+MLT1J-int	ERV3	Eutheria
+MLT1J1	ERV3	Eutheria
+MLT1J2	ERV3	Eutheria
+MLT1K	ERV3	Homo sapiens
+MLT1L	ERV3	Homo sapiens
+MLT1M	ERV3	Mammalia
+MLT1N2	ERV3	Homo sapiens
+MLT1O	ERV3	Eutheria
+MLT1_I	ERV3	Eutheria
+MLT2A1	ERV3	Homo sapiens
+MLT2A2	ERV3	Homo sapiens
+MLT2B2	ERV3	Eutheria
+MLT2B3	ERV3	Eutheria
+MLT2B4	ERV3	Eutheria
+MLT2C2	ERV3	Homo sapiens
+MLT2D	ERV3	Homo sapiens
+MLT2E	ERV3	Eutheria
+MLT2F	ERV3	Eutheria
+MSR1	MSAT	Homo sapiens
+MSTA	ERV3	Primates
+MSTA1	ERV3	Primates
+MSTA2	ERV3	Primates
+MSTB	ERV3	Homo sapiens
+MSTB1	ERV3	Primates
+MSTC	ERV3	Eutheria
+MSTD	ERV3	Homo sapiens
+MST_I	ERV3	Eutheria
+ORSL	hAT	Eutheria
+ORSL-2a	hAT	Mammalia
+ORSL-2b	hAT	Mammalia
+PABL_A	ERV1	Homo sapiens
+PABL_AI	ERV1	Homo sapiens
+PABL_B	ERV1	Homo sapiens
+PABL_BI	ERV1	Homo sapiens
+PB1D11	SINE1/7SL	Euarchontoglires
+PRIMA41	Endogenous Retrovirus	Homo sapiens
+PRIMA4_I	Endogenous Retrovirus	Homo sapiens
+PRIMA4_LTR	ERV1	Homo sapiens
+PRIMAX_I	Endogenous Retrovirus	Homo sapiens
+PrimLTR79	ERV1	Homo sapiens
+PTR5	ERV1	Homo sapiens
+REP522	Satellite	Primates
+Retroposon-1_HS	Non-LTR Retrotransposon	Homo sapiens
+RhiBie-1.49	ERV3	Primates
+RICKSHA	MuDR	Eutheria
+RICKSHA_0	MuDR	Eutheria
+Ricksha_a	MuDR	Eutheria
+RPS2	Multicopy gene	Homo sapiens
+RRNA45	rRNA	Homo sapiens
+SAR	SAT	Primates
+SATR1	SAT	Homo sapiens
+SATR2	SAT	Homo sapiens
+SN5	SAT	Homo sapiens
+SSU-rRNA_Cel	rRNA	Metazoa
+SSU-rRNA_Dme	rRNA	Metazoa
+SSU-rRNA_Hsa	rRNA	Metazoa
+SUBTEL2_sat	SAT	Primates
+SUBTEL_sat	Satellite	Primates
+SVA2	MSAT	Eutheria
+SVA_A	SINE	Homo sapiens
+SVA_B	SINE	Homo sapiens
+SVA_C	SINE	Homo sapiens
+SVA_D	SINE	Homo sapiens
+SVA_E	SINE	Homo sapiens
+SVA_F	SINE	Homo sapiens
+TAR1	Satellite	Eutheria
+THE1A	ERV3	Homo sapiens
+THE1B	ERV3	Hominidae
+THE1C	ERV3	Homo sapiens
+THE1D	ERV3	Homo sapiens
+THE1_I	ERV3	Homo sapiens
+THER1	SINE2/tRNA	Theria
+THER2	SINE2/tRNA	Theria
+TIGGER1	Mariner/Tc1	Homo sapiens
+Tigger10	Mariner/Tc1	Mammalia
+Tigger12	Mariner/Tc1	Mammalia
+Tigger12A	Mariner/Tc1	Mammalia
+Tigger13a	Mariner/Tc1	Mammalia
+Tigger14a	Mariner/Tc1	Mammalia
+Tigger15a	Mariner/Tc1	Mammalia
+Tigger16a	Mariner/Tc1	Mammalia
+Tigger16b	Mariner/Tc1	Mammalia
+TIGGER2	Mariner/Tc1	Homo sapiens
+Tigger2b_Pri	Mariner/Tc1	Primates
+Tigger3b	Mariner/Tc1	Primates
+Tigger3c	Mariner/Tc1	Primates
+Tigger3d	Mariner/Tc1	Primates
+Tigger4a	Mariner/Tc1	Primates
+TIGGER5	Mariner/Tc1	Homo sapiens
+TIGGER5A	Mariner/Tc1	Eutheria
+TIGGER5_A	Mariner/Tc1	Eutheria
+TIGGER5_B	Mariner/Tc1	Eutheria
+TIGGER6A	Mariner/Tc1	Eutheria
+TIGGER6B	Mariner/Tc1	Homo sapiens
+TIGGER7	Mariner/Tc1	Homo sapiens
+TIGGER8	Mariner/Tc1	Homo sapiens
+TIGGER9	Mariner/Tc1	Homo sapiens
+Tigger9b	Mariner/Tc1	Eutheria
+tRNA-Ala-GCA	tRNA	Vertebrata
+tRNA-Ala-GCY_	tRNA	Vertebrata
+tRNA-Arg-CGA	tRNA	Vertebrata
+tRNA-Arg-CGG	tRNA	Vertebrata
+tRNA-Arg-CGY	tRNA	Vertebrata
+tRNA-Asp-GAY	tRNA	Vertebrata
+tRNA-Gln-CAA	tRNA	Vertebrata
+tRNA-Gln-CAA_	tRNA	Vertebrata
+tRNA-Gln-CAG	tRNA	Vertebrata
+tRNA-His-CAY	tRNA	Vertebrata
+tRNA-His-CAY_	tRNA	Vertebrata
+tRNA-Ile-ATA	tRNA	Vertebrata
+tRNA-Ile-ATC	tRNA	Vertebrata
+tRNA-Ile-ATT	tRNA	Vertebrata
+tRNA-Leu-CTA	tRNA	Vertebrata
+tRNA-Leu-CTA_	tRNA	Vertebrata
+tRNA-Leu-CTG	tRNA	Vertebrata
+tRNA-Leu-CTY	tRNA	Vertebrata
+tRNA-Leu-TTA	tRNA	Vertebrata
+tRNA-Leu-TTA(m)	tRNA	Vertebrata
+tRNA-Leu-TTG	tRNA	Vertebrata
+tRNA-Lys-AAG	tRNA	Vertebrata
+tRNA-Met	tRNA	Vertebrata
+tRNA-Met-i	tRNA	Vertebrata
+tRNA-Met_	tRNA	Vertebrata
+tRNA-Pro-CCA	tRNA	Vertebrata
+tRNA-Pro-CCG	tRNA	Vertebrata
+tRNA-SeC(e)-TGA	tRNA	Vertebrata
+tRNA-Ser-AGY	tRNA	Vertebrata
+tRNA-Ser-TCA	tRNA	Vertebrata
+tRNA-Ser-TCAm	tRNA	Vertebrata
+tRNA-Ser-TCA_	tRNA	Vertebrata
+tRNA-Ser-TCG	tRNA	Vertebrata
+tRNA-Ser-TCY	tRNA	Vertebrata
+tRNA-Thr-ACG_	tRNA	Vertebrata
+tRNA-Thr-ACY_	tRNA	Vertebrata
+tRNA-Tyr-TAC	tRNA	Vertebrata
+tRNA-Tyr-TAT	tRNA	Vertebrata
+tRNA-Val-GTA	tRNA	Vertebrata
+TRNA_ALA	tRNA	Homo sapiens
+TRNA_ASN	tRNA	Homo sapiens
+TRNA_GLU	tRNA	Homo sapiens
+TRNA_GLY	tRNA	Homo sapiens
+TRNA_VAL	tRNA	Homo sapiens
+U1	snRNA	Homo sapiens
+U13	Multicopy gene	Homo sapiens
+U14	snRNA	Vertebrata
+U2	snRNA	Homo sapiens
+U3	snRNA	Homo sapiens
+U4B	snRNA	Homo sapiens
+U5B1	snRNA	Homo sapiens
+U6	snRNA	Homo sapiens
+U7	snRNA	Vertebrata
+U8	snRNA	Vertebrata
+UCON1	Transposable Element	Amniota
+UCON10	Transposable Element	Tetrapoda
+UCON100	hAT	Mammalia
+UCON101	Repetitive element	Theria
+UCON102	Repetitive element	Mammalia
+UCON103	Repetitive element	Mammalia
+UCON104	Mariner/Tc1	Theria
+UCON105	Repetitive element	Mammalia
+UCON106	Repetitive element	Theria
+UCON107	hAT	Mammalia
+UCON11	Transposable Element	Tetrapoda
+UCON12	Transposable Element	Amniota
+UCON12A	Transposable Element	Euteleostomi
+UCON13	Neptune	Tetrapoda
+UCON132a	hAT	Theria
+UCON132b	hAT	Theria
+UCON14	Transposable Element	Tetrapoda
+UCON15	Transposable Element	Amniota
+UCON16	Transposable Element	Amniota
+UCON17	Transposable Element	Amniota
+UCON18	Transposable Element	Tetrapoda
+UCON19	Transposable Element	Amniota
+UCON2	Transposable Element	Amniota
+UCON20	Transposable Element	Amniota
+UCON21	Transposable Element	Amniota
+UCON22	Transposable Element	Euteleostomi
+UCON23	Transposable Element	Amniota
+UCON24	Transposable Element	Amniota
+UCON25	Transposable Element	Euteleostomi
+UCON26	Transposable Element	Amniota
+UCON27	Transposable Element	Amniota
+UCON28	Transposable Element	Euteleostomi
+UCON28a	Transposable Element	Euteleostomi
+UCON28b	Transposable Element	Euteleostomi
+UCON28c	Transposable Element	Euteleostomi
+UCON29	Kolobok	Amniota
+UCON3	SINE2/tRNA	Euteleostomi
+UCON31	Transposable Element	Tetrapoda
+UCON32	Repetitive element	Theria
+UCON33	Repetitive element	Theria
+UCON34	hAT	Theria
+UCON35	Repetitive element	Mammalia
+UCON36	Repetitive element	Theria
+UCON37	Repetitive element	Theria
+UCON38	Repetitive element	Mammalia
+UCON39	Mariner/Tc1	Mammalia
+UCON4	Transposable Element	Amniota
+UCON40	Repetitive element	Theria
+UCON41	Repetitive element	Theria
+UCON42	Mariner/Tc1	Theria
+UCON43	Repetitive element	Theria
+UCON44	Repetitive element	Mammalia
+UCON45	Repetitive element	Theria
+UCON46	Repetitive element	Mammalia
+UCON47	Repetitive element	Mammalia
+UCON48	Repetitive element	Eutheria
+UCON49	L2	Mammalia
+UCON5	Transposable Element	Amniota
+UCON50	hAT	Mammalia
+UCON51	LTR Retrotransposon	Mammalia
+UCON52	hAT	Theria
+UCON53	Repetitive element	Mammalia
+UCON54	Repetitive element	Mammalia
+UCON55	SINE2/tRNA	Theria
+UCON56	Repetitive element	Mammalia
+UCON57	Repetitive element	Mammalia
+UCON58	Repetitive element	Theria
+UCON59	Repetitive element	Mammalia
+UCON6	Transposable Element	Amniota
+UCON60	Repetitive element	Mammalia
+UCON61	Repetitive element	Mammalia
+UCON62	Repetitive element	Mammalia
+UCON63	Repetitive element	Mammalia
+UCON64	Repetitive element	Mammalia
+UCON65	Repetitive element	Mammalia
+UCON66	Repetitive element	Mammalia
+UCON67	Repetitive element	Mammalia
+UCON68	Repetitive element	Mammalia
+UCON69	Repetitive element	Mammalia
+UCON7	Transposable Element	Tetrapoda
+UCON70	Repetitive element	Mammalia
+UCON71	Repetitive element	Mammalia
+UCON72	Repetitive element	Mammalia
+UCON73	Repetitive element	Mammalia
+UCON74	hAT	Theria
+UCON75	Repetitive element	Mammalia
+UCON76	Repetitive element	Mammalia
+UCON77	Repetitive element	Mammalia
+UCON78	DNA transposon	Mammalia
+UCON79	hAT	Theria
+UCON8	Transposable Element	Tetrapoda
+UCON80	Repetitive element	Mammalia
+UCON81	hAT	Theria
+UCON82	RTE	Mammalia
+UCON83	Repetitive element	Mammalia
+UCON84	Repetitive element	Mammalia
+UCON85	Repetitive element	Mammalia
+UCON86	L2	Mammalia
+UCON87	Repetitive element	Theria
+UCON88	Repetitive element	Mammalia
+UCON89	Repetitive element	Mammalia
+UCON9	Transposable Element	Amniota
+UCON90	Repetitive element	Mammalia
+UCON91	Repetitive element	Mammalia
+UCON92	Repetitive element	Mammalia
+UCON93	Repetitive element	Mammalia
+UCON94	Repetitive element	Mammalia
+UCON95	hAT	Mammalia
+UCON96	Repetitive element	Mammalia
+UCON97	Repetitive element	Mammalia
+UCON98	Repetitive element	Mammalia
+UCON99	DNA transposon	Mammalia
+UHG	snRNA	Homo sapiens
+X10a_DNA	Mariner/Tc1	Theria
+X10b_DNA	Mariner/Tc1	Theria
+X11_DNA	DNA transposon	Mammalia
+X11_LINE	RTE	Mammalia
+X12_DNA	Mariner/Tc1	Mammalia
+X12_LINE	Vingi	Mammalia
+X13_DNA	Mariner/Tc1	Theria
+X13_LINE	Non-LTR Retrotransposon	Mammalia
+X15_DNA	hAT	Mammalia
+X15_LINE	L2	Mammalia
+X17_DNA	Repetitive element	Theria
+X17_LINE	CR1	Mammalia
+X18_DNA	DNA transposon	Theria
+X18_LINE	CR1	Mammalia
+X19_LINE	CR1	Mammalia
+X1_DNA	Mariner/Tc1	Eutheria
+X1_LINE	CR1	Amniota
+X1_LR	LTR Retrotransposon	Mammalia
+X20_DNA	DNA transposon	Mammalia
+X20_LINE	CR1	Mammalia
+X21_DNA	hAT	Mammalia
+X21_LINE	CR1	Mammalia
+X22_DNA	DNA transposon	Mammalia
+X23_DNA	DNA transposon	Mammalia
+X24_DNA	DNA transposon	Theria
+X24_LINE	L2	Mammalia
+X25_DNA	Mariner/Tc1	Theria
+X26_DNA	Mariner/Tc1	Theria
+X27_DNA	DNA transposon	Mammalia
+X28_DNA	hAT	Mammalia
+X29a_DNA	DNA transposon	Mammalia
+X29b_DNA	DNA transposon	Mammalia
+X2a_DNA	DNA transposon	Mammalia
+X2b_DNA	DNA transposon	Mammalia
+X2_LINE	CR1	Euteleostomi
+X2_LR	LTR Retrotransposon	Theria
+X30_DNA	DNA transposon	Theria
+X31_DNA	hAT	Mammalia
+X32_DNA	Mariner/Tc1	Mammalia
+X33a_DNA	Mariner/Tc1	Mammalia
+X34_DNA	DNA transposon	Mammalia
+X3_LINE	Non-LTR Retrotransposon	Mammalia
+X3_LR	LTR Retrotransposon	Theria
+X4a_DNA	DNA transposon	Theria
+X4b_DNA	DNA transposon	Theria
+X4_LINE	R4	Teleostomi
+X4_LR	LTR Retrotransposon	Eutheria
+X5a_DNA	DNA transposon	Theria
+X5A_LINE	CR1	Euteleostomi
+X5b_DNA	DNA transposon	Theria
+X5B_LINE	CR1	Euteleostomi
+X6a_DNA	Mariner/Tc1	Theria
+X6A_LINE	CR1	Euteleostomi
+X6b_DNA	Mariner/Tc1	Theria
+X6B_LINE	CR1	Euteleostomi
+X7A_LINE	CR1	Euteleostomi
+X7B_LINE	CR1	Euteleostomi
+X7C_LINE	CR1	Euteleostomi
+X7D_LINE	CR1	Euteleostomi
+X7_DNA	hAT	Theria
+X8_LINE	CR1	Euteleostomi
+X9a_DNA	DNA transposon	Theria
+X9b_DNA	DNA transposon	Theria
+X9c_DNA	DNA transposon	Theria
+X9_LINE	L1	Euteleostomi
+XBR	Multicopy gene	Homo sapiens
+XTR	Multicopy gene	Homo sapiens
+Y4	Multicopy gene	Homo sapiens
+ZAPHOD	DNA transposon	Homo sapiens
+Zaphod3	hAT	Eutheria
+ZOMBI	Mariner/Tc1	Eutheria
+ZOMBI_A	Mariner/Tc1	Homo sapiens
+ZOMBI_B	Mariner/Tc1	Eutheria
+ZOMBI_C	Mariner/Tc1	Eutheria

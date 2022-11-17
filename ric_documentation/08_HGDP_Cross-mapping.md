@@ -263,7 +263,7 @@ ggplot(data = output_py, aes(read_from, mapped_to, fill=fracmap)) +
   geom_tile() + theme(axis.text=element_text(size=1)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
-![](8_HGDP_Cross-mapping_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](08_HGDP_Cross-mapping_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Lastly, I create a list containing all the TEs that showed problems with
 cross-mapping. I put the threshold at `25`, but the sensibility can be
@@ -342,3 +342,46 @@ ALU_unmapped <- aligned %>% filter(rname == "*")
     ## # … with 16 variables: qname <chr>, qnumber <chr>, flag <dbl>, rname <chr>,
     ## #   pos <dbl>, mapq <dbl>, cigar <chr>, mrnm <chr>, mpos <dbl>, isize <dbl>,
     ## #   seq <chr>, X11 <chr>, X12 <chr>, X13 <chr>, X14 <chr>, X15 <chr>
+
+## Crossed KRABs
+
+``` r
+(total_read_count <- count(aligned_krab, qname))
+```
+
+    ## # A tibble: 212 × 2
+    ##    qname                   n
+    ##    <chr>               <int>
+    ##  1 a_AC067968.1_2_krab  1059
+    ##  2 a_AC092835.1_5_krab  1114
+    ##  3 a_CDK8_20_krab       1072
+    ##  4 a_CHD3_3_krab         940
+    ##  5 a_CLTC_6_krab        1234
+    ##  6 a_DCT_12_krab        2337
+    ##  7 a_DNAJA2_11_krab     1444
+    ##  8 a_E2F1_2_krab        1352
+    ##  9 a_EGR1_4_krab        1171
+    ## 10 a_ESR1_10_krab       4392
+    ## # … with 202 more rows
+
+``` r
+reads_crossed <- group_by(crossed_krab, qname) %>% count
+cross_matrix <- left_join(total_read_count, reads_crossed, by="qname") %>% mutate(ratio=(n.y/n.x)*100)
+colnames(cross_matrix) <- c("qname", "total_reads", "crossmapped_reads", "percentage")
+cross_matrix %>% arrange(desc(percentage))
+```
+
+    ## # A tibble: 212 × 4
+    ##    qname               total_reads crossmapped_reads percentage
+    ##    <chr>                     <int>             <int>      <dbl>
+    ##  1 a_ZNF552_1_krab             910                88       9.67
+    ##  2 a_ZNF814_1_krab            2251                97       4.31
+    ##  3 a_ZNF587B_1_krab           1585                49       3.09
+    ##  4 a_AC067968.1_2_krab        1059                NA      NA   
+    ##  5 a_AC092835.1_5_krab        1114                NA      NA   
+    ##  6 a_CDK8_20_krab             1072                NA      NA   
+    ##  7 a_CHD3_3_krab               940                NA      NA   
+    ##  8 a_CLTC_6_krab              1234                NA      NA   
+    ##  9 a_DCT_12_krab              2337                NA      NA   
+    ## 10 a_DNAJA2_11_krab           1444                NA      NA   
+    ## # … with 202 more rows
