@@ -1,8 +1,7 @@
 HGDP - Controls
 ================
 
-Script 5. This scripts contains some controls on the data quality, such
-as checking for **batch effects** and **reads length**.
+Script 5. This scripts contains some controls on the data quality.
 
 ``` r
 library(tidyverse)
@@ -1143,3 +1142,18 @@ f_pop3_a_ZNF844_1 <- ggarrange(f1_a_ZNF844_1_yoruba, f2_a_ZNF844_1_yoruba, f3_a_
 ```
 
 ![](05_HGDP_controls_files/figure-gfm/unnamed-chunk-24-2.png)<!-- -->
+
+## Are there unmapped reads in the .cram file?
+
+Another important thing to check is if **unmapped reads** are present in
+the initial **.cram file**. If this is not the case, many reads with
+potentially interesting information would just be lost just because they
+do not align on the reference genome.
+
+To check for this, we can use this UNIX command giving the .cram file
+path.
+
+    samtools view HGDP00001-Brahui.cram | cut -f 3
+
+In our dataset, the unmapped reads (identified with a `*` instead of the
+number of chromosome) are present.
