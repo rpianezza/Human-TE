@@ -273,7 +273,7 @@ T2T_HGDP <- inner_join(mean_cn, art_subset, by="familyname") %>% rename(T2T = co
 ggplot(T2T_HGDP, aes(x=log(mean), y=log(T2T), color=mean_div)) +
   geom_point(size=1) + scale_color_gradient(low = "green", high = "red") + labs(color = " Divergence (%)") +
   geom_smooth(method="lm",color="grey")+
-  ylab("HGDP mean copynumber (log)") + xlab("T2T copynumber (log)") +
+  ylab("HGDP mean copynumber (log)") + xlab("Normalized pipeline copynumber (log)") +
   stat_regline_equation(label.y = 13, aes(label = ..rr.label..), size=5)
 ```
 
