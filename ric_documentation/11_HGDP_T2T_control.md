@@ -47,6 +47,16 @@ Explanation of the RepeatMasker output file:
   higher-scoring match whose domain partly (\<80%) includes the domain
   of this match.
 
+Note that the three column indicating the **position in repeat** are
+arranged differently for insertions in the two strands:
+
+- For `C` strand: `left`, `end`, `begin`
+- For `+` strand: `begin`, `end`, `left`
+
+For simplicity, we kept the order of the `+` strand for all the RM hits
+and we dealt with this difference in the next analysis calculating
+`fragment length` and `segment length` differently for the two strands.
+
 Command to remove multiple spaces from the RM output and make it
 readable in R:
 
@@ -68,37 +78,36 @@ library(tidyverse)
 ``` r
 library(ggpubr)
 
-(RM <- read_delim("/Users/rpianezza/TE/T2T/RM_complete/GCF_009914755.1_T2T-CHM13v2.0_genomic_mod.fna.out", delim = " ",skip = 3, col_names = c("SWscore", "perc_div", "perc_del", "perc_ins", "query_sequence", "position_in_query_begin", "position_in_query_end", "position_in_query_left",  "+/c", "matching_repeat", "repeat_class/family", "position_in_repeat_left", "position_in_repeat_begin", "position_in_repeat_end", "ID", "other_match")))
+(RM <- read_delim("/Users/rpianezza/TE/T2T/RM_complete/GCF_009914755.1_T2T-CHM13v2.0_genomic_mod.fna.out", delim = " ",skip = 3, col_names = c("SWscore", "perc_div", "perc_del", "perc_ins", "query_sequence", "position_in_query_begin", "position_in_query_end", "position_in_query_left",  "strand", "matching_repeat", "repeat_class/family", "position_in_repeat_begin", "position_in_repeat_end", "position_in_repeat_left", "ID", "other_match")))
 ```
 
     ## Rows: 8353919 Columns: 16
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: " "
-    ## chr (9): SWscore, query_sequence, position_in_query_left, +/c, matching_repe...
+    ## chr (9): SWscore, query_sequence, position_in_query_left, strand, matching_r...
     ## dbl (7): perc_div, perc_del, perc_ins, position_in_query_begin, position_in_...
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
     ## # A tibble: 8,353,919 × 16
-    ##    SWscore perc_…¹ perc_…² perc_…³ query…⁴ posit…⁵ posit…⁶ posit…⁷ `+/c` match…⁸
-    ##    <chr>     <dbl>   <dbl>   <dbl> <chr>     <dbl>   <dbl> <chr>   <chr> <chr>  
-    ##  1 234         4.8     0       0   NC_060…    1885    1926 (24838… C     TAR1_te
-    ##  2 250         2.4     0       2.4 NC_060…    1897    1939 (24838… C     TAR1_te
-    ##  3 5109       11.7     1.1     0.8 NC_060…    2710    3803 (24838… C     TAR1_te
-    ##  4 1236       20.6     2.2     3.1 NC_060…    3484    3843 (24838… C     TAR1_te
-    ##  5 964        25.2     4.3     2.1 NC_060…    3542    3910 (24838… C     TAR1_te
-    ##  6 902        25.5     4.4     2.7 NC_060…    3602    3968 (24838… C     TAR1_te
-    ##  7 3879       13.6     5.3     2.2 NC_060…    3663    4398 (24838… C     TAR1_te
-    ##  8 990        26.2    12.4     1   NC_060…    4083    4533 (24838… C     LTR60B…
-    ##  9 552        18       5.7     0   NC_060…    4534    4655 (24838… C     LTR60_…
-    ## 10 1013       24.2     5       1.1 NC_060…    4718    5139 (24838… +     L1ME_O…
-    ## # … with 8,353,909 more rows, 6 more variables: `repeat_class/family` <chr>,
-    ## #   position_in_repeat_left <chr>, position_in_repeat_begin <dbl>,
-    ## #   position_in_repeat_end <chr>, ID <dbl>, other_match <chr>, and abbreviated
-    ## #   variable names ¹​perc_div, ²​perc_del, ³​perc_ins, ⁴​query_sequence,
-    ## #   ⁵​position_in_query_begin, ⁶​position_in_query_end, ⁷​position_in_query_left,
-    ## #   ⁸​matching_repeat
+    ##    SWscore perc_div perc_del perc_ins query_seq…¹ posit…² posit…³ posit…⁴ strand
+    ##    <chr>      <dbl>    <dbl>    <dbl> <chr>         <dbl>   <dbl> <chr>   <chr> 
+    ##  1 234          4.8      0        0   NC_060925.1    1885    1926 (24838… C     
+    ##  2 250          2.4      0        2.4 NC_060925.1    1897    1939 (24838… C     
+    ##  3 5109        11.7      1.1      0.8 NC_060925.1    2710    3803 (24838… C     
+    ##  4 1236        20.6      2.2      3.1 NC_060925.1    3484    3843 (24838… C     
+    ##  5 964         25.2      4.3      2.1 NC_060925.1    3542    3910 (24838… C     
+    ##  6 902         25.5      4.4      2.7 NC_060925.1    3602    3968 (24838… C     
+    ##  7 3879        13.6      5.3      2.2 NC_060925.1    3663    4398 (24838… C     
+    ##  8 990         26.2     12.4      1   NC_060925.1    4083    4533 (24838… C     
+    ##  9 552         18        5.7      0   NC_060925.1    4534    4655 (24838… C     
+    ## 10 1013        24.2      5        1.1 NC_060925.1    4718    5139 (24838… +     
+    ## # … with 8,353,909 more rows, 7 more variables: matching_repeat <chr>,
+    ## #   `repeat_class/family` <chr>, position_in_repeat_begin <chr>,
+    ## #   position_in_repeat_end <dbl>, position_in_repeat_left <chr>, ID <dbl>,
+    ## #   other_match <chr>, and abbreviated variable names ¹​query_sequence,
+    ## #   ²​position_in_query_begin, ³​position_in_query_end, ⁴​position_in_query_left
 
 Here I filter the RM output putting a threshold on the maximum
 **divergence** percentage (`15`) among the query and the reference, as
@@ -120,13 +129,14 @@ RM_cutoff <- filter(RM, perc_div < 15, position_in_query_end-position_in_query_b
 write_csv(RM_cutoff, "/Users/rpianezza/TE/T2T/RM_cutoff.csv")
 ```
 
-Here I read the output of the Python script.
+Here I read the output of the Python script, a dictionary with every
+`sequence` associated with its estimated normalized `copynumber`.
 
 ``` r
 RM_copynumbers <- read_csv("/Users/rpianezza/TE/T2T/RM_complete/copynumber_RM.csv", col_names = c("sequence", "copynumber"))
 ```
 
-    ## Rows: 1467 Columns: 2
+    ## Rows: 1468 Columns: 2
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (1): sequence
@@ -154,10 +164,16 @@ The artificial reads are then processed into the pipeline to estimate
 copynumbers (**normalization**). Here I read the main output file and I
 create a comparison between the two methods copynumber estimates:
 RepeatMasker (`RM`) and the pipeline run on artificial short reads
-(`pipeline`). The color of the points depends on the mean
-`divergence percentage` of the RM hits on the respective reference
-sequence. We expect higly divergent sequences to be more prone to
-produce outliers across the two methods, thus less reliable.
+(`pipeline`). The color of the points depends on the `mean length` of
+the RM hits of a particular sequence calculated as follows:
+
+$$\sum_{n=1}^{n} fragment.length/(sequence.length*n)$$
+
+We expect highly fragmented sequences to be more prone to produce
+outliers across the two methods, thus less reliable. A `mean length`
+close to 1 means that the sequences in the genome are close to be
+complete, while a value close to 0 indicates a highly fragmented
+sequence.
 
 ``` r
 artificial <- read_delim("/Users/rpianezza/TE/T2T/T2T-artificial-reads/T2T_artificial_reads.mq10.mapstat", delim = "\t", skip = 8, col_names = c("type", "familyname", "length", "reads", "copynumber"))
@@ -177,31 +193,40 @@ art_subset <- select(artificial, familyname, copynumber) %>% arrange(familyname)
 
 RM_subset <- RM_copynumbers %>% mutate(sequence = str_replace(sequence, "_te", "")) %>% mutate(sequence = str_replace(sequence, "_krab", "")) %>% mutate(sequence = str_replace(sequence, "_scg", "")) %>% mutate(sequence = str_replace(sequence, "_scgx", "")) %>% rename(familyname = sequence)
 
-divergence <- group_by(RM_cutoff, matching_repeat) %>% summarise(mean_div = mean(perc_div)) %>% mutate(matching_repeat = str_replace(matching_repeat, "_te", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_krab", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_scg", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_scgx", "")) %>% rename(familyname = matching_repeat)
-
-cn_comparison <- inner_join(art_subset, RM_subset, by = "familyname") %>% rename(pipeline_copynumber = copynumber.x) %>% rename(RM_copynumber = copynumber.y)
-
-(cn_comparison_final <- inner_join(cn_comparison, divergence, by = "familyname"))
+RM_mod <- RM_cutoff %>% type_convert() %>% mutate(fragment_len = if_else(strand=="+", abs(position_in_repeat_begin-position_in_repeat_end), abs(position_in_repeat_left-position_in_repeat_end))) %>% mutate(sequence_len = if_else(strand=="+", fragment_len+position_in_repeat_begin+position_in_repeat_left, fragment_len+position_in_repeat_left+position_in_repeat_begin)) %>% arrange(matching_repeat, strand)
 ```
 
-    ## # A tibble: 1,443 × 4
-    ##    familyname     pipeline_copynumber RM_copynumber mean_div
-    ##    <chr>                        <dbl>         <dbl>    <dbl>
-    ##  1 6kbHsap                    285.          130.        5.50
-    ##  2 a_AC067968.1_2               1.29          0.999     0.2 
-    ##  3 a_AC092835.1_5               1.17          0.999     0   
-    ##  4 a_CDK8_20                    1.99          4.93      5.17
-    ##  5 a_CHD3_3                     1.06          0.999     0   
-    ##  6 a_CLTC_6                     0.992         0.999     0   
-    ##  7 a_DCT_12                     0.994         1.00      0   
-    ##  8 a_DNAJA2_11                  0.993         0.999     0   
-    ##  9 a_E2F1_2                     0.993         0.999     0   
-    ## 10 a_EGR1_4                     1.24          0.999     0   
-    ## # … with 1,433 more rows
+    ## 
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## cols(
+    ##   SWscore = col_character(),
+    ##   query_sequence = col_character(),
+    ##   position_in_query_begin = col_double(),
+    ##   position_in_query_end = col_double(),
+    ##   position_in_query_left = col_double(),
+    ##   strand = col_character(),
+    ##   matching_repeat = col_character(),
+    ##   `repeat_class/family` = col_character(),
+    ##   position_in_repeat_begin = col_double(),
+    ##   position_in_repeat_end = col_double(),
+    ##   position_in_repeat_left = col_double(),
+    ##   other_match = col_character()
+    ## )
 
 ``` r
-ggplot(cn_comparison_final, aes(x=log(pipeline_copynumber), y=log(RM_copynumber), color=mean_div)) +
-  geom_point(size=1) + scale_color_gradient(low = "green", high = "red") + labs(color = "Divergence (%)") +
+divergence <- group_by(RM_mod, matching_repeat) %>% summarise(mean_div = mean(perc_div), mean_length = (sum(fragment_len))/(sequence_len*n())) %>% distinct() %>% mutate(matching_repeat = str_replace(matching_repeat, "_te", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_krab", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_scg", "")) %>% mutate(matching_repeat = str_replace(matching_repeat, "_scgx", "")) %>% rename(familyname = matching_repeat)
+```
+
+    ## `summarise()` has grouped output by 'matching_repeat'. You can override using
+    ## the `.groups` argument.
+
+``` r
+cn_comparison <- inner_join(art_subset, RM_subset, by = "familyname") %>% rename(pipeline_copynumber = copynumber.x) %>% rename(RM_copynumber = copynumber.y)
+
+cn_comparison_final <- inner_join(cn_comparison, divergence, by = "familyname")
+
+ggplot(cn_comparison_final, aes(x=log(pipeline_copynumber), y=log(RM_copynumber), color=mean_length)) +
+  geom_point(size=1) + scale_color_gradient(low = "red", high = "green") + labs(color = "Mean length") +
   geom_smooth(method="lm",color="grey", se=F) +
   ylab("Normalized RM copynumber (log)") + xlab("Normalized pipeline copynumber (log)") +
   stat_regline_equation(label.y = 13, aes(label = ..rr.label..), size=5)
@@ -213,7 +238,7 @@ ggplot(cn_comparison_final, aes(x=log(pipeline_copynumber), y=log(RM_copynumber)
 
     ## Warning: Removed 3 rows containing non-finite values (stat_regline_equation).
 
-![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Here I check if there is a correlation between the copynumbers estimated
 by the pipeline (normalized) and the number of hits of RM for each
@@ -230,8 +255,8 @@ reads_comparison <- inner_join(pipeline_reads, RM_reads, by = "familyname") %>% 
     ## Joining, by = "familyname"
 
 ``` r
-ggplot(reads_comparison, aes(x=log(pipeline_copynumber), y=log(RM_reads), color=mean_div)) +
-  geom_point(size=1) + scale_color_gradient(low = "green", high = "red") + labs(color = "Divergence (%)") +
+ggplot(reads_comparison, aes(x=log(pipeline_copynumber), y=log(RM_reads), color=mean_length)) +
+  geom_point(size=1) + scale_color_gradient(low = "red", high = "green") + labs(color = "Mean length") +
   geom_smooth(method="lm",color="grey", se=F) +
   ylab("Non-normalized RM read number (log)") + xlab("Normalized pipeline copynumber (log)") +
   stat_regline_equation(label.y = 14, aes(label = ..rr.label..), size=5)
@@ -243,7 +268,7 @@ ggplot(reads_comparison, aes(x=log(pipeline_copynumber), y=log(RM_reads), color=
 
     ## Warning: Removed 3 rows containing non-finite values (stat_regline_equation).
 
-![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Here I calculate the mean copynumber for each `familyname` among all the
 HGDP samples and I look for a correlation between these values and the
@@ -270,8 +295,8 @@ mean_cn <- group_by(HGDPcutoff, familyname) %>% summarise(min = min(copynumber),
 
 T2T_HGDP <- inner_join(mean_cn, art_subset, by="familyname") %>% rename(T2T = copynumber) %>% inner_join(divergence, by = "familyname")
 
-ggplot(T2T_HGDP, aes(x=log(mean), y=log(T2T), color=mean_div)) +
-  geom_point(size=1) + scale_color_gradient(low = "green", high = "red") + labs(color = " Divergence (%)") +
+ggplot(T2T_HGDP, aes(x=log(mean), y=log(T2T), color=mean_length)) +
+  geom_point(size=1) + scale_color_gradient(low = "red", high = "green") + labs(color = " Mean length") +
   geom_smooth(method="lm",color="grey")+
   ylab("HGDP mean copynumber (log)") + xlab("Normalized pipeline copynumber (log)") +
   stat_regline_equation(label.y = 13, aes(label = ..rr.label..), size=5)
@@ -283,4 +308,4 @@ ggplot(T2T_HGDP, aes(x=log(mean), y=log(T2T), color=mean_div)) +
 
     ## Warning: Removed 2 rows containing non-finite values (stat_regline_equation).
 
-![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
