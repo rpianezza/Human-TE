@@ -231,8 +231,6 @@ list_nonLTR <- c("ALINE", "ALU", "CR1_Mam", "HAL1", "HAL1B", "HAL1M8", "IN25", "
 list_simple_repeats <- c('ALR', 'ALR_', 'ALR1', 'ALR2', 'ALRa', 'ALRa_', 'ALRb', 'BSRf', 'CER', 'GSAT', 'GSATII', 'GSATX', 'HSATI', 'HSATII', 'LSAU', 'MSR1', 'REP522', 'SATR1', 'SATR2', 'SN5', 'SVA2', 'TAR1')
 
 list_non_classified <- c('Eutr1', 'Eutr10', 'Eutr11', 'Eutr12', 'Eutr13', 'Eutr14', 'Eutr15', 'Eutr16', 'Eutr18', 'Eutr2', 'Eutr4', 'Eutr5', 'Eutr6', 'EUTREP11', 'EUTREP12', 'EUTREP14', 'EUTREP15', 'EUTREP2', 'EUTREP5', 'EUTREP6', 'EUTREP7', 'EUTREP8', 'MamRep564', 'MamRep605', 'MER35', 'MER122', 'MER124', 'UCON103', 'UCON105', 'UCON106', 'UCON32', 'UCON33', 'UCON38', 'UCON40', 'UCON43', 'UCON44', 'UCON45', 'UCON46', 'UCON47', 'UCON48', 'UCON53', 'UCON54', 'UCON63', 'UCON64', 'UCON65', 'UCON72', 'UCON75', 'UCON76', 'UCON84', 'UCON89', 'UCON93', 'UCON96')
-
-#(TE_list <- filter(HGDPcutoff, type=='te', !(familyname %in% list_ERV), !(familyname %in% list_DNA), !(familyname %in% list_LTR), !(familyname %in% list_nonLTR), !(familyname %in% list_simple_repeats), !(familyname %in% list_non_classified)) %>% distinct(familyname) %>% arrange(familyname))
 ```
 
 ``` r
@@ -333,3 +331,101 @@ think that this is caused by the American males outliers that cluster
 with the Africans and that alter the ellipse shape of the Americans.
 Also, there is no a single `Bouganville` **male** that is clustered far
 from the Africans, in any of the showed plots.
+
+### PCA for the additional samples
+
+``` r
+(HGDP_plus <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/HGDP-plus.csv"))
+```
+
+    ## Rows: 1442036 Columns: 10
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (7): ID, pop, sex, country, type, familyname, dataset
+    ## dbl (3): length, reads, copynumber
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## # A tibble: 1,442,036 × 10
+    ##    ID        pop    sex   country     type  famil…¹ length reads copyn…² dataset
+    ##    <chr>     <chr>  <chr> <chr>       <chr> <chr>    <dbl> <dbl>   <dbl> <chr>  
+    ##  1 HGDP00001 Brahui male  Central_So… scg   chr1:9…   4152 1052.   1.02  HGDP   
+    ##  2 HGDP00001 Brahui male  Central_So… scg   chr1:9…   5136 1092.   0.852 HGDP   
+    ##  3 HGDP00001 Brahui male  Central_So… scg   chr1:1…   3064  832.   1.09  HGDP   
+    ##  4 HGDP00001 Brahui male  Central_So… scg   chr1:1…   3239  901.   1.11  HGDP   
+    ##  5 HGDP00001 Brahui male  Central_So… scg   chr1:1…   4035 1102.   1.09  HGDP   
+    ##  6 HGDP00001 Brahui male  Central_So… scg   chr1:1…   2500  733.   1.18  HGDP   
+    ##  7 HGDP00001 Brahui male  Central_So… scg   chr1:1…   2599  580.   0.895 HGDP   
+    ##  8 HGDP00001 Brahui male  Central_So… scg   chr1:1…   2124  477.   0.900 HGDP   
+    ##  9 HGDP00001 Brahui male  Central_So… scg   chr1:2…   6284 1527.   0.974 HGDP   
+    ## 10 HGDP00001 Brahui male  Central_So… scg   chr1:2…   3222  884.   1.10  HGDP   
+    ## # … with 1,442,026 more rows, and abbreviated variable names ¹​familyname,
+    ## #   ²​copynumber
+
+``` r
+(HGDP_plus_mod <- dplyr::rename(HGDP_plus, Country=country, Pop=pop) %>% mutate(Country = replace(Country, Country == 'Central_South_Asia', 'Eurasia')) %>% mutate(Country = replace(Country, Country == 'East_Asia', 'Eurasia')) %>% mutate(Country = replace(Country, Country == 'Middle_East', 'Eurasia')) %>% mutate(Country = replace(Country, Country == 'Europe', 'Eurasia')) %>% mutate(Country = replace(Country, Pop == 'Hawaiian', 'Hawaiian')) %>% mutate(Country = replace(Country, Pop == 'Icelandic', 'Icelandic')) %>% mutate(Country = replace(Country, Pop == 'Australian', 'Australian')) %>% mutate(Country = replace(Country, Pop == 'Igorot', 'Igorot')) %>% mutate(Country = replace(Country, Pop == 'Dusun', 'Dusun')) %>% mutate(Country = replace(Country, Pop == 'Maori', 'Maori')) %>% filter(type=="te"))
+```
+
+    ## # A tibble: 826,572 × 10
+    ##    ID        Pop    sex   Country type  familyname length  reads copyn…¹ dataset
+    ##    <chr>     <chr>  <chr> <chr>   <chr> <chr>       <dbl>  <dbl>   <dbl> <chr>  
+    ##  1 HGDP00001 Brahui male  Eurasia te    LTR65         669 1.10e3 6.57e+0 HGDP   
+    ##  2 HGDP00001 Brahui male  Eurasia te    HERVK3I      7242 3.89e4 2.15e+1 HGDP   
+    ##  3 HGDP00001 Brahui male  Eurasia te    HERV9        8399 3.12e5 1.49e+2 HGDP   
+    ##  4 HGDP00001 Brahui male  Eurasia te    L1PA12_5     3072 6.41e4 8.36e+1 HGDP   
+    ##  5 HGDP00001 Brahui male  Eurasia te    LTR27C        767 3.13e3 1.63e+1 HGDP   
+    ##  6 HGDP00001 Brahui male  Eurasia te    LTR16A1       457 4.14e2 3.63e+0 HGDP   
+    ##  7 HGDP00001 Brahui male  Eurasia te    Tigger16a     933 9.32e0 4.01e-2 HGDP   
+    ##  8 HGDP00001 Brahui male  Eurasia te    LTR23         437 7.70e3 7.06e+1 HGDP   
+    ##  9 HGDP00001 Brahui male  Eurasia te    X32_DNA       336 4.38e1 5.22e-1 HGDP   
+    ## 10 HGDP00001 Brahui male  Eurasia te    LTR53         519 1.36e3 1.05e+1 HGDP   
+    ## # … with 826,562 more rows, and abbreviated variable name ¹​copynumber
+
+``` r
+filter(HGDP_plus_mod, Country=="Maori")
+```
+
+    ## # A tibble: 984 × 10
+    ##    ID      Pop   sex   Country type  familyname length     reads copyn…¹ dataset
+    ##    <chr>   <chr> <chr> <chr>   <chr> <chr>       <dbl>     <dbl>   <dbl> <chr>  
+    ##  1 NA17386 Maori male  Maori   te    LTR65         669   1067.   4.97e+0 SGDP   
+    ##  2 NA17386 Maori male  Maori   te    HERVK3I      7242  42985.   1.85e+1 SGDP   
+    ##  3 NA17386 Maori male  Maori   te    HERV9        8399 365646.   1.36e+2 SGDP   
+    ##  4 NA17386 Maori male  Maori   te    L1PA12_5     3072  59091.   6.00e+1 SGDP   
+    ##  5 NA17386 Maori male  Maori   te    LTR27C        767   3426.   1.39e+1 SGDP   
+    ##  6 NA17386 Maori male  Maori   te    LTR16A1       457    393.   2.68e+0 SGDP   
+    ##  7 NA17386 Maori male  Maori   te    Tigger16a     933      9.34 3.12e-2 SGDP   
+    ##  8 NA17386 Maori male  Maori   te    LTR23         437   9448.   6.74e+1 SGDP   
+    ##  9 NA17386 Maori male  Maori   te    X32_DNA       336     35.5  3.29e-1 SGDP   
+    ## 10 NA17386 Maori male  Maori   te    LTR53         519   1169.   7.02e+0 SGDP   
+    ## # … with 974 more rows, and abbreviated variable name ¹​copynumber
+
+``` r
+PCA(HGDP_plus_mod, "All the repetitive sequences")
+```
+
+    ## Warning in matrix(as.vector(f$copynumber), nrow = females, ncol = len, byrow =
+    ## T): data length [280135] is not a sub-multiple or multiple of the number of rows
+    ## [290]
+
+    ## Warning in matrix(as.vector(f$Country), nrow = females, ncol = len, byrow = T):
+    ## data length [280135] is not a sub-multiple or multiple of the number of rows
+    ## [290]
+
+    ## Warning in matrix(as.vector(m$copynumber), nrow = males, ncol = len, byrow =
+    ## T): data length [546437] is not a sub-multiple or multiple of the number of rows
+    ## [566]
+
+    ## Warning in matrix(as.vector(m$Country), nrow = males, ncol = len, byrow = T):
+    ## data length [546437] is not a sub-multiple or multiple of the number of rows
+    ## [566]
+
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+L1_plus_mod <- subset(HGDP_plus_mod, type=="te") %>% filter(grepl("L1", familyname))
+PCA(L1_plus_mod, "LINE-1 retrotransposons")
+```
+
+![](06_HGDP_PCA_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
