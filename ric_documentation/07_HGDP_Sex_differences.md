@@ -157,7 +157,7 @@ The following plots shows, respectively:
 ``` r
 abs_subset <- filter(final_data, abs_diff>75) # This number is arbitrary, feel free to look at more/less TEs in the plot
 
-(abs <- ggplot(abs_subset, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in)) + labs(fill = "More abundant in:") +
+(abs <- ggplot(abs_subset, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
   geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)))
 ```
@@ -195,7 +195,7 @@ consistent.
 
 ``` r
 L1<-final_data %>% filter(str_detect(familyname, "^L1"))
-(L1plot <- ggplot(L1, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in)) + labs(fill = "More abundant in:") +
+(L1plot <- ggplot(L1, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
   geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
 ```
@@ -204,7 +204,7 @@ L1<-final_data %>% filter(str_detect(familyname, "^L1"))
 
 ``` r
 L1_50<-final_data %>% filter(str_detect(familyname, "^L1"), abs_diff>50)
-(L1_50plot <- ggplot(L1_50, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in)) + labs(fill = "More abundant in:") +
+(L1_50plot <- ggplot(L1_50, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
   geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
 ```

@@ -614,6 +614,17 @@ ggplot(subset_TE, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in, a
 
 ![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
+``` r
+ggplot(subset_TE, aes(reorder(familyname, -abs(diff)), diff, fill=more_in, alpha=origin)) + labs(fill = "More abundant in:", alpha = "Data origin:") +
+  geom_bar(position="dodge", stat="identity") + ylab("Difference between male/female copynumbers")+ xlab("") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_alpha_discrete(range = c(0.5, 1))
+```
+
+    ## Warning: Using alpha for a discrete variable is not advised.
+
+![](11_HGDP_T2T_control_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
 The plot above shows the **difference between male and female
 copynumber** for the 10 selected TEs, both in the HGDP (the mean value
 of all the samples) and in the artificial male and female created from
@@ -669,7 +680,7 @@ our pipeline.
     ## # … with abbreviated variable names ¹​f_mean_log, ²​m_mean_log, ³​abs_diff
 
 ``` r
-ggplot(subset_L1, aes(reorder(familyname, -abs(diff)), abs_diff, fill=more_in, alpha=origin)) + labs(fill = "More abundant in:", alpha = "Data origin:") +
+ggplot(subset_L1, aes(reorder(familyname, -abs(diff)), diff, fill=more_in, alpha=origin)) + labs(fill = "More abundant in:", alpha = "Data origin:") +
   geom_bar(position="dodge", stat="identity") + ylab("Difference between male/female copynumbers")+ xlab("") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_alpha_discrete(range = c(0.5, 1))
