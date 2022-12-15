@@ -18,7 +18,7 @@ library(tidyverse)
 ```
 
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-    ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
+    ## ✔ ggplot2 3.4.0      ✔ purrr   0.3.4 
     ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
     ## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
     ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
@@ -80,7 +80,7 @@ by `sex`. I use the function `inner_join` to add `latitude` and
 `longitude` to the initial dataset.
 
 ``` r
-by_pop <- group_by(TE, pop, country, familyname, sex) %>% summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
+by_pop <- group_by(TE, pop, country, familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
 ```
 
     ## `summarise()` has grouped output by 'pop', 'country', 'familyname'. You can
@@ -172,7 +172,11 @@ LINEs which shows similar patterns in the previous analysis.
 plot_map(data, "L1PB1")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
@@ -180,17 +184,10 @@ plot_map(data, "L1PB1")
 plot_map(data, "L1PA3")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
-
-``` r
-plot_map(data, "L1ME5")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
 
 The similarity among these TEs distributions is striking:
 
@@ -236,7 +233,8 @@ migration that followed the South Coast of Middle East and Asia.
 plot_map(data, "L1PA7_5")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
@@ -250,23 +248,79 @@ during the OOU bottleneck.
 To explain the fact that some oceanians has high copynumber for this TE,
 we have two hypothesis to test:
 
-- A **re-invasion** occurred.
+- A **re-invasion** occurred independently from africans.
 - The **archaic humans** “gave back” to them the African high copynumber
   parts of the genome.
 
 ### Other LINEs
 
 ``` r
-#plot_map(data, "L1PA4")
-#plot_map(data, "L1")
-#plot_map(data, "L1PREC1")
-#plot_map(data, "L1PA16")
-#plot_map(data, "L1PA6")
-#plot_map(data, "L1HS")
-#plot_map(data, "L1PA7")
+plot_map(data, "L1PA4")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+``` r
+plot_map(data, "L1")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+
+``` r
+plot_map(data, "L1PREC1")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-3.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA16")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-4.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA6")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-5.png)<!-- -->
+
+``` r
+plot_map(data, "L1HS")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-6.png)<!-- -->
+
+``` r
+plot_map(data, "L1PA7")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-7-7.png)<!-- -->
+
+``` r
 #plot_map(data, "L1PB2c")
 #plot_map(data, "L1PA10")
-#plot_map(data, "L1PA8")
+##plot_map(data, "L1PA8")
 #plot_map(data, "L1PREC2")
 #plot_map(data, "L1PA15")
 #plot_map(data, "L1P_MA2")
@@ -281,7 +335,8 @@ we have two hypothesis to test:
 plot_map(data, "ALU")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -289,7 +344,8 @@ plot_map(data, "ALU")
 plot_map(data, "SVA_A")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
@@ -309,7 +365,8 @@ admixture would show fewer TE than modern females.
 plot_map(data, "MER2")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
@@ -322,17 +379,10 @@ here, `MER2`.
 plot_map(data, "MLT2A1")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
-plot_map(data, "HERVI")
-```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
 For `MLT2A1`, we have a pattern super consistent with the most common
 previously described. Instead, `HERVI` shows something different. Looks
@@ -345,7 +395,8 @@ copynumber change only from 4.4 to 5.5.
 plot_map(data, "GSATII")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
@@ -387,17 +438,14 @@ variance and no particularly relevant distribution.
 plot_map(data, 'MER63C')
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
-plot_map(data, "CHARLIE1A")
+#plot_map(data, "CHARLIE1A")
 ```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 We see **low variance**, as expected. On the other hand, we still see
 specific geographic distributions, with **Eurasia** having the
@@ -418,17 +466,14 @@ TEs are considered to be ancient and inactive.
 plot_map(data, "L2")
 ```
 
-    ## Warning: Ignoring unknown aesthetics: x, y
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
-plot_map(data, 'L2B')
+#plot_map(data, 'L2B')
 ```
-
-    ## Warning: Ignoring unknown aesthetics: x, y
-
-![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 Here we see both **low variance** and no particular distribution, as
 expected.
@@ -440,8 +485,8 @@ by population for each TE.
 
 ``` r
 plot_cn_sd <- function(data, TE, ylimits){
-singleTE = filter(data, familyname==TE) %>% arrange(sex, copynumber)
-ggplot(singleTE, aes(reorder(pop, copynumber), copynumber, fill=country))+
+singleTE = filter(data, familyname==TE) %>% mutate(pop = fct_reorder2(pop, desc(sex), desc(copynumber)))
+ggplot(singleTE, aes(pop, copynumber, fill=country))+
   geom_bar(stat = "identity")+
   geom_errorbar(aes(ymin=copynumber-sd, ymax=copynumber+sd), alpha=0.5)+
   facet_wrap(~sex) + ggtitle(TE) + ylab("Mean copynumber") + xlab("Population") +
@@ -490,6 +535,145 @@ plot_cn_sd(data, "L2", c(5, 11))
 
 ![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-14-7.png)<!-- -->
 
+``` r
+plot_cn_sd(data, "ZOMBI", c(85, 115))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "GOLEM", c(25, 35))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+
+``` r
+plot_cn_sd(data, "MER1B", c(900, 1050))
+```
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
+
 We see that the SD are sometimes very consistent. Nevertheless, I think
 that the trend is still clear among all the analyzed TEs, with some
 populations being less reliable than others.
+
+``` r
+plot_raw_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(longitude, latitude, color = reads, size = count)
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname)}
+
+by_pop_scg <- group_by(HGDPcutoff, pop, country, familyname, sex) %>% dplyr::summarise(sd=sd(reads), reads = mean(reads), count=n())
+```
+
+    ## `summarise()` has grouped output by 'pop', 'country', 'familyname'. You can
+    ## override using the `.groups` argument.
+
+``` r
+raw_data <- inner_join(x = coord, y = by_pop_scg, by = "pop")
+
+plot_raw_map(raw_data, "chr1:916864-921016")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "chr2:101825318-101829754")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "chr3:124677339-124679749")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-3.png)<!-- -->
+
+``` r
+#plot_raw_map(raw_data, "chr4:110617422-110621734")
+#plot_raw_map(raw_data, "chr5:1264247-1266524")
+#plot_raw_map(raw_data, "chr6:100462602-100464889")
+#plot_raw_map(raw_data, "chr7:100429374-100431482")
+#plot_raw_map(raw_data, "chr8:101686546-101689093")
+#plot_raw_map(raw_data, "chr9:104275297-104277399")
+#plot_raw_map(raw_data, "chr10:100746263-100749916")
+
+plot_raw_map(raw_data, "L1PB1")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-4.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "L1PA3")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-5.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "ALU")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-6.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "SVA_A")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-7.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "MER2")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-8.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "MLT2A1")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-9.png)<!-- -->
+
+``` r
+plot_raw_map(raw_data, "L2")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](04_HGDP_Geographic-details_files/figure-gfm/unnamed-chunk-16-10.png)<!-- -->
