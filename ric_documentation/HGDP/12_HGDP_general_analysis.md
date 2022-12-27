@@ -150,7 +150,7 @@ Then, I calculate the **mean copynumber** of each TE for every continent
 
 ## Functions
 
-This code chunck contains a function `pie_chart_more_in` which creates
+This code chunk contains a function `pie_chart_more_in` which creates
 two pie charts that shows the percentage of TE families that are more
 abundant in each continent, one for the females and one for the males.
 
@@ -214,6 +214,7 @@ figure <- ggarrange(f_pie, m_pie, ncol = 2, nrow = 1, common.legend = TRUE, lege
 text <- paste(which_TE, "- How many families are most abundant in each continent?")
 
 (figure_final <- annotate_figure(figure, top = text_grob(text, color = "black", size = 15, hjust = 0.55, vjust = 2), fig.lab = ""))
+
 }
 ```
 
@@ -274,6 +275,38 @@ text <- paste(which_TE, "- How many families are least abundant in each continen
 }
 ```
 
+``` r
+chi_most <- function(data, class_or_superfamily, which_TE){
+  
+if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
+if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+
+chi_m <- ungroup(subset) %>% mutate(most = case_when((Eurasia-Africa>0 & Eurasia-America>0 & Eurasia-Oceania>0) ~ "Eurasia", (Africa-Eurasia>0 & Africa-America>0 & Africa-Oceania>0) ~ "Africa", (America-Africa>0 & America-Eurasia>0 & America-Oceania>0) ~ "America", (Oceania-Africa>0 & Oceania-America>0 & Oceania-Eurasia>0) ~ "Oceania")) %>% group_by(most) %>% summarise(n = n()) %>% select(n) %>% pull
+
+while (length(chi_m)!=4) {
+  chi_m <- append(chi_m, 0)
+  }
+  
+chisq.test(chi_m)
+}
+```
+
+``` r
+chi_least <- function(data, class_or_superfamily, which_TE){
+  
+if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
+if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+
+chi_l <- ungroup(subset) %>% mutate(least = case_when((Eurasia-Africa<0 & Eurasia-America<0 & Eurasia-Oceania<0) ~ "Eurasia", (Africa-Eurasia<0 & Africa-America<0 & Africa-Oceania<0) ~ "Africa", (America-Africa<0 & America-Eurasia<0 & America-Oceania<0) ~ "America", (Oceania-Africa<0 & Oceania-America<0 & Oceania-Eurasia<0) ~ "Oceania")) %>% group_by(least) %>% summarise(n = n()) %>% select(n) %>% pull
+
+while (length(chi_l)!=4) {
+  chi_l <- append(chi_l, 0)
+  }
+  
+chi_l
+}
+```
+
 After creating the functions, we can explore the dataset using them.
 
 ## By class
@@ -282,13 +315,27 @@ After creating the functions, we can explore the dataset using them.
 pie_chart_more_in(continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+chi_most(continents, "class", "LINE")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 365.85, df = 3, p-value < 2.2e-16
 
 ``` r
 pie_chart_less_in(continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "class", "LINE")
+```
 
 - **More abundant**: we have a clear bias towards **Eurasia**.
   **Africa** follows, while very few TEs are more abundant in the other
@@ -302,13 +349,28 @@ pie_chart_less_in(continents, "class", "LINE")
 pie_chart_more_in(continents, "class", "SINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+chi_most(continents, "class", "SINE")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 5, df = 3, p-value = 0.1718
 
 ``` r
 pie_chart_less_in(continents, "class", "SINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "class", "SINE")
+```
+
 The number of **SINE** families is very low, so I do not expect these
 charts to be relevant.
 
@@ -320,13 +382,27 @@ charts to be relevant.
 pie_chart_more_in(continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+chi_most(continents, "class", "DNA")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 494.64, df = 3, p-value < 2.2e-16
 
 ``` r
 pie_chart_less_in(continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "class", "DNA")
+```
 
 **DNA transposons** shows surpisingly similar plots to **LINEs**!
 
@@ -334,13 +410,27 @@ pie_chart_less_in(continents, "class", "DNA")
 pie_chart_more_in(continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+chi_most(continents, "class", "LTR")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 1013.3, df = 3, p-value < 2.2e-16
 
 ``` r
 pie_chart_less_in(continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "class", "LTR")
+```
 
 **LTR transposons** are more abundant in **Africa**! **Eurasia**
 follows. Less abundant, as expected, in **America** and a bit in
@@ -351,13 +441,28 @@ are very present in the **less abundant** chart.
 pie_chart_more_in(continents, "class", "satellite")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+chi_most(continents, "class", "satellite")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 7.8182, df = 3, p-value = 0.04992
 
 ``` r
 pie_chart_less_in(continents, "class", "satellite")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "class", "satellite")
+```
+
 The number of **satellite** families is very low, so I do not expect
 these charts to be relevant.
 
@@ -372,13 +477,27 @@ these charts to be relevant.
 pie_chart_more_in(continents, "superfamily", "L1")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+chi_most(continents, "superfamily", "L1")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 396.77, df = 3, p-value < 2.2e-16
 
 ``` r
 pie_chart_less_in(continents, "superfamily", "L1")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "superfamily", "L1")
+```
 
 LINE-1 (`L1`) are expected to be the most active TEs in humans, thus we
 expect these charts to be an extremization of the `LINE` plots,
@@ -387,109 +506,12 @@ we find here.
 
 ## What do we expect with random values?
 
-Here I substitute the TEs `copynumbers` with random values for each
-continent, to see if the patterns shown above could be by pure chance.
-
-### Random values for continental average copynumber
+Here I substitute the TEs `copynumbers` with random values between 0 and
+1.
 
 ``` r
 set.seed(42)
 
-random1 <- continents %>% select(familyname, sex, superfamily, class) %>% add_column(Africa = runif(nrow(.)), America = runif(nrow(.)), Eurasia = runif(nrow(.)), Oceania = runif(nrow(.)))
-
-random2 <- continents %>% select(familyname, sex, superfamily, class) %>% add_column(Africa = runif(nrow(.)), America = runif(nrow(.)), Eurasia = runif(nrow(.)), Oceania = runif(nrow(.)))
-
-random3 <- continents %>% select(familyname, sex, superfamily, class) %>% add_column(Africa = runif(nrow(.)), America = runif(nrow(.)), Eurasia = runif(nrow(.)), Oceania = runif(nrow(.)))
-
-pie_chart_more_in(random1, "class", "LINE")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-``` r
-#pie_chart_more_in(random2, "class", "LINE")
-#pie_chart_more_in(random3, "class", "LINE")
-pie_chart_less_in(random1, "class", "LINE")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
-
-``` r
-#pie_chart_less_in(random2, "class", "LINE")
-#pie_chart_less_in(random3, "class", "LINE")
-
-pie_chart_more_in(random1, "class", "SINE")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
-
-``` r
-#pie_chart_more_in(random2, "class", "SINE")
-#pie_chart_more_in(random3, "class", "SINE")
-pie_chart_less_in(random1, "class", "SINE")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-4.png)<!-- -->
-
-``` r
-#pie_chart_less_in(random2, "class", "SINE")
-#pie_chart_less_in(random3, "class", "SINE")
-
-pie_chart_more_in(random1, "class", "LTR")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-5.png)<!-- -->
-
-``` r
-#pie_chart_more_in(random2, "class", "LTR")
-#pie_chart_more_in(random3, "class", "LTR")
-pie_chart_less_in(random1, "class", "LTR")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-6.png)<!-- -->
-
-``` r
-#pie_chart_less_in(random2, "class", "LTR")
-#pie_chart_less_in(random3, "class", "LTR")
-
-pie_chart_more_in(random1, "class", "DNA")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-7.png)<!-- -->
-
-``` r
-#pie_chart_more_in(random2, "class", "DNA")
-#pie_chart_more_in(random3, "class", "DNA")
-pie_chart_less_in(random1, "class", "DNA")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-8.png)<!-- -->
-
-``` r
-#pie_chart_less_in(random2, "class", "DNA")
-#pie_chart_less_in(random3, "class", "DNA")
-
-pie_chart_more_in(random1, "class", "satellite")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-9.png)<!-- -->
-
-``` r
-#pie_chart_more_in(random2, "class", "satellite")
-#pie_chart_more_in(random3, "class", "satellite")
-pie_chart_less_in(random1, "class", "satellite")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-10.png)<!-- -->
-
-``` r
-#pie_chart_less_in(random2, "class", "satellite")
-#pie_chart_less_in(random3, "class", "satellite")
-```
-
-### Random values for individual copynumber
-
-``` r
 random_by_pop <- group_by(HGDP, pop, country, familyname, sex) %>% select(!(copynumber)) %>% add_column(copynumber = runif(nrow(.))) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
 ```
 
@@ -509,74 +531,74 @@ random_data <- inner_join(coord, random_by_pop, by = "pop")
     ## # Groups:   familyname [965]
     ##    familyname sex    Africa America Eurasia Oceania superfamily class    
     ##    <chr>      <chr>   <dbl>   <dbl>   <dbl>   <dbl> <chr>       <chr>    
-    ##  1 6kbHsap    female  0.541   0.429   0.495   0.525 satellite   satellite
-    ##  2 6kbHsap    male    0.502   0.389   0.488   0.446 satellite   satellite
-    ##  3 ALINE      female  0.444   0.450   0.474   0.566 RTEX        LINE     
-    ##  4 ALINE      male    0.396   0.434   0.494   0.443 RTEX        LINE     
-    ##  5 ALR        female  0.539   0.565   0.518   0.187 SAT         satellite
-    ##  6 ALR        male    0.536   0.674   0.499   0.350 SAT         satellite
-    ##  7 ALR_       female  0.528   0.458   0.508   0.586 SAT         satellite
-    ##  8 ALR_       male    0.538   0.342   0.534   0.514 SAT         satellite
-    ##  9 ALR1       female  0.434   0.440   0.507   0.734 SAT         satellite
-    ## 10 ALR1       male    0.513   0.518   0.510   0.419 SAT         satellite
+    ##  1 6kbHsap    female  0.568   0.518   0.510   0.417 satellite   satellite
+    ##  2 6kbHsap    male    0.530   0.424   0.479   0.530 satellite   satellite
+    ##  3 ALINE      female  0.617   0.385   0.464   0.487 RTEX        LINE     
+    ##  4 ALINE      male    0.505   0.500   0.512   0.533 RTEX        LINE     
+    ##  5 ALR        female  0.580   0.557   0.527   0.501 SAT         satellite
+    ##  6 ALR        male    0.506   0.441   0.502   0.495 SAT         satellite
+    ##  7 ALR_       female  0.591   0.479   0.532   0.299 SAT         satellite
+    ##  8 ALR_       male    0.469   0.607   0.516   0.508 SAT         satellite
+    ##  9 ALR1       female  0.635   0.490   0.515   0.421 SAT         satellite
+    ## 10 ALR1       male    0.477   0.623   0.512   0.553 SAT         satellite
     ## # … with 1,920 more rows
 
 ``` r
-pie_chart_more_in(random1, "class", "LINE")
+pie_chart_more_in(random_continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "LINE")
+pie_chart_less_in(random_continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "SINE")
+pie_chart_more_in(random_continents, "class", "SINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "SINE")
+pie_chart_less_in(random_continents, "class", "SINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-4.png)<!-- -->
 
 ``` r
-pie_chart_more_in(random1, "class", "LTR")
+pie_chart_more_in(random_continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-5.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-5.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "LTR")
+pie_chart_less_in(random_continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-6.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-6.png)<!-- -->
 
 ``` r
-pie_chart_more_in(random1, "class", "DNA")
+pie_chart_more_in(random_continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-7.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-7.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "DNA")
+pie_chart_less_in(random_continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-8.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-8.png)<!-- -->
 
 ``` r
-pie_chart_more_in(random1, "class", "satellite")
+pie_chart_more_in(random_continents, "class", "satellite")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-9.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-9.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random1, "class", "satellite")
+pie_chart_less_in(random_continents, "class", "satellite")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-10.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-10.png)<!-- -->
