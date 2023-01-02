@@ -32,7 +32,7 @@ library(ggpubr)
 HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/HGDP_cutoff_classified.tsv", col_names = c( "ID","pop","sex","country","type","familyname","length","reads","copynumber","batch", "superfamily", "shared_with"), skip=1)
 ```
 
-    ## Rows: 799020 Columns: 12
+    ## Rows: 1394352 Columns: 12
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: "\t"
     ## chr (9): ID, pop, sex, country, type, familyname, batch, superfamily, shared...
@@ -62,11 +62,11 @@ coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordin
 ``` r
 coord <- select(coordinates, pop, latitude, longitude)
 
-by_pop <- group_by(HGDP, pop, country, familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
+by_pop <- group_by(HGDP, pop, country, familyname, type, sex) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
 ```
 
-    ## `summarise()` has grouped output by 'pop', 'country', 'familyname'. You can
-    ## override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'pop', 'country', 'familyname', 'type'. You
+    ## can override using the `.groups` argument.
 
 ``` r
 data <- inner_join(coord, by_pop, by = "pop")
@@ -95,23 +95,8 @@ SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
 LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
 satellites_names <- c("Satellite", "satellite", "SAT")
 
-(classification <- select(HGDP, familyname, superfamily) %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
+classification <- select(HGDP, familyname, superfamily) %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite"))
 ```
-
-    ## # A tibble: 799,020 × 3
-    ##    familyname superfamily class
-    ##    <chr>      <chr>       <chr>
-    ##  1 LTR65      ERV1        LTR  
-    ##  2 HERVK3I    ERV2        LTR  
-    ##  3 HERV9      ERV1        LTR  
-    ##  4 L1PA12_5   L1          LINE 
-    ##  5 LTR27C     ERV1        LTR  
-    ##  6 LTR16A1    ERV3        LTR  
-    ##  7 Tigger16a  Mariner/Tc1 DNA  
-    ##  8 LTR23      ERV1        LTR  
-    ##  9 X32_DNA    Mariner/Tc1 DNA  
-    ## 10 LTR53      ERV3        LTR  
-    ## # … with 799,010 more rows
 
 ## Geographic classification and mean abundance by continent
 
@@ -126,27 +111,27 @@ Then, I calculate the **mean copynumber** of each TE for every continent
 (`country`).
 
 ``` r
-(continents <- by_pop %>% group_by(country, familyname, sex) %>% mutate(country = replace(country, country == 'Central_South_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'East_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'Middle_East', 'Eurasia')) %>% mutate(country = replace(country, country == 'Europe', 'Eurasia')) %>% dplyr::summarise(country_mean=mean(copynumber)) %>% arrange(familyname) %>% pivot_wider(names_from = country, values_from = country_mean) %>% inner_join(classification, by="familyname") %>% distinct())
+(continents <- by_pop %>% group_by(country, familyname, type, sex) %>% mutate(country = replace(country, country == 'Central_South_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'East_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'Middle_East', 'Eurasia')) %>% mutate(country = replace(country, country == 'Europe', 'Eurasia')) %>% dplyr::summarise(country_mean=mean(copynumber)) %>% arrange(familyname) %>% pivot_wider(names_from = country, values_from = country_mean) %>% full_join(classification, by="familyname") %>% distinct())
 ```
 
-    ## `summarise()` has grouped output by 'country', 'familyname'. You can override
-    ## using the `.groups` argument.
+    ## `summarise()` has grouped output by 'country', 'familyname', 'type'. You can
+    ## override using the `.groups` argument.
 
-    ## # A tibble: 1,930 × 8
-    ## # Groups:   familyname [965]
-    ##    familyname sex       Africa   America   Eurasia   Oceania superfamily class  
-    ##    <chr>      <chr>      <dbl>     <dbl>     <dbl>     <dbl> <chr>       <chr>  
-    ##  1 6kbHsap    female   324.      296.      299.      308.    satellite   satell…
-    ##  2 6kbHsap    male     344.      316.      304.      290.    satellite   satell…
-    ##  3 ALINE      female     0.122     0.128     0.134     0.135 RTEX        LINE   
-    ##  4 ALINE      male       0.145     0.128     0.134     0.126 RTEX        LINE   
-    ##  5 ALR        female 32412.    29301.    31567.    38618.    SAT         satell…
-    ##  6 ALR        male   34003.    31119.    31994.    36701.    SAT         satell…
-    ##  7 ALR_       female 78584.    75727.    78694.    83390.    SAT         satell…
-    ##  8 ALR_       male   80091.    79914.    78435.    84444.    SAT         satell…
-    ##  9 ALR1       female 70164.    66492.    71563.    81753.    SAT         satell…
-    ## 10 ALR1       male   75555.    72189.    72538.    81859.    SAT         satell…
-    ## # … with 1,920 more rows
+    ## # A tibble: 3,368 × 9
+    ## # Groups:   familyname, type [1,684]
+    ##    familyname     type  sex    Africa America Eurasia Oceania superfamily class 
+    ##    <chr>          <chr> <chr>   <dbl>   <dbl>   <dbl>   <dbl> <chr>       <chr> 
+    ##  1 6kbHsap        te    female 324.   296.     299.    308.   satellite   satel…
+    ##  2 6kbHsap        te    male   344.   316.     304.    290.   satellite   satel…
+    ##  3 a_AC067968.1_2 krab  female   1.26   1.21     1.30    1.31 <NA>        <NA>  
+    ##  4 a_AC067968.1_2 krab  male     1.34   1.33     1.32    1.34 <NA>        <NA>  
+    ##  5 a_AC092835.1_5 krab  female   1.30   1.13     1.23    1.30 <NA>        <NA>  
+    ##  6 a_AC092835.1_5 krab  male     1.24   1.18     1.23    1.23 <NA>        <NA>  
+    ##  7 a_CDK8_20      krab  female   2.01   1.92     2.10    2.06 <NA>        <NA>  
+    ##  8 a_CDK8_20      krab  male     2.06   2.06     2.08    2.06 <NA>        <NA>  
+    ##  9 a_CHD3_3       krab  female   1.03   0.997    1.02    1.03 <NA>        <NA>  
+    ## 10 a_CHD3_3       krab  male     1.07   1.03     1.02    1.04 <NA>        <NA>  
+    ## # … with 3,358 more rows
 
 ## Functions
 
@@ -168,11 +153,12 @@ pie_chart_more_in <- function(data, class_or_superfamily, which_TE){
 
 if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
 if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
   
-f_eurasia <- filter(subset, Eurasia-Africa>0, Eurasia-America>0, Eurasia-Oceania>0, sex=="female") %>% ungroup %>% summarise(eurasia = n()) %>% pull
-f_africa <- filter(subset, Africa-Eurasia>0, Africa-America>0, Africa-Oceania>0, sex=="female") %>% ungroup %>% summarise(africa = n()) %>% pull
-f_america <- filter(subset, America-Eurasia>0, America-Africa>0, America-Oceania>0, sex=="female") %>% ungroup %>% summarise(america = n()) %>% pull
-f_oceania <- filter(subset, Oceania-Eurasia>0, Oceania-Africa>0, Oceania-America>0, sex=="female") %>% ungroup %>% summarise(oceania = n()) %>% pull
+f_eurasia <- filter(subset, Eurasia-Africa>0, Eurasia-America>0, Eurasia-Oceania>0, sex=="female") %>% ungroup %>% dplyr::summarise(eurasia = n()) %>% pull
+f_africa <- filter(subset, Africa-Eurasia>0, Africa-America>0, Africa-Oceania>0, sex=="female") %>% ungroup %>% dplyr::summarise(africa = n()) %>% pull
+f_america <- filter(subset, America-Eurasia>0, America-Africa>0, America-Oceania>0, sex=="female") %>% ungroup %>% dplyr::summarise(america = n()) %>% pull
+f_oceania <- filter(subset, Oceania-Eurasia>0, Oceania-Africa>0, Oceania-America>0, sex=="female") %>% ungroup %>% dplyr::summarise(oceania = n()) %>% pull
 
 continents_names <- c("Eurasia", "Africa", "America", "Oceania")
 f_morein <- c(f_eurasia, f_africa, f_america, f_oceania)
@@ -191,10 +177,10 @@ f_pie <- f_bp + coord_polar("y", start=0) +
   geom_label(aes(label = f_morein), position = position_stack(vjust = 0.5), show.legend = FALSE)
 
 
-m_eurasia <- filter(subset, Eurasia-Africa>0, Eurasia-America>0, Eurasia-Oceania>0, sex=="male") %>% ungroup %>% summarise(eurasia = n()) %>% pull
-m_africa <- filter(subset, Africa-Eurasia>0, Africa-America>0, Africa-Oceania>0, sex=="male") %>% ungroup %>% summarise(africa = n()) %>% pull
-m_america <- filter(subset, America-Eurasia>0, America-Africa>0, America-Oceania>0, sex=="male") %>% ungroup %>% summarise(america = n()) %>% pull
-m_oceania <- filter(subset, Oceania-Eurasia>0, Oceania-Africa>0, Oceania-America>0, sex=="male") %>% ungroup %>% summarise(oceania = n()) %>% pull
+m_eurasia <- filter(subset, Eurasia-Africa>0, Eurasia-America>0, Eurasia-Oceania>0, sex=="male") %>% ungroup %>% dplyr::summarise(eurasia = n()) %>% pull
+m_africa <- filter(subset, Africa-Eurasia>0, Africa-America>0, Africa-Oceania>0, sex=="male") %>% ungroup %>% dplyr::summarise(africa = n()) %>% pull
+m_america <- filter(subset, America-Eurasia>0, America-Africa>0, America-Oceania>0, sex=="male") %>% ungroup %>% dplyr::summarise(america = n()) %>% pull
+m_oceania <- filter(subset, Oceania-Eurasia>0, Oceania-Africa>0, Oceania-America>0, sex=="male") %>% ungroup %>% dplyr::summarise(oceania = n()) %>% pull
 
 m_morein <- c(m_eurasia, m_africa, m_america, m_oceania)
 
@@ -227,11 +213,12 @@ pie_chart_less_in <- function(data, class_or_superfamily, which_TE){
 
 if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
 if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
 
-less_f_eurasia <- filter(subset, Eurasia-Africa<0, Eurasia-America<0, Eurasia-Oceania<0, sex=="female") %>% ungroup %>% summarise(eurasia = n()) %>% pull
-less_f_africa <- filter(subset, Africa-Eurasia<0, Africa-America<0, Africa-Oceania<0, sex=="female") %>% ungroup %>% summarise(africa = n()) %>% pull
-less_f_america <- filter(subset, America-Eurasia<0, America-Africa<0, America-Oceania<0, sex=="female") %>% ungroup %>% summarise(america = n()) %>% pull
-less_f_oceania <- filter(subset, Oceania-Eurasia<0, Oceania-Africa<0, Oceania-America<0, sex=="female") %>% ungroup %>% summarise(oceania = n()) %>% pull
+less_f_eurasia <- filter(subset, Eurasia-Africa<0, Eurasia-America<0, Eurasia-Oceania<0, sex=="female") %>% ungroup %>% dplyr::summarise(eurasia = dplyr::n()) %>% pull
+less_f_africa <- filter(subset, Africa-Eurasia<0, Africa-America<0, Africa-Oceania<0, sex=="female") %>% ungroup %>% dplyr::summarise(africa = dplyr::n()) %>% pull
+less_f_america <- filter(subset, America-Eurasia<0, America-Africa<0, America-Oceania<0, sex=="female") %>% ungroup %>% dplyr::summarise(america = dplyr::n()) %>% pull
+less_f_oceania <- filter(subset, Oceania-Eurasia<0, Oceania-Africa<0, Oceania-America<0, sex=="female") %>% ungroup %>% dplyr::summarise(oceania = dplyr::n()) %>% pull
 
 f_lessin <- c(less_f_eurasia, less_f_africa, less_f_america, less_f_oceania)
 continents_names <- c("Eurasia", "Africa", "America", "Oceania")
@@ -249,10 +236,10 @@ less_f_pie <- less_f_bp + coord_polar("y", start=0) +
   geom_label(aes(label = f_lessin), position = position_stack(vjust = 0.5), show.legend = FALSE)
 
 
-less_m_eurasia <- filter(subset, Eurasia-Africa<0, Eurasia-America<0, Eurasia-Oceania<0, sex=="male") %>% ungroup %>% summarise(eurasia = n()) %>% pull
-less_m_africa <- filter(subset, Africa-Eurasia<0, Africa-America<0, Africa-Oceania<0, sex=="male") %>% ungroup %>% summarise(africa = n()) %>% pull
-less_m_america <- filter(subset, America-Eurasia<0, America-Africa<0, America-Oceania<0, sex=="male") %>% ungroup %>% summarise(america = n()) %>% pull
-less_m_oceania <- filter(subset, Oceania-Eurasia<0, Oceania-Africa<0, Oceania-America<0, sex=="male") %>% ungroup %>% summarise(oceania = n()) %>% pull
+less_m_eurasia <- filter(subset, Eurasia-Africa<0, Eurasia-America<0, Eurasia-Oceania<0, sex=="male") %>% ungroup %>% dplyr::summarise(eurasia = dplyr::n()) %>% pull
+less_m_africa <- filter(subset, Africa-Eurasia<0, Africa-America<0, Africa-Oceania<0, sex=="male") %>% ungroup %>% dplyr::summarise(africa = dplyr::n()) %>% pull
+less_m_america <- filter(subset, America-Eurasia<0, America-Africa<0, America-Oceania<0, sex=="male") %>% ungroup %>% dplyr::summarise(america = dplyr::n()) %>% pull
+less_m_oceania <- filter(subset, Oceania-Eurasia<0, Oceania-Africa<0, Oceania-America<0, sex=="male") %>% ungroup %>% dplyr::summarise(oceania = dplyr::n()) %>% pull
 
 m_lessin <- c(less_m_eurasia, less_m_africa, less_m_america, less_m_oceania)
 
@@ -280,8 +267,9 @@ chi_most <- function(data, class_or_superfamily, which_TE){
   
 if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
 if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
 
-chi_m <- ungroup(subset) %>% mutate(most = case_when((Eurasia-Africa>0 & Eurasia-America>0 & Eurasia-Oceania>0) ~ "Eurasia", (Africa-Eurasia>0 & Africa-America>0 & Africa-Oceania>0) ~ "Africa", (America-Africa>0 & America-Eurasia>0 & America-Oceania>0) ~ "America", (Oceania-Africa>0 & Oceania-America>0 & Oceania-Eurasia>0) ~ "Oceania")) %>% group_by(most) %>% summarise(n = n()) %>% select(n) %>% pull
+chi_m <- ungroup(subset) %>% mutate(most = case_when((Eurasia-Africa>0 & Eurasia-America>0 & Eurasia-Oceania>0) ~ "Eurasia", (Africa-Eurasia>0 & Africa-America>0 & Africa-Oceania>0) ~ "Africa", (America-Africa>0 & America-Eurasia>0 & America-Oceania>0) ~ "America", (Oceania-Africa>0 & Oceania-America>0 & Oceania-Eurasia>0) ~ "Oceania")) %>% group_by(most) %>% dplyr::summarise(n = dplyr::n()) %>% select(n) %>% pull
 
 while (length(chi_m)!=4) {
   chi_m <- append(chi_m, 0)
@@ -296,8 +284,9 @@ chi_least <- function(data, class_or_superfamily, which_TE){
   
 if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
 if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
 
-chi_l <- ungroup(subset) %>% mutate(least = case_when((Eurasia-Africa<0 & Eurasia-America<0 & Eurasia-Oceania<0) ~ "Eurasia", (Africa-Eurasia<0 & Africa-America<0 & Africa-Oceania<0) ~ "Africa", (America-Africa<0 & America-Eurasia<0 & America-Oceania<0) ~ "America", (Oceania-Africa<0 & Oceania-America<0 & Oceania-Eurasia<0) ~ "Oceania")) %>% group_by(least) %>% summarise(n = n()) %>% select(n) %>% pull
+chi_l <- ungroup(subset) %>% mutate(least = case_when((Eurasia-Africa<0 & Eurasia-America<0 & Eurasia-Oceania<0) ~ "Eurasia", (Africa-Eurasia<0 & Africa-America<0 & Africa-Oceania<0) ~ "Africa", (America-Africa<0 & America-Eurasia<0 & America-Oceania<0) ~ "America", (Oceania-Africa<0 & Oceania-America<0 & Oceania-Eurasia<0) ~ "Oceania")) %>% group_by(least) %>% dplyr::summarise(n = dplyr::n()) %>% select(n) %>% pull
 
 while (length(chi_l)!=4) {
   chi_l <- append(chi_l, 0)
@@ -309,13 +298,41 @@ chi_l
 
 After creating the functions, we can explore the dataset using them.
 
+## All
+
+``` r
+pie_chart_more_in(continents, "type", "te")
+```
+
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+chi_most(continents, "type", "te")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 1187.5, df = 3, p-value < 2.2e-16
+
+``` r
+pie_chart_less_in(continents, "type", "te")
+```
+
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "type", "te")
+```
+
 ## By class
 
 ``` r
 pie_chart_more_in(continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
 chi_most(continents, "class", "LINE")
@@ -331,7 +348,7 @@ chi_most(continents, "class", "LINE")
 pie_chart_less_in(continents, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
 
 ``` r
 #chi_least(continents, "class", "LINE")
@@ -346,28 +363,10 @@ pie_chart_less_in(continents, "class", "LINE")
   may be interesting.
 
 ``` r
-pie_chart_more_in(continents, "class", "SINE")
-```
+#pie_chart_more_in(continents, "class", "SINE")
+#chi_most(continents, "class", "SINE")
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
-chi_most(continents, "class", "SINE")
-```
-
-    ## 
-    ##  Chi-squared test for given probabilities
-    ## 
-    ## data:  chi_m
-    ## X-squared = 5, df = 3, p-value = 0.1718
-
-``` r
-pie_chart_less_in(continents, "class", "SINE")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
-
-``` r
+#pie_chart_less_in(continents, "class", "SINE")
 #chi_least(continents, "class", "SINE")
 ```
 
@@ -382,7 +381,7 @@ charts to be relevant.
 pie_chart_more_in(continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 chi_most(continents, "class", "DNA")
@@ -398,7 +397,7 @@ chi_most(continents, "class", "DNA")
 pie_chart_less_in(continents, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
 #chi_least(continents, "class", "DNA")
@@ -410,7 +409,7 @@ pie_chart_less_in(continents, "class", "DNA")
 pie_chart_more_in(continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 chi_most(continents, "class", "LTR")
@@ -426,7 +425,7 @@ chi_most(continents, "class", "LTR")
 pie_chart_less_in(continents, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 #chi_least(continents, "class", "LTR")
@@ -438,28 +437,10 @@ follows. Less abundant, as expected, in **America** and a bit in
 are very present in the **less abundant** chart.
 
 ``` r
-pie_chart_more_in(continents, "class", "satellite")
-```
+#pie_chart_more_in(continents, "class", "satellite")
+#chi_most(continents, "class", "satellite")
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-``` r
-chi_most(continents, "class", "satellite")
-```
-
-    ## 
-    ##  Chi-squared test for given probabilities
-    ## 
-    ## data:  chi_m
-    ## X-squared = 7.8182, df = 3, p-value = 0.04992
-
-``` r
-pie_chart_less_in(continents, "class", "satellite")
-```
-
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
-
-``` r
+#pie_chart_less_in(continents, "class", "satellite")
 #chi_least(continents, "class", "satellite")
 ```
 
@@ -477,7 +458,7 @@ these charts to be relevant.
 pie_chart_more_in(continents, "superfamily", "L1")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 chi_most(continents, "superfamily", "L1")
@@ -493,7 +474,7 @@ chi_most(continents, "superfamily", "L1")
 pie_chart_less_in(continents, "superfamily", "L1")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 #chi_least(continents, "superfamily", "L1")
@@ -504,7 +485,35 @@ expect these charts to be an extremization of the `LINE` plots,
 containing both L1s and other LINEs (less active). This is exactly what
 we find here.
 
-## What do we expect with random values?
+## KRAB-ZNF
+
+``` r
+pie_chart_more_in(continents, "type", "krab")
+```
+
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+chi_most(continents, "type", "krab")
+```
+
+    ## 
+    ##  Chi-squared test for given probabilities
+    ## 
+    ## data:  chi_m
+    ## X-squared = 52.151, df = 3, p-value = 2.781e-11
+
+``` r
+pie_chart_less_in(continents, "type", "krab")
+```
+
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+
+``` r
+#chi_least(continents, "type", "krab")
+```
+
+# What do we expect with random values?
 
 Here I substitute the TEs `copynumbers` with random values between 0 and
 1.
@@ -521,84 +530,230 @@ random_by_pop <- group_by(HGDP, pop, country, familyname, sex) %>% select(!(copy
 ``` r
 random_data <- inner_join(coord, random_by_pop, by = "pop")
 
-(random_continents <- random_by_pop %>% group_by(country, familyname, sex) %>% mutate(country = replace(country, country == 'Central_South_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'East_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'Middle_East', 'Eurasia')) %>% mutate(country = replace(country, country == 'Europe', 'Eurasia')) %>% dplyr::summarise(country_mean=mean(copynumber)) %>% arrange(familyname) %>% pivot_wider(names_from = country, values_from = country_mean) %>% inner_join(classification, by="familyname") %>% distinct())
+random_continents <- random_by_pop %>% group_by(country, familyname, sex) %>% mutate(country = replace(country, country == 'Central_South_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'East_Asia', 'Eurasia')) %>% mutate(country = replace(country, country == 'Middle_East', 'Eurasia')) %>% mutate(country = replace(country, country == 'Europe', 'Eurasia')) %>% dplyr::summarise(country_mean=mean(copynumber)) %>% arrange(familyname) %>% pivot_wider(names_from = country, values_from = country_mean) %>% inner_join(classification, by="familyname") %>% distinct()
 ```
 
     ## `summarise()` has grouped output by 'country', 'familyname'. You can override
     ## using the `.groups` argument.
 
-    ## # A tibble: 1,930 × 8
-    ## # Groups:   familyname [965]
-    ##    familyname sex    Africa America Eurasia Oceania superfamily class    
-    ##    <chr>      <chr>   <dbl>   <dbl>   <dbl>   <dbl> <chr>       <chr>    
-    ##  1 6kbHsap    female  0.568   0.518   0.510   0.417 satellite   satellite
-    ##  2 6kbHsap    male    0.530   0.424   0.479   0.530 satellite   satellite
-    ##  3 ALINE      female  0.617   0.385   0.464   0.487 RTEX        LINE     
-    ##  4 ALINE      male    0.505   0.500   0.512   0.533 RTEX        LINE     
-    ##  5 ALR        female  0.580   0.557   0.527   0.501 SAT         satellite
-    ##  6 ALR        male    0.506   0.441   0.502   0.495 SAT         satellite
-    ##  7 ALR_       female  0.591   0.479   0.532   0.299 SAT         satellite
-    ##  8 ALR_       male    0.469   0.607   0.516   0.508 SAT         satellite
-    ##  9 ALR1       female  0.635   0.490   0.515   0.421 SAT         satellite
-    ## 10 ALR1       male    0.477   0.623   0.512   0.553 SAT         satellite
-    ## # … with 1,920 more rows
-
 ``` r
-pie_chart_more_in(random_continents, "class", "LINE")
+#pie_chart_more_in(random_continents, "class", "LINE")
+#pie_chart_less_in(random_continents, "class", "LINE")
+#pie_chart_more_in(random_continents, "class", "SINE")
+#pie_chart_less_in(random_continents, "class", "SINE")
+#pie_chart_more_in(random_continents, "class", "LTR")
+#pie_chart_less_in(random_continents, "class", "LTR")
+#pie_chart_more_in(random_continents, "class", "DNA")
+#pie_chart_less_in(random_continents, "class", "DNA")
+#pie_chart_more_in(random_continents, "class", "satellite")
+#pie_chart_less_in(random_continents, "class", "satellite")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+# Removing non variant TE
 
 ``` r
-pie_chart_less_in(random_continents, "class", "LINE")
+var_names <- HGDP %>% filter(type=="te") %>% group_by(familyname) %>% filter(max(copynumber)-min(copynumber)>1) %>% select(familyname) %>% distinct() %>% as_vector()
+
+variant <- filter(continents, familyname %in% var_names)
+
+#pie_chart_more_in(variant, "class", "LINE")
+#chi_most(variant, "class", "LINE")
+
+#pie_chart_less_in(variant, "class", "LINE")
+#chi_least(variant, "class", "LINE")
+
+#pie_chart_more_in(variant, "class", "DNA")
+#chi_most(variant, "class", "DNA")
+
+#pie_chart_less_in(variant, "class", "DNA")
+#chi_least(variant, "class", "DNA")
+
+#pie_chart_more_in(variant, "class", "LTR")
+#chi_most(variant, "class", "LTR")
+
+#pie_chart_less_in(variant, "class", "LTR")
+#chi_least(variant, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+# Split eurasians
 
 ``` r
-pie_chart_more_in(random_continents, "class", "SINE")
+(splitted <- by_pop %>% group_by(country, familyname, type, sex) %>% dplyr::summarise(country_mean=mean(copynumber)) %>% arrange(familyname) %>% pivot_wider(names_from = country, values_from = country_mean) %>% full_join(classification, by="familyname") %>% distinct())
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
+    ## `summarise()` has grouped output by 'country', 'familyname', 'type'. You can
+    ## override using the `.groups` argument.
+
+    ## # A tibble: 3,368 × 12
+    ## # Groups:   familyname, type [1,684]
+    ##    familyname  type  sex   Africa America Centr…¹ East_…² Europe Middl…³ Oceania
+    ##    <chr>       <chr> <chr>  <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl>   <dbl>
+    ##  1 6kbHsap     te    fema… 324.   296.    287.     303.   303.   293.     308.  
+    ##  2 6kbHsap     te    male  344.   316.    302.     303.   307.   305.     290.  
+    ##  3 a_AC067968… krab  fema…   1.26   1.21    1.28     1.29   1.36   1.29     1.31
+    ##  4 a_AC067968… krab  male    1.34   1.33    1.32     1.31   1.36   1.27     1.34
+    ##  5 a_AC092835… krab  fema…   1.30   1.13    1.23     1.24   1.24   1.18     1.30
+    ##  6 a_AC092835… krab  male    1.24   1.18    1.23     1.23   1.25   1.21     1.23
+    ##  7 a_CDK8_20   krab  fema…   2.01   1.92    2.13     2.11   2.11   2.00     2.06
+    ##  8 a_CDK8_20   krab  male    2.06   2.06    2.09     2.09   2.11   1.98     2.06
+    ##  9 a_CHD3_3    krab  fema…   1.03   0.997   0.990    1.03   1.01   1.01     1.03
+    ## 10 a_CHD3_3    krab  male    1.07   1.03    1.02     1.03   1.04   0.993    1.04
+    ## # … with 3,358 more rows, 2 more variables: superfamily <chr>, class <chr>, and
+    ## #   abbreviated variable names ¹​Central_South_Asia, ²​East_Asia, ³​Middle_East
 
 ``` r
-pie_chart_less_in(random_continents, "class", "SINE")
-```
+pie_chart_less_in_splitted <- function(data, class_or_superfamily, which_TE){
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-4.png)<!-- -->
+if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
+if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
+
+less_f_Central_South_Asia <- filter(subset, Central_South_Asia-Africa<0, Central_South_Asia-America<0, Central_South_Asia-Oceania<0, Central_South_Asia-East_Asia<0, Central_South_Asia-Europe<0, Central_South_Asia-Middle_East<0,sex=="female") %>% ungroup %>% dplyr::summarise(Central_South_Asia = dplyr::n()) %>% pull
+less_f_East_Asia <- filter(subset, East_Asia-Africa<0, East_Asia-America<0, East_Asia-Oceania<0, East_Asia-Central_South_Asia<0, East_Asia-Europe<0, East_Asia-Middle_East<0,sex=="female") %>% ungroup %>% dplyr::summarise(East_Asia = dplyr::n()) %>% pull
+less_f_Europe <- filter(subset, Europe-Africa<0, Europe-America<0, Europe-Oceania<0, Europe-Central_South_Asia<0, Europe-East_Asia<0, Europe-Middle_East<0,sex=="female") %>% ungroup %>% dplyr::summarise(Europe = dplyr::n()) %>% pull
+less_f_Middle_East <- filter(subset, Middle_East-Africa<0, Middle_East-America<0, Middle_East-Oceania<0, Middle_East-Central_South_Asia<0, Middle_East-East_Asia<0, Middle_East-Europe<0,sex=="female") %>% ungroup %>% dplyr::summarise(Middle_East = dplyr::n()) %>% pull
+less_f_Africa <- filter(subset, Africa-Middle_East<0, Africa-America<0, Africa-Oceania<0, Africa-Central_South_Asia<0, Africa-East_Asia<0, Africa-Europe<0,sex=="female") %>% ungroup %>% dplyr::summarise(Africa = dplyr::n()) %>% pull
+less_f_America <- filter(subset, America-Middle_East<0, America-Africa<0, America-Oceania<0, America-Central_South_Asia<0, America-East_Asia<0, America-Europe<0,sex=="female") %>% ungroup %>% dplyr::summarise(America = dplyr::n()) %>% pull
+less_f_Oceania <- filter(subset, Oceania-Middle_East<0, Oceania-Africa<0, Oceania-America<0, Oceania-Central_South_Asia<0, Oceania-East_Asia<0, Oceania-Europe<0,sex=="female") %>% ungroup %>% dplyr::summarise(Oceania = dplyr::n()) %>% pull
+
+f_lessin <- c(less_f_Central_South_Asia, less_f_East_Asia, less_f_Europe, less_f_Middle_East, less_f_Africa, less_f_America, less_f_Oceania)
+continents_names <- c("Central_South_Asia", "East_Asia", "Europe", "Middle_East", "Africa", "America", "Oceania")
+tot=less_f_Central_South_Asia+less_f_East_Asia+less_f_Europe+less_f_Middle_East+less_f_Africa+less_f_America+less_f_Oceania
+
+f_lessin_tibble <- tibble(continents_names, f_lessin) %>% mutate(less_f_perc=round((f_lessin/tot), 2))
+
+less_f_bp <- ggplot(f_lessin_tibble, aes("Less abundant in", y=f_lessin, fill=continents_names)) +
+  geom_bar(width = 1, stat = "identity") + labs(fill='') 
+
+less_f_pie <- less_f_bp + coord_polar("y", start=0) +
+  ggtitle("Females") + theme(plot.title = element_text(hjust = 0.5, size=8)) +
+  theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) +
+  theme(axis.text.y=element_blank()) + theme(axis.title.y=element_blank()) + theme(axis.ticks.y=element_blank()) +
+  geom_label(aes(label = f_lessin), position = position_stack(vjust = 0.5), show.legend = FALSE)
+
+
+less_m_Central_South_Asia <- filter(subset, Central_South_Asia-Africa<0, Central_South_Asia-America<0, Central_South_Asia-Oceania<0, Central_South_Asia-East_Asia<0, Central_South_Asia-Europe<0, Central_South_Asia-Middle_East<0,sex=="male") %>% ungroup %>% dplyr::summarise(Central_South_Asia = dplyr::n()) %>% pull
+less_m_East_Asia <- filter(subset, East_Asia-Africa<0, East_Asia-America<0, East_Asia-Oceania<0, East_Asia-Central_South_Asia<0, East_Asia-Europe<0, East_Asia-Middle_East<0,sex=="male") %>% ungroup %>% dplyr::summarise(East_Asia = dplyr::n()) %>% pull
+less_m_Europe <- filter(subset, Europe-Africa<0, Europe-America<0, Europe-Oceania<0, Europe-Central_South_Asia<0, Europe-East_Asia<0, Europe-Middle_East<0,sex=="male") %>% ungroup %>% dplyr::summarise(Europe = dplyr::n()) %>% pull
+less_m_Middle_East <- filter(subset, Middle_East-Africa<0, Middle_East-America<0, Middle_East-Oceania<0, Middle_East-Central_South_Asia<0, Middle_East-East_Asia<0, Middle_East-Europe<0,sex=="male") %>% ungroup %>% dplyr::summarise(Middle_East = dplyr::n()) %>% pull
+less_m_Africa <- filter(subset, Africa-Middle_East<0, Africa-America<0, Africa-Oceania<0, Africa-Central_South_Asia<0, Africa-East_Asia<0, Africa-Europe<0,sex=="male") %>% ungroup %>% dplyr::summarise(Africa = dplyr::n()) %>% pull
+less_m_America <- filter(subset, America-Middle_East<0, America-Africa<0, America-Oceania<0, America-Central_South_Asia<0, America-East_Asia<0, America-Europe<0,sex=="male") %>% ungroup %>% dplyr::summarise(America = dplyr::n()) %>% pull
+less_m_Oceania <- filter(subset, Oceania-Middle_East<0, Oceania-Africa<0, Oceania-America<0, Oceania-Central_South_Asia<0, Oceania-East_Asia<0, Oceania-Europe<0,sex=="male") %>% ungroup %>% dplyr::summarise(Oceania = dplyr::n()) %>% pull
+
+m_lessin <- c(less_m_Central_South_Asia, less_m_East_Asia, less_m_Europe, less_m_Middle_East, less_m_Africa, less_m_America, less_m_Oceania)
+tot=less_m_Central_South_Asia+less_m_East_Asia+less_m_Europe+less_m_Middle_East+less_m_Africa+less_m_America+less_m_Oceania
+
+m_lessin_tibble <- tibble(continents_names, m_lessin) %>% mutate(less_m_perc=round((m_lessin/tot), 2))
+
+less_m_bp <- ggplot(m_lessin_tibble, aes("Less abundant in", y=m_lessin, fill=continents_names)) +
+  geom_bar(width = 1, stat = "identity") + labs(fill='') 
+
+less_m_pie <- less_m_bp + coord_polar("y", start=0) +
+  ggtitle("Males") + theme(plot.title = element_text(hjust = 0.5, size=8)) +
+  theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) +
+  theme(axis.text.y=element_blank()) + theme(axis.title.y=element_blank()) + theme(axis.ticks.y=element_blank()) +
+  geom_label(aes(label = m_lessin), position = position_stack(vjust = 0.5), show.legend = FALSE)
+
+figure <- ggarrange(less_f_pie, less_m_pie, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+text <- paste(which_TE, "- How many families are least abundant in each continent?")
+
+(figure_final <- annotate_figure(figure, top = text_grob(text, color = "black", size = 15, hjust = 0.55, vjust = 2), fig.lab = ""))
+}
+
+pie_chart_more_in_splitted <- function(data, class_or_superfamily, which_TE){
+
+if (class_or_superfamily=="class"){subset <- filter(data, class==which_TE)}
+if (class_or_superfamily=="superfamily"){subset <- filter(data, superfamily==which_TE)}
+if (class_or_superfamily=="type"){subset <- filter(data, type==which_TE)}
+  
+  
+more_f_Central_South_Asia <- filter(subset, Central_South_Asia-Africa>0, Central_South_Asia-America>0, Central_South_Asia-Oceania>0, Central_South_Asia-East_Asia>0, Central_South_Asia-Europe>0, Central_South_Asia-Middle_East>0,sex=="female") %>% ungroup %>% dplyr::summarise(Central_South_Asia = dplyr::n()) %>% pull
+more_f_East_Asia <- filter(subset, East_Asia-Africa>0, East_Asia-America>0, East_Asia-Oceania>0, East_Asia-Central_South_Asia>0, East_Asia-Europe>0, East_Asia-Middle_East>0,sex=="female") %>% ungroup %>% dplyr::summarise(East_Asia = dplyr::n()) %>% pull
+more_f_Europe <- filter(subset, Europe-Africa>0, Europe-America>0, Europe-Oceania>0, Europe-Central_South_Asia>0, Europe-East_Asia>0, Europe-Middle_East>0,sex=="female") %>% ungroup %>% dplyr::summarise(Europe = dplyr::n()) %>% pull
+more_f_Middle_East <- filter(subset, Middle_East-Africa>0, Middle_East-America>0, Middle_East-Oceania>0, Middle_East-Central_South_Asia>0, Middle_East-East_Asia>0, Middle_East-Europe>0,sex=="female") %>% ungroup %>% dplyr::summarise(Middle_East = dplyr::n()) %>% pull
+more_f_Africa <- filter(subset, Africa-Middle_East>0, Africa-America>0, Africa-Oceania>0, Africa-Central_South_Asia>0, Africa-East_Asia>0, Africa-Europe>0,sex=="female") %>% ungroup %>% dplyr::summarise(Africa = dplyr::n()) %>% pull
+more_f_America <- filter(subset, America-Middle_East>0, America-Africa>0, America-Oceania>0, America-Central_South_Asia>0, America-East_Asia>0, America-Europe>0,sex=="female") %>% ungroup %>% dplyr::summarise(America = dplyr::n()) %>% pull
+more_f_Oceania <- filter(subset, Oceania-Middle_East>0, Oceania-Africa>0, Oceania-America>0, Oceania-Central_South_Asia>0, Oceania-East_Asia>0, Oceania-Europe>0,sex=="female") %>% ungroup %>% dplyr::summarise(Oceania = dplyr::n()) %>% pull
+
+f_morein <- c(more_f_Central_South_Asia, more_f_East_Asia, more_f_Europe, more_f_Middle_East, more_f_Africa, more_f_America, more_f_Oceania)
+continents_names <- c("Central_South_Asia", "East_Asia", "Europe", "Middle_East", "Africa", "America", "Oceania")
+tot=more_f_Central_South_Asia+more_f_East_Asia+more_f_Europe+more_f_Middle_East+more_f_Africa+more_f_America+more_f_Oceania
+
+f_morein_tibble <- tibble(continents_names, f_morein) %>% mutate(more_f_perc=round((f_morein/tot), 2))
+
+more_f_bp <- ggplot(f_morein_tibble, aes("More abundant in", y=f_morein, fill=continents_names)) +
+  geom_bar(width = 1, stat = "identity") + labs(fill='') 
+
+more_f_pie <- more_f_bp + coord_polar("y", start=0) +
+  ggtitle("Females") + theme(plot.title = element_text(hjust = 0.5, size=8)) +
+  theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) +
+  theme(axis.text.y=element_blank()) + theme(axis.title.y=element_blank()) + theme(axis.ticks.y=element_blank()) +
+  geom_label(aes(label = f_morein), position = position_stack(vjust = 0.5), show.legend = FALSE)
+
+
+more_m_Central_South_Asia <- filter(subset, Central_South_Asia-Africa>0, Central_South_Asia-America>0, Central_South_Asia-Oceania>0, Central_South_Asia-East_Asia>0, Central_South_Asia-Europe>0, Central_South_Asia-Middle_East>0,sex=="male") %>% ungroup %>% dplyr::summarise(Central_South_Asia = dplyr::n()) %>% pull
+more_m_East_Asia <- filter(subset, East_Asia-Africa>0, East_Asia-America>0, East_Asia-Oceania>0, East_Asia-Central_South_Asia>0, East_Asia-Europe>0, East_Asia-Middle_East>0,sex=="male") %>% ungroup %>% dplyr::summarise(East_Asia = dplyr::n()) %>% pull
+more_m_Europe <- filter(subset, Europe-Africa>0, Europe-America>0, Europe-Oceania>0, Europe-Central_South_Asia>0, Europe-East_Asia>0, Europe-Middle_East>0,sex=="male") %>% ungroup %>% dplyr::summarise(Europe = dplyr::n()) %>% pull
+more_m_Middle_East <- filter(subset, Middle_East-Africa>0, Middle_East-America>0, Middle_East-Oceania>0, Middle_East-Central_South_Asia>0, Middle_East-East_Asia>0, Middle_East-Europe>0,sex=="male") %>% ungroup %>% dplyr::summarise(Middle_East = dplyr::n()) %>% pull
+more_m_Africa <- filter(subset, Africa-Middle_East>0, Africa-America>0, Africa-Oceania>0, Africa-Central_South_Asia>0, Africa-East_Asia>0, Africa-Europe>0,sex=="male") %>% ungroup %>% dplyr::summarise(Africa = dplyr::n()) %>% pull
+more_m_America <- filter(subset, America-Middle_East>0, America-Africa>0, America-Oceania>0, America-Central_South_Asia>0, America-East_Asia>0, America-Europe>0,sex=="male") %>% ungroup %>% dplyr::summarise(America = dplyr::n()) %>% pull
+more_m_Oceania <- filter(subset, Oceania-Middle_East>0, Oceania-Africa>0, Oceania-America>0, Oceania-Central_South_Asia>0, Oceania-East_Asia>0, Oceania-Europe>0,sex=="male") %>% ungroup %>% dplyr::summarise(Oceania = dplyr::n()) %>% pull
+
+m_morein <- c(more_m_Central_South_Asia, more_m_East_Asia, more_m_Europe, more_m_Middle_East, more_m_Africa, more_m_America, more_m_Oceania)
+tot=more_m_Central_South_Asia+more_m_East_Asia+more_m_Europe+more_m_Middle_East+more_m_Africa+more_m_America+more_m_Oceania
+
+m_morein_tibble <- tibble(continents_names, m_morein) %>% mutate(more_m_perc=round((m_morein/tot), 2))
+
+more_m_bp <- ggplot(m_morein_tibble, aes("More abundant in", y=m_morein, fill=continents_names)) +
+  geom_bar(width = 1, stat = "identity") + labs(fill='') 
+
+more_m_pie <- more_m_bp + coord_polar("y", start=0) +
+  ggtitle("Males") + theme(plot.title = element_text(hjust = 0.5, size=8)) +
+  theme(axis.text.x=element_blank()) + theme(axis.title.x=element_blank()) +
+  theme(axis.text.y=element_blank()) + theme(axis.title.y=element_blank()) + theme(axis.ticks.y=element_blank()) +
+  geom_label(aes(label = m_morein), position = position_stack(vjust = 0.5), show.legend = FALSE)
+
+figure_more <- ggarrange(more_f_pie, more_m_pie, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+text <- paste(which_TE, "- How many families are most abundant in each continent?")
+
+(figure_final <- annotate_figure(figure_more, top = text_grob(text, color = "black", size = 15, hjust = 0.55, vjust = 2), fig.lab = ""))
+}
+```
 
 ``` r
-pie_chart_more_in(random_continents, "class", "LTR")
+pie_chart_more_in_splitted(splitted, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-5.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random_continents, "class", "LTR")
+pie_chart_less_in_splitted(splitted, "class", "LINE")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-6.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
 
 ``` r
-pie_chart_more_in(random_continents, "class", "DNA")
+pie_chart_more_in_splitted(splitted, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-7.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random_continents, "class", "DNA")
+pie_chart_less_in_splitted(splitted, "class", "DNA")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-8.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
 
 ``` r
-pie_chart_more_in(random_continents, "class", "satellite")
+pie_chart_more_in_splitted(splitted, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-9.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
-pie_chart_less_in(random_continents, "class", "satellite")
+pie_chart_less_in_splitted(splitted, "class", "LTR")
 ```
 
-![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-15-10.png)<!-- -->
+![](12_HGDP_general_analysis_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->
