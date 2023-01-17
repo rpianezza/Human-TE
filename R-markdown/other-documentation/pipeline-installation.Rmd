@@ -1,0 +1,105 @@
+---
+title: "Pipeline installation"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Installation
+
+To install our pipeline on my local computer (vetgrid28), I did the following:
+
+I first create a **conda environment** where I installed all the softwares needed in their correct versions.
+The environment location is: /usr/local/Caskroom/miniconda/base/envs/human-te
+```
+conda create --name human-te python==3.8.5
+conda activate human-te
+```
+
+After activating the env, I installed the following softwares:
+```
+conda install -c bioconda bwa=0.7.17
+conda install -c conda-forge curl=7.71.1
+conda install -c bioconda mosdepth=0.3.1
+```
+Unfortunately, I encountered lot of problems in installing **samtools version 1.10**, thus I kept the local version of the program. Later we checked if the pipeline was producing the same output on the two computers even with a different samtools version.
+
+I then checked where each software was installed and substituted the path of each software into the script **run.map.sh**.
+```
+which md5
+which samtools
+which bwa
+which mosdepth
+which python
+which java
+which gzip
+```
+
+Later, I also installed the pipeline using the same commands on vetgrid06.
+
+## Batch effect control
+
+Here I analysed with the pipeline the same genome (cram file) on the two computers (flo and ric) and checked if the two outputs were identical.
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ric_mq10.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.mq10.mapstat")
+flo_mq10.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.mq10.mapstat")
+vg06_mq10.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.mq10.mapstat")
+
+all.equal(ric_mq10.mapstat,flo_mq10.mapstat)
+all.equal(vg06_mq10.mapstat,flo_mq10.mapstat)
+```
+
+```{r}
+ric_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.mq0.mapstat")
+flo_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.mq0.mapstat")
+vg06_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.mq0.mapstat")
+
+all.equal(ric_mq0.mapstat,flo_mq0.mapstat)
+all.equal(vg06_mq0.mapstat,flo_mq0.mapstat)
+```
+
+```{r}
+ric.mosdepth.global.dist <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.mosdepth.global.dist.txt")
+flo.mosdepth.global.dist <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.mosdepth.global.dist.txt")
+vg06_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.mq0.mapstat")
+
+all.equal(ric.mosdepth.global.dist,flo.mosdepth.global.dist)
+all.equal(vg06_mq0.mapstat,flo_mq0.mapstat)
+```
+
+```{r}
+ric.mosdepth.sum <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.mosdepth.summary.txt")
+flo.mosdepth.sum <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.mosdepth.summary.txt")
+vg06_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.mq0.mapstat")
+
+all.equal(ric.mosdepth.sum,flo.mosdepth.sum)
+all.equal(vg06_mq0.mapstat,flo_mq0.mapstat)
+```
+
+```{r}
+ric.sync <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.mq10.sync.gz")
+flo.sync <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.mq10.sync.gz")
+vg06_mq0.mapstat <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.mq0.mapstat")
+
+all.equal(ric.sync,flo.sync)
+all.equal(vg06_mq0.mapstat,flo_mq0.mapstat)
+```
+
+
+```{r}
+ric.per_base <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/ric/SAMEA3302884.per-base.bed.gz")
+flo.per_base <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/flo/SAMEA3302884.per-base.bed.gz")
+vg06.per_base <- read_tsv("/Users/rpianezza/Library/CloudStorage/OneDrive-Personal/PHD/test-2pc/vg06/SAMEA3302884.per-base.bed.gz")
+
+all.equal(ric.per_base,flo.per_base)
+all.equal(vg06.per_base,flo.per_base)
+```
+
+All the output files are equal. Note that this process has been done two times, with another cram file (SAMEA3302822.cram and SAMEA3302884.cram), to further ensure the pipeline robustness among the two computers. The result was the same.
+
+
