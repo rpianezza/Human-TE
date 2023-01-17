@@ -1,0 +1,152 @@
+---
+title: "HGDP - Geographic distribution by population for the most interesting TEs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(forcats)
+
+no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = ("ID"))
+
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(ID %in% no_pcr_samples$ID)
+```
+
+# Geographical distribution of interesting TE by population
+
+## Preparatory work
+
+```{r}
+coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude"))
+coord <- select(coordinates, pop, latitude, longitude)
+
+TE <- filter(HGDP, type=='te')
+```
+
+```{r}
+by_pop <- group_by(TE, pop, country, familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
+data <- inner_join(x = coordinates, y = by_pop, by = "pop")
+```
+
+We are now ready to analyze the geographic distribution of the most interesting TE.
+I first create a function which I will use to plot each TE family.
+
+```{r}
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(longitude, latitude, color = copynumber, size = count)
+  ) + geom_errorbar() + theme(legend.position="top") + scale_colour_gradient(low = "green", high = "red") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname)}
+```
+
+## Details for every interesting TE
+
+### LINEs
+
+```{r}
+plot_map(data, "L1PB1")
+plot_map(data, "L1PA3")
+plot_map(data, "L1PA7_5")
+```
+
+```{r}
+#plot_map(data, "L1PA4")
+#plot_map(data, "L1")
+#plot_map(data, "L1PREC1")
+#plot_map(data, "L1PA16")
+#plot_map(data, "L1PA6")
+#plot_map(data, "L1HS")
+#plot_map(data, "L1PA7")
+#plot_map(data, "L1PB2c")
+#plot_map(data, "L1PA10")
+##plot_map(data, "L1PA8")
+#plot_map(data, "L1PREC2")
+#plot_map(data, "L1PA15")
+#plot_map(data, "L1P_MA2")
+#plot_map(data, "L1MC1")
+#plot_map(data, "L1PB2")
+#plot_map(data, "L1PB4")
+```
+
+
+### SINEs
+
+```{r}
+plot_map(data, "ALU")
+#plot_map(data, "SVA_A")
+```
+
+### DNA transposons
+
+```{r}
+plot_map(data, "MER2")
+```
+
+### Endogenous retroviruses
+
+```{r}
+plot_map(data, "MLT2A1")
+```
+
+### Satellites
+
+```{r}
+plot_map(data, "GSATII")
+```
+
+
+## Copynumber standard deviation by population
+
+```{r}
+plot_cn_sd <- function(data, TE, ylimits){
+  
+m <- filter(data, sex=="male")
+f <- filter(data, sex=="female")
+
+m_singleTE <- filter(m, familyname==TE) %>% mutate(pop = fct_reorder(pop, copynumber))
+m_plot <- ggplot(m_singleTE, aes(pop, copynumber, fill=country))+
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=copynumber-sd, ymax=copynumber+sd), alpha=0.5)+
+  ggtitle("male") + ylab("Mean copynumber") + xlab("Population") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4), axis.title.y = element_blank()) + coord_cartesian(ylim=ylimits) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+f_singleTE <- filter(f, familyname==TE) %>% mutate(pop = fct_reorder(pop, copynumber))
+f_plot <- ggplot(f_singleTE, aes(pop, copynumber, fill=country))+
+  geom_bar(stat = "identity")+
+  geom_errorbar(aes(ymin=copynumber-sd, ymax=copynumber+sd), alpha=0.5)+
+  ggtitle("female") + ylab("Mean copynumber") + xlab("Population") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)) + coord_cartesian(ylim=ylimits) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+figure <- ggarrange(f_plot, m_plot, common.legend = TRUE)
+(figure_final <- annotate_figure(figure, top=text_grob(TE)))
+}
+
+plot_cn_sd(data, "L1PA16", c(1850, 2500))
+plot_cn_sd(data, "L1PA3", c(800, 1100))
+plot_cn_sd(data, "L1PB1", c(1100, 1450))
+plot_cn_sd(data, "L1PA7_5", c(1800, 2150))
+plot_cn_sd(data, "ALU", c(150000, 220000))
+plot_cn_sd(data, "MER2", c(750, 950))
+plot_cn_sd(data, "MLT2A1", c(900, 1280))
+plot_cn_sd(data, "L2", c(5, 11))
+```
+
