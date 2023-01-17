@@ -52,13 +52,15 @@ HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_r
     ##   batch = col_character()
     ## )
 
+## Absolute variation
+
 ``` r
 f_MMM <- filter(HGDP, type == "te", sex == "female") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
 
 m_MMM <- filter(HGDP, type == "te", sex == "male") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
 ```
 
-## Females
+### Females
 
 ``` r
 f_outliers_names <- dplyr::mutate(f_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
@@ -74,7 +76,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-## Males
+### Males
 
 ``` r
 m_outliers_names <- mutate(m_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
@@ -89,6 +91,9 @@ ggtitle("Most variable repetitive sequences - Males") + theme(plot.title = eleme
 ```
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+\## Relative comparison
+
+### Females
 
 ``` r
 f_outliers_names <- mutate(f_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
@@ -99,7 +104,7 @@ f_outliers$familyname<-factor(f_outliers$familyname,levels=unique(f_outliers$fam
 
 ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Most variable repetitive sequences - Relative comparison - Females") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -107,7 +112,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
 Now we have a dataset containing only the TEs with the highest
 differences in abundance between minimum and maximum value.
 
-## Males
+### Males
 
 ``` r
 m_outliers_names <- mutate(m_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
@@ -118,7 +123,15 @@ m_outliers$familyname<-factor(m_outliers$familyname,levels=unique(m_outliers$fam
 
 ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Most variable repetitive sequences - Relative comparison - Males") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+Note that the L1ME5 TE, which was always present in the analysis with
+all the samples, is completely disappeared from the absolute variant TE
+plots. This TE was previously identified as having an uneven coverage,
+with just one small region that was present at very high frequency that
+caused its high variability in copynumber estimate. Furthermore, this
+sequence was identified as AT-microsatellite, thus confirming the fact
+that PCR is having a lot of problem in dealing with satellites.
