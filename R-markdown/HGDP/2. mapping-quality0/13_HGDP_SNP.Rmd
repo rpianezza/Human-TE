@@ -260,7 +260,7 @@ matrix <- matrix %>% add_column(.before = 1, ID=samples)
 #write_tsv(matrix, "/Volumes/Temp1/rpianezza/TE/SNP/try04/IDinverted.all.08.5000x.matrix.tsv")
 }
 
-SNP_step("/Volumes/Temp1/rpianezza/TE/SNP/try04/inverted.all.08.5000x.matrix.tsv", HGDP)
+#SNP_step("/Volumes/Temp1/rpianezza/TE/SNP/try04/inverted.all.08.5000x.matrix.tsv", HGDP)
 ```
 
 
