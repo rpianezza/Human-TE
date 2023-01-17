@@ -1,0 +1,153 @@
+---
+title: "PCA for different subsets of the dataset"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+In this script I create different PCAs for different subsets of the HGDP summary dataset. The focus is the `copynumber` of every transposon for each individual.
+
+First, I did a PCA for all the TEs and all the samples. Subsequently, I excluded the "low quality samples", identified as samples in which the scg copynumber variation was high. Since all the outliers in the 1st PCA were poor quality samples, I did all the other PCAs just for the high-quality subset.
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+pcr_free <- read_tsv("/Volumes/Temp1/rpianezza/SGDP/ric-documentation/SGDP-no-PCR.tsv")
+SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff") %>% filter(biosample %in% pcr_free$ID)
+
+SGDP_stable_names <- SGDP %>% filter(type=="scg") %>% group_by(biosample, pop, country, sex) %>% dplyr::summarise(var = var(copynumber)) %>% arrange(desc(var)) %>% filter(var<0.01) %>% ungroup() %>% distinct(biosample) %>% pull()
+
+SGDP_stable <- SGDP %>% filter(biosample %in% SGDP_stable_names)
+```
+
+# Function for PCA plotting
+
+```{r}
+PCA <- function(data, title){
+  
+  m_variable <- data %>% filter(sex=="male") %>% group_by(familyname) %>% dplyr::summarise(sd = sd(copynumber)) %>% filter(sd>0) %>% select(familyname) %>% pull
+  f_variable <- data %>% filter(sex=="female") %>% group_by(familyname) %>% dplyr::summarise(sd = sd(copynumber)) %>% filter(sd>0) %>% select(familyname) %>% pull
+  
+  m <- filter(data, sex=='male', familyname %in% m_variable)
+  f <- filter(data, sex=='female', familyname %in% f_variable)
+  m_len <- length(unique(m$familyname))
+  f_len <- length(unique(f$familyname))
+  males <- length(unique(m$biosample))
+  females <- length(unique(f$biosample))
+
+  f_matrix<-matrix(as.vector(f$copynumber),nrow=females,ncol=f_len,byrow=T)
+  f_fram<-data.frame(f_matrix)
+  names(f_fram)<-unique(f$familyname)
+  f_matrixcont<-matrix(as.vector(f$country),nrow=females,ncol=f_len,byrow=T)
+  f_framcont<-data.frame(f_matrixcont)
+  f_contcol<-c(f_framcont$X1)
+  fHGDP.pca <- prcomp(f_fram, center = TRUE, scale = TRUE)
+  
+  m_matrix<-matrix(as.vector(m$copynumber),nrow=males,ncol=m_len,byrow=T)
+  m_fram<-data.frame(m_matrix)
+  names(m_fram)<-unique(m$familyname)
+  m_matrixcont<-matrix(as.vector(m$country),nrow=males,ncol=m_len,byrow=T)
+  m_framcont<-data.frame(m_matrixcont)
+  m_contcol<-c(m_framcont$X1)
+  mHGDP.pca <- prcomp(m_fram, center = TRUE, scale = TRUE)
+  
+ m_contcol <- factor(m_contcol, levels = c("Africa", "America", "Central Asia and Siberia", "East Asia", "South Asia", "West Eurasia", "Oceania"))
+  
+  f_contcol <- factor(f_contcol, levels = c("Africa", "America", "Central Asia and Siberia", "East Asia", "South Asia", "West Eurasia", "Oceania"))
+  
+  library(ggbiplot)
+  f_PCA <- ggbiplot(fHGDP.pca, var.axes=FALSE, groups = f_contcol, ellipse = FALSE)+ ggtitle("Females")+ theme(plot.title = element_text(size = 8, hjust = 0.5)) 
+m_PCA <- ggbiplot(mHGDP.pca, var.axes=FALSE, groups = m_contcol, ellipse = FALSE)+ ggtitle("Males")+ theme(plot.title = element_text(size = 8, hjust = 0.5)) 
+  
+figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+
+annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.lab = "")
+}
+```
+
+
+# PCA for the most variable TEs
+
+```{r}
+TE_cutoff <- filter(SGDP, type=='te') %>% group_by(familyname, sex) %>% mutate(max=max(copynumber), min=min(copynumber)) %>% mutate(diff = max-min, ratio = max/min)
+
+out_abs <- filter(TE_cutoff, diff>200 & diff<Inf)
+out_rel <- filter(TE_cutoff, ratio>5 & ratio<Inf & max>1.5)
+out_abs_names <- c(unique(out_abs$familyname))
+out_rel_names <- c(unique(out_rel$familyname))
+out_names <- c(out_abs_names, out_rel_names[!(out_rel_names %in% out_abs_names)]) %>% sort()
+
+most_variable<-subset(SGDP, type=="te") %>% filter(familyname %in% out_names)
+
+TE_stable <- filter(SGDP_stable, type=="te") %>% group_by(familyname, sex) %>% mutate(max=max(copynumber), min=min(copynumber)) %>% mutate(diff = max-min, ratio = max/min)
+
+out_abs_s <- filter(TE_stable, diff>200 & diff<Inf)
+out_rel_s <- filter(TE_stable, ratio>5 & ratio<Inf & max>1.5)
+out_abs_names_s <- c(unique(out_abs_s$familyname))
+out_rel_names_s <- c(unique(out_rel_s$familyname))
+out_names_s <- c(out_abs_names_s, out_rel_names_s[!(out_rel_names_s %in% out_abs_names_s)]) %>% sort()
+
+most_variable_s <- subset(SGDP_stable, type=="te") %>% filter(familyname %in% out_names_s)
+
+PCA(TE_cutoff, "All the repetitive sequences")
+PCA(TE_stable, "All the repetitive sequences (only high quality samples)")
+```
+
+
+```{r}
+PCA(most_variable_s, "Most variable repetitive sequences")
+```
+
+
+# PCA for different RepSeq families
+
+```{r}
+classification_tot <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/other-files/repbase_classification.txt", col_names = c("familyname", "superfamily", "shared_with"))
+
+families_in_SGDP <- filter(SGDP_stable, type=="te") %>% distinct(familyname) %>% pull()
+
+classification <- filter(classification_tot, familyname %in% families_in_SGDP)
+
+SGDP_class <- full_join(SGDP_stable, classification, by="familyname")
+
+write_tsv(SGDP_class, "/Volumes/Temp1/rpianezza/SGDP/summary/SGDP_classified.tsv", col_names = TRUE)
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+(classification <- SGDP_class %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
+```
+
+
+```{r}
+LINE <- filter(classification, type=="te", class=="LINE")
+PCA(LINE, "LINEs")
+
+DNA <- filter(classification, type=="te", class=="DNA")
+PCA(DNA, "DNA transposons")
+
+LTR <- filter(classification, type=="te", class=="LTR")
+PCA(LTR, "LTR retrotransposons")
+
+simple_repeats <- filter(classification, type=="te", class=="satellite")
+PCA(simple_repeats, "Satellites")
+```
+
+I notice that the pattern previously described is evident in **non-LTR retrotransposons** as well as in **DNA transposons**, but not in **simple repeats**. We do not expect simple repeats to rapidly spread into different populations as TEs, so this is an expected result, but still nice to see.
+
+```{r}
+L1 <- filter(classification, type=="te", superfamily=="L1")
+PCA(L1, "LINE-1 retrotransposons")
+
+L2 <- subset(classification, type=="te") %>% filter(grepl("L2|L3|L4",familyname))
+PCA(L2, "LINE-2/3/4 retrotransposons")
+```
