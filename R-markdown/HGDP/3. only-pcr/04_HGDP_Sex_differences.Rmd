@@ -1,0 +1,98 @@
+---
+title: "Comparing the mean TE copy numbers in males and females"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE')
+```
+
+In this script I re-wrote Florian's script 5 and added some new analysis. The topic is the comparison of TE abundances between the two sexes.
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = ("ID"))
+
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
+```
+
+## Calculating mean abundance for males and females
+
+```{r}
+data <- filter(HGDP, type=="te") %>% group_by(familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), mean=mean(copynumber))
+
+f<-filter(data, sex=="female") %>% dplyr::rename(f_mean = mean, f_sd = sd)
+m<-filter(data, sex=="male") %>% dplyr::rename(m_mean = mean, m_sd = sd)
+
+(final_data <- inner_join(f, m, by = "familyname") %>% select(familyname, f_mean, m_mean, f_sd, m_sd) %>% mutate(f_mean_log=log(f_mean), m_mean_log=log(m_mean), diff=m_mean-f_mean, abs_diff=abs(diff), ratio=case_when(diff>=0 ~ m_mean/f_mean, diff<0 ~ f_mean/m_mean), more_in=case_when(diff>=0 ~ "male", diff<0 ~ "female")) %>% arrange(desc(ratio)) %>% mutate(familyname=fct_reorder(familyname,ratio)))
+```
+
+## Comparing mean abundance between males and females
+
+```{r}
+(all <- ggplot(final_data, aes(x=f_mean, y=m_mean, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=1)+
+  geom_smooth(method="lm",color="grey", se=F)+ 
+  ylab("Male mean")+ xlab("Female mean")+geom_abline(slope=1,linetype='dashed')+theme_bw())
+
+noALU <- final_data_noALU <- filter(final_data, !(familyname=="ALU"))#, !(familyname=="ALR1"), !(familyname=="HSATI"))
+(ggplot(final_data_noALU, aes(x=f_mean, y=m_mean, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=1)+
+  geom_smooth(method="lm",color="grey", se=F)+ ylab("Male mean")+ xlab("Female mean")+geom_abline(slope=1,linetype='dashed')+theme_bw())
+
+(log <- ggplot(final_data, aes(f_mean_log, m_mean_log, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=0.8)+
+  geom_smooth(method="lm",color="grey",se=F)+theme_bw()+ ylab("Male mean (log)")+ xlab("Female mean (log)"))
+```
+
+## Relative and absolute mean differences between the sexes
+
+### Absolute differences
+
+```{r}
+abs_subset <- filter(final_data, abs_diff>75) # This number is arbitrary, feel free to look at more/less TEs in the plot
+
+(abs <- ggplot(abs_subset, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+### Relative differences
+
+```{r}
+rel_all <- ggplot(final_data, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs(fill = "More abundant in:")+geom_bar(stat="identity") + ylab("Ratio between sex abundances") + xlab("Repetitive sequence families") + theme(axis.text.x=element_blank())
+
+rel_subset<- filter(final_data, ratio>1.25) # This number is arbitrary, feel free to look at more/less TEs in the plot
+
+(rel <- ggplot(rel_subset, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Ratio between sex abundances") + xlab("Repetitive sequence families") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+## L1 family differences between the two sexes
+
+```{r}
+L1<-final_data %>% filter(str_detect(familyname, "^L1"))
+(L1plot <- ggplot(L1, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
+
+L1_50<-final_data %>% filter(str_detect(familyname, "^L1"), abs_diff>50)
+(L1_50plot <- ggplot(L1_50, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
+
+(L1_male <- filter(L1, more_in == "male"))
+nrow(L1_male)
+nrow(L1)
+```
+
+
+```{r}
+L1_rel <- filter(L1, ratio>1.08)
+
+ggplot(L1_rel, aes(reorder(familyname, -abs(ratio)), ratio, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families")
+```
