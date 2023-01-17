@@ -1,0 +1,154 @@
+---
+title: "HGDP - Cross mapping"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+In this script I checked the data reliability in terms of mapping. Do all the reads map to the right consensus sequence?
+
+To do so, I used the **Python2** script **"create-reads-for-human.py"** (which can be found in the folder *human-te-dynamics-svn/scripts/*) which creates artificial reads from the reference library, and subsequently align those reads again on the reference library to estimate cross-mapping. 
+
+The python script takes as arguments:
+
+* A **reference library** (`--fasta`). Here, the reference library from **RepBase**.
+* The requested **coverage** of the generated reads (--`coverage`). Here, `150` (equal to the read length).
+* The desired **read length** (`--read_length`). Here, `150` as the read length of the real data from the HGDP.
+* An **output** (`--output`) file.
+* The chosen **method** (`--method`), between `uniform` and `random` coverage.
+* Optionally, the **error rate** (`--error-rate`). Here set as `0` (not specified).
+```
+python /Users/rpianezza/TE/human-te-dynamics-svn/scripts/create-reads-for-human.py --fasta /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta --coverage 150 --read-length 150 --output /Users/rpianezza/TE/cross-mapping/reads.fastq.gz --method uniform
+```
+
+After creating the reads, I aligned them on the reference library using `bwa mem`. Subsequently, I split the output file (`cross.sam`) into `metadata` (the first lines) and `data`.
+```
+bwa mem /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta /Users/rpianezza/TE/cross-mapping/reads.fastq.gz > /Users/rpianezza/TE/cross-mapping/cross.sam
+
+less /Users/rpianezza/TE/cross-mapping/cross.sam | grep '@' | >/Users/rpianezza/TE/cross-mapping/cross.metadata.sam
+less /Users/rpianezza/TE/cross-mapping/cross.sam | grep -v '@' | >/Users/rpianezza/TE/cross-mapping/cross.data.sam
+```
+
+I then read the output file from bwa-mem containing the data. I split it into `mapped` and `unmapped`, with the unmapped reads which are probably useless.
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+aligned <- read_tsv("/Users/rpianezza/TE/cross-mapping/cross.data.sam", col_names=c("qname", "flag", "rname", "pos", "mapq", "cigar", "mrnm", "mpos", "isize", "seq"))
+
+aligned_mapped <- aligned  %>% filter(!(rname == "*"))
+aligned_unmapped <- aligned %>% filter(rname == "*")
+```
+
+I further divide the file into **transposable elements** (`te`), **single copy genes** (`scg`) and **KRAB-ZNF proteins** (`krab`). I also separe the `qname` from the `qnumber` in two different columns.
+```{r}
+(aligned_te <- filter(aligned_mapped, str_detect(qname, ".te.")) %>% separate(qname, c("qname", "qnumber"), sep = ":"))
+aligned_scg <- filter(aligned_mapped, str_detect(qname, "^chr")) %>% separate(qname, c("qchr", "qpos", "qnumber"), sep = ":") %>% unite("qname", qchr:qpos, sep = ":")
+aligned_krab <- filter(aligned_mapped, str_detect(qname, ".krab.")) %>% separate(qname, c("qname", "qnumber"), sep = ":")
+```
+
+I select only the crossmapped reads, by removing all the entries in which the sequence from which the read was generated (`qname`) is equal to the sequence to which the sequence were mapped (`rname`).
+```{r}
+(crossed_te <- filter(aligned_te, !(rname == qname)))
+crossed_krab <- filter(aligned_krab, !(rname == qname))
+crossed_scg <- filter(aligned_scg, !(rname == qname))
+```
+
+Here I calculate the percentage of crossmapped reads for each consensus sequence.
+```{r}
+(total_read_count <- count(aligned_te, qname))
+
+reads_crossed <- group_by(crossed_te, qname) %>% count
+cross_matrix <- left_join(total_read_count, reads_crossed, by="qname") %>% mutate(ratio=(n.y/n.x)*100)
+colnames(cross_matrix) <- c("qname", "total_reads", "crossmapped_reads", "percentage")
+cross_matrix %>% arrange(desc(percentage))
+```
+
+For 107/984 sequences, at least 1 reads was cross-mapped to another sequence. 43/984 have more than **10%** of cross-mapped reads. 24/984 have more than **25%**, and only `MER97A` has more than **50%**.
+
+But to which consensus sequence are these reads mapping to?
+```{r}
+reads_crossed_byTE <- group_by(crossed_te, qname, rname) %>% count
+cross_matrix_byTE <- left_join(total_read_count, reads_crossed_byTE, by="qname") %>% mutate(ratio=(n.y/n.x)*100)
+colnames(cross_matrix_byTE) <- c("qname", "total_reads", "crossmapped_to", "crossmapped_reads", "percentage")
+cross_matrix_byTE %>% arrange(desc(percentage)) %>% relocate(crossmapped_to, .after = crossmapped_reads)
+```
+In most of the cases, the cross-mapping occurs between TEs within the same subfamily, such as `MER` or `TIGGER`. Usually, they are cross-mapping to each other. If some of these TEs results interesting in our previous or future analysis, I would suggest to consider them together.
+
+To create a matrix showing where the reads are mapping to, I used the Python2 script **cross_mapping.py** (can be found in the "other_files" subfolder in this folder). It takes as input the `sam` file derived from **bwa mem**.
+```
+python /Users/rpianezza/TE/cross-mapping/cross_mapping.py --sam /Users/rpianezza/TE/cross-mapping/cross.sam
+```
+
+I subsequently remove the "_te" subfix present in the second column using `grep` and `awk`. Only the entries containing `te` were retained.
+```
+less /Users/rpianezza/TE/cross-mapping/cross_matrix | grep 'te' | awk '{sub("_te", "", $2); print}' > /Users/rpianezza/TE/cross-mapping/cross_matrix_mod
+```
+
+Here I import the modified output file from the Python script, name the columns and remove the remaining entries containing **single copy genes** and **KRAB-ZNF**, not interesting in this analysis.
+```{r}
+(output_py <- read_delim("/Users/rpianezza/TE/cross-mapping/cross_matrix_mod", delim= " ", col_names = c("read_from", "mapped_to", "sizem", "fracmap", "fracomap", "crossmap", "originreads")) %>% filter(!(str_detect(read_from, "^chr"))) %>% filter(!(str_detect(read_from, "^a_"))))
+```
+
+```{r}
+ggplot(data = output_py, aes(read_from, mapped_to, fill=fracmap)) +
+  geom_tile() + theme(axis.text=element_text(size=1)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+Lastly, I create a list containing all the TEs that showed problems with cross-mapping. I put the threshold at `25`, but the sensibility can be increased or decreased. I also wrote the list of this TE manually in order to be able to use it in other scripts without problems.
+```{r}
+crossmapped_te_names <- filter(cross_matrix, percentage > 25) %>% select(qname)
+
+crossmapped_te <- c("CHARLIE2A","CHARLIE2B","CHARLIE8A","FORDPREFECT_A","GOLEM_A","L1PA3","MER1A","MER44A","MER44C","MER44D", "MER63C", "MER69B", "MER6A", "MER70A", "MER70B", "MER80", "MER97A", "MER97B", "MER97C", "Tigger2b_Pri", "Tigger3b", "Tigger3c", "TIGGER5_A", "TIGGER5_B")
+```
+
+
+## Cross-mapping of ALU reads
+
+One possible source of contamination could be cross-mapping of `ALU`. This is the most numerous TE in humans, with copynumbers in the order of magnitude of 10^5. To check this, I created reads from the ALU consensus sequence and mapped them to the whole reference library. I increased the coverage from 150 to 150000, a number of ALU which is in line with the one observed in one genome.
+```
+less /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta | grep -A 1 'ALU' > /Users/rpianezza/TE/cross-mapping/alu.fasta
+
+python /Users/rpianezza/TE/human-te-dynamics-svn/scripts/create-reads-for-human.py --fasta /Users/rpianezza/TE/cross-mapping/alu.fasta  --coverage 150000 --read-length 150 --output /Users/rpianezza/TE/cross-mapping/alu_reads.fastq.gz --method uniform
+
+bwa mem /Users/rpianezza/TE/human-te-dynamics-svn/refg/reflibrary_humans_v6.2.fasta /Users/rpianezza/TE/cross-mapping/alu_reads.fastq.gz > /Users/rpianezza/TE/cross-mapping/alu_cross.sam
+
+less /Users/rpianezza/TE/cross-mapping/alu_cross.sam | grep '@' | >/Users/rpianezza/TE/cross-mapping/alu_cross.metadata.sam
+
+less /Users/rpianezza/TE/cross-mapping/alu_cross.sam | grep -v '@' | >/Users/rpianezza/TE/cross-mapping/alu_cross.data.sam
+```
+
+Despite the very high number of reads generated, none is mapping to the wrong TE. We can thus exclude ALU contamination to be one of the source of contamination in our dataset.
+```{r}
+ALU <- read_tsv("/Users/rpianezza/TE/cross-mapping/alu_cross.data.sam", col_names=c("qname", "flag", "rname", "pos", "mapq", "cigar", "mrnm", "mpos", "isize", "seq"))
+
+(ALU_mapped <- ALU  %>% filter(!(rname == "*")) %>% separate(qname, c("qname", "qnumber"), sep = ":"))
+ALU_unmapped <- ALU %>% filter(rname == "*")
+
+(crossed_ALU <- filter(ALU_mapped, !(rname == qname)))
+```
+
+Even if adding 1% error rate does not change our output. There are only more unmapped reads, but no cross-mapping.
+```{r}
+ALU_err01 <- read_tsv("/Users/rpianezza/TE/cross-mapping/alu_err01_cross.data.sam", col_names=c("qname", "flag", "rname", "pos", "mapq", "cigar", "mrnm", "mpos", "isize", "seq"))
+
+(ALU_err01_mapped <- ALU_err01  %>% filter(!(rname == "*")) %>% separate(qname, c("qname", "qnumber"), sep = ":"))
+ALU_err01unmapped <- ALU_err01 %>% filter(rname == "*")
+
+(crossed_ALU_err01 <- filter(ALU_err01_mapped, !(rname == qname)))
+```
+
+## Crossed KRABs
+```{r}
+(total_read_count <- count(aligned_krab, qname))
+
+reads_crossed <- group_by(crossed_krab, qname) %>% count
+cross_matrix <- left_join(total_read_count, reads_crossed, by="qname") %>% mutate(ratio=(n.y/n.x)*100)
+colnames(cross_matrix) <- c("qname", "total_reads", "crossmapped_reads", "percentage")
+cross_matrix %>% arrange(desc(percentage))
+```

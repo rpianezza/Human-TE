@@ -1,0 +1,114 @@
+---
+title: "Comparing the mean TE copy numbers in males and females"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE')
+```
+
+In this script I re-wrote Florian's script 5 and added some new analysis. The topic is the comparison of TE abundances between the two sexes.
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggpubr)
+HGDPcutoff <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt")
+names(HGDPcutoff) <- c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch")
+
+HGDPcutoff <- HGDPcutoff %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania"))
+```
+
+## Calculating mean abundance for males and females
+This chuck creates the dataset used for all the subsequent analyses. Starting from the *USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt* file, the final dataset is composed by `965` rows, one for each TE family in the dataset. For each TE family, we have: 
+
+* The **mean copynumber** among all the **females** in the dataset (`f_mean`), as well as in **males** (`m_mean`).
+* The **log** of the two means (`f_mean_log`, `m_mean_log`).
+* The **difference** between the copynumber in males and females (`diff`) and the absolute difference (`abs_diff`).
+* The **ratio** between the copynumbers in the two sexes (`ratio`), calculated with the more abundant sex always at the numerator.
+* Last, `more_in` indicates in which sex the TE is more abundant.
+```{r}
+(data <- filter(HGDPcutoff, type=="te") %>% group_by(familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), mean=mean(copynumber)))
+
+f<-filter(data, sex=="female") %>% dplyr::rename(f_mean = mean, f_sd = sd)
+m<-filter(data, sex=="male") %>% dplyr::rename(m_mean = mean, m_sd = sd)
+
+(final_data <- inner_join(f, m, by = "familyname") %>% select(familyname, f_mean, m_mean, f_sd, m_sd) %>% mutate(f_mean_log=log(f_mean), m_mean_log=log(m_mean), diff=m_mean-f_mean, abs_diff=abs(diff), ratio=case_when(diff>=0 ~ m_mean/f_mean, diff<0 ~ f_mean/m_mean), more_in=case_when(diff>=0 ~ "male", diff<0 ~ "female")) %>% arrange(desc(ratio)) %>% mutate(familyname=fct_reorder(familyname,ratio)))
+```
+
+## Comparing mean abundance between males and females
+We want to create a plot that shows a pairwise comparison of the mean copy number estimates of males and females for each of the 965 TE sequences. Additionally, we include a linear regression line (in grey) as well as a dashed line representing the null expectation for the regression, i.e. that males and females have the same mean abundance values and the regression should thus have a slope of 1. The regression line having a slope slightly lower than one is thus an indication (though not a proof) that TEs in females (x-axis) might be on average slightly more abundant than TEs in males (y-axis).
+```{r}
+(all <- ggplot(final_data, aes(x=f_mean, y=m_mean, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=1)+
+  geom_smooth(method="lm",color="grey", se=F)+ 
+  ylab("Male mean")+ xlab("Female mean")+geom_abline(slope=1,linetype='dashed')+theme_bw())
+
+noALU <- final_data_noALU <- filter(final_data, !(familyname=="ALU"))#, !(familyname=="ALR1"), !(familyname=="HSATI"))
+(ggplot(final_data_noALU, aes(x=f_mean, y=m_mean, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=1)+
+  geom_smooth(method="lm",color="grey", se=F)+ ylab("Male mean")+ xlab("Female mean")+geom_abline(slope=1,linetype='dashed')+theme_bw())
+
+(log <- ggplot(final_data, aes(f_mean_log, m_mean_log, color=more_in))+ labs(color = "More abundant in:") +
+  geom_point(size=0.8)+
+  geom_smooth(method="lm",color="grey",se=F)+theme_bw()+ ylab("Male mean (log)")+ xlab("Female mean (log)"))
+```
+
+## Relative and absolute mean differences between the sexes
+
+### Absolute differences
+The following plots shows, respectively:
+
+* The differences between sex abundances of all the 965 TEs.
+* A subset of the first plot, with only TEs with `diff > 75`.
+```{r}
+abs_subset <- filter(final_data, abs_diff>75) # This number is arbitrary, feel free to look at more/less TEs in the plot
+
+(abs <- ggplot(abs_subset, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+### Relative differences
+The following plots shows, respectively:
+
+* The ratio between sex abundances of all the 965 TEs.
+* A subset of the first plot, with only TEs with `ratio > 1.25`.
+```{r}
+rel_all <- ggplot(final_data, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs(fill = "More abundant in:")+geom_bar(stat="identity") + ylab("Ratio between sex abundances") + xlab("Repetitive sequence families") + theme(axis.text.x=element_blank())
+
+rel_subset<- filter(final_data, ratio>1.25) # This number is arbitrary, feel free to look at more/less TEs in the plot
+
+(rel <- ggplot(rel_subset, aes(reorder(familyname, -ratio), ratio, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Ratio between sex abundances") + xlab("Repetitive sequence families") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+## L1 family differences between the two sexes
+One of the most interesting TE groups found so far in the dataset are for sure the `LINE-1` (**L1**) retrotransposon subfamilies. Here, I show that almost every L1 is more abundant in the `females`. Only 2/113 L1 subfamilies are more abundant in `males`, and their ratio is very close to 1. On the other hand, we have lot of L1 subfamilies with higher copynumber in females, and for some of them the difference is very consistent.
+```{r}
+L1<-final_data %>% filter(str_detect(familyname, "^L1"))
+(L1plot <- ggplot(L1, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
+
+L1_50<-final_data %>% filter(str_detect(familyname, "^L1"), abs_diff>50)
+(L1_50plot <- ggplot(L1_50, aes(reorder(familyname, -abs(diff)), diff, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("LINE-1 subfamilies") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=4)))
+
+(L1_male <- filter(L1, more_in == "male"))
+nrow(L1_male)
+nrow(L1)
+```
+
+This plot suggests that the LINE-1s are in general more abundant on the **X chromosome** than on the **Y**.
+
+```{r}
+L1_rel <- filter(L1, ratio>1.08)
+
+ggplot(L1_rel, aes(reorder(familyname, -abs(ratio)), ratio, fill=more_in)) + labs(fill = "More abundant in:") +
+  geom_bar(stat="identity") + ylab("Difference between sex abundances") + xlab("Repetitive sequence families")
+```
+
+If we filter for the L1's with the highest `ratio` between the two sexes copynumber abundances, we find that the most relevant TE is again `L1ME5`.
