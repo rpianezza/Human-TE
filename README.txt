@@ -3,7 +3,7 @@ Folder organization explained:
 - Human-TE-dynamics: contains the code used for processing the genomes and all its accessory files
 
 
-- Documentation (R markdown): contains all my documentations for human-TEs analysis
+- Documentation: contains all my documentations for human-TEs analysis
 
 -- HGDP: contains all the analysis done using the HGDP data
 --- 0. flo: old files made by Florian at the beginning of the project
