@@ -1,0 +1,84 @@
+---
+title: "HGDP - Analyzing the TEs with the highest variance"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = ("ID"))
+
+HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania")) %>% type_convert() %>% filter(ID %in% no_pcr_samples$ID)
+```
+
+```{r}
+f_MMM <- filter(HGDP, type == "te", sex == "female") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
+
+m_MMM <- filter(HGDP, type == "te", sex == "male") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
+```
+
+## Females
+
+```{r}
+f_outliers_names <- dplyr::mutate(f_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
+
+f_outliers <- filter(HGDP, familyname %in% f_outliers_names$familyname, type == "te", sex == "female")
+f_outliers <- f_outliers[order(f_outliers$copynumber,decreasing=T),]
+f_outliers$familyname<-factor(f_outliers$familyname,levels=unique(f_outliers$familyname))
+
+ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Most variable repetitive sequences - Females") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Males
+
+```{r}
+m_outliers_names <- mutate(m_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
+
+m_outliers <- filter(HGDP, familyname %in% m_outliers_names$familyname, type == "te", sex == "male")
+m_outliers <- m_outliers[order(m_outliers$copynumber,decreasing=T),]
+m_outliers$familyname<-factor(m_outliers$familyname,levels=unique(m_outliers$familyname))
+
+ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+ggtitle("Most variable repetitive sequences - Males") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+f_outliers_names <- mutate(f_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
+
+f_outliers <- filter(HGDP, familyname %in% f_outliers_names$familyname, type == "te", sex == "female")
+f_outliers <- f_outliers[order(f_outliers$copynumber,decreasing=T),]
+f_outliers$familyname<-factor(f_outliers$familyname,levels=unique(f_outliers$familyname))
+
+ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+```
+
+Now we have a dataset containing only the TEs with the highest differences in abundance between minimum and maximum value.
+
+## Males
+
+```{r}
+m_outliers_names <- mutate(m_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
+
+m_outliers <- filter(HGDP, familyname %in% m_outliers_names$familyname, type == "te", sex == "male")
+m_outliers <- m_outliers[order(m_outliers$copynumber,decreasing=T),]
+m_outliers$familyname<-factor(m_outliers$familyname,levels=unique(m_outliers$familyname))
+
+ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+```
