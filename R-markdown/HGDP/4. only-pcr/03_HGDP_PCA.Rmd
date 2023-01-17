@@ -18,7 +18,7 @@ library(ggpubr)
 
 no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = ("ID"))
 
-HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania")) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
 ```
 
 # Function for PCA plotting
@@ -89,49 +89,5 @@ PCA(most_variable, "Most variable repetitive sequences")
 ```
 
 
-# PCA for different RepSeq families
-
-```{r}
-classification_tot <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/other-files/repbase_classification.txt", col_names = c("familyname", "superfamily", "shared_with"))
-
-families_in_HGDP <- filter(HGDP, type=="te") %>% distinct(familyname) %>% pull()
-
-classification <- filter(classification_tot, familyname %in% families_in_HGDP)
-
-HGDP_class <- full_join(HGDP, classification, by="familyname")
-
-#write_tsv(HGDP_class, "/Volumes/Temp1/rpianezza/TE/summary-HGDP/HGDP_cutoff_classified.tsv", col_names = TRUE)
-
-DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
-LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
-SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
-LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
-satellites_names <- c("Satellite", "satellite", "SAT")
-
-(classification <- HGDP_class %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
-```
 
 
-```{r}
-LINE <- filter(classification, type=="te", class=="LINE")
-PCA(LINE, "LINEs")
-
-DNA <- filter(classification, type=="te", class=="DNA")
-PCA(DNA, "DNA transposons")
-
-LTR <- filter(classification, type=="te", class=="LTR")
-PCA(LTR, "LTR retrotransposons")
-
-simple_repeats <- filter(classification, type=="te", class=="satellite")
-PCA(simple_repeats, "Satellites")
-```
-
-I notice that the pattern previously described is evident in **non-LTR retrotransposons** as well as in **DNA transposons**, but not in **simple repeats**. We do not expect simple repeats to rapidly spread into different populations as TEs, so this is an expected result, but still nice to see.
-
-```{r}
-L1 <- filter(classification, type=="te", superfamily=="L1")
-PCA(L1, "LINE-1 retrotransposons")
-
-L2 <- subset(classification, type=="te") %>% filter(grepl("L2|L3|L4",familyname))
-PCA(L2, "LINE-2/3/4 retrotransposons")
-```

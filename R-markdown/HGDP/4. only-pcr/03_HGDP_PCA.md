@@ -33,12 +33,12 @@ no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/H
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania")) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, pop, sex, country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -165,99 +165,3 @@ PCA(most_variable, "Most variable repetitive sequences")
 ```
 
 ![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-# PCA for different RepSeq families
-
-``` r
-classification_tot <- read_tsv("/Users/rpianezza/TE/ric-documentation-Rmd/other-files/repbase_classification.txt", col_names = c("familyname", "superfamily", "shared_with"))
-```
-
-    ## Rows: 1386 Columns: 3
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
-    ## chr (3): familyname, superfamily, shared_with
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-families_in_HGDP <- filter(HGDP, type=="te") %>% distinct(familyname) %>% pull()
-
-classification <- filter(classification_tot, familyname %in% families_in_HGDP)
-
-HGDP_class <- full_join(HGDP, classification, by="familyname")
-
-#write_tsv(HGDP_class, "/Volumes/Temp1/rpianezza/TE/summary-HGDP/HGDP_cutoff_classified.tsv", col_names = TRUE)
-
-DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
-LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
-SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
-LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
-satellites_names <- c("Satellite", "satellite", "SAT")
-
-(classification <- HGDP_class %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
-```
-
-    ## # A tibble: 256,423 × 13
-    ##    ID       pop   sex   country type  famil…¹ length reads copyn…² batch super…³
-    ##    <chr>    <chr> <chr> <chr>   <chr> <chr>    <dbl> <dbl>   <dbl> <chr> <chr>  
-    ##  1 HGDP000… Brah… male  Centra… scg   chr1:9…   5136 1105.   0.861 ro    <NA>   
-    ##  2 HGDP000… Brah… male  Centra… scg   chr1:1…   3064  832.   1.09  ro    <NA>   
-    ##  3 HGDP000… Brah… male  Centra… scg   chr1:1…   3239  901.   1.11  ro    <NA>   
-    ##  4 HGDP000… Brah… male  Centra… scg   chr1:1…   4035 1102.   1.09  ro    <NA>   
-    ##  5 HGDP000… Brah… male  Centra… scg   chr1:1…   2500  733.   1.17  ro    <NA>   
-    ##  6 HGDP000… Brah… male  Centra… scg   chr1:1…   2599  580.   0.894 ro    <NA>   
-    ##  7 HGDP000… Brah… male  Centra… scg   chr1:1…   2124  477.   0.899 ro    <NA>   
-    ##  8 HGDP000… Brah… male  Centra… scg   chr1:2…   6284 1527.   0.973 ro    <NA>   
-    ##  9 HGDP000… Brah… male  Centra… scg   chr1:2…   3222  889.   1.10  ro    <NA>   
-    ## 10 HGDP000… Brah… male  Centra… scg   chr1:3…   3698  868.   0.940 ro    <NA>   
-    ## # … with 256,413 more rows, 2 more variables: shared_with <chr>, class <chr>,
-    ## #   and abbreviated variable names ¹​familyname, ²​copynumber, ³​superfamily
-
-``` r
-LINE <- filter(classification, type=="te", class=="LINE")
-PCA(LINE, "LINEs")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-DNA <- filter(classification, type=="te", class=="DNA")
-PCA(DNA, "DNA transposons")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
-
-``` r
-LTR <- filter(classification, type=="te", class=="LTR")
-PCA(LTR, "LTR retrotransposons")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
-
-``` r
-simple_repeats <- filter(classification, type=="te", class=="satellite")
-PCA(simple_repeats, "Satellites")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
-
-I notice that the pattern previously described is evident in **non-LTR
-retrotransposons** as well as in **DNA transposons**, but not in
-**simple repeats**. We do not expect simple repeats to rapidly spread
-into different populations as TEs, so this is an expected result, but
-still nice to see.
-
-``` r
-L1 <- filter(classification, type=="te", superfamily=="L1")
-PCA(L1, "LINE-1 retrotransposons")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
-``` r
-L2 <- subset(classification, type=="te") %>% filter(grepl("L2|L3|L4",familyname))
-PCA(L2, "LINE-2/3/4 retrotransposons")
-```
-
-![](03_HGDP_PCA_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->

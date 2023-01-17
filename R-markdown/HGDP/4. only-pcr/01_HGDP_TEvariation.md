@@ -29,12 +29,12 @@ no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/H
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania")) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, pop, sex, country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -52,13 +52,15 @@ HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff
     ##   batch = col_character()
     ## )
 
+## Absolute comparison
+
 ``` r
 f_MMM <- filter(HGDP, type == "te", sex == "female") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
 
 m_MMM <- filter(HGDP, type == "te", sex == "male") %>% group_by(familyname) %>% dplyr::summarise(min = min(copynumber), mean = mean(copynumber), max = max(copynumber))
 ```
 
-## Females
+### Females
 
 ``` r
 f_outliers_names <- dplyr::mutate(f_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
@@ -74,7 +76,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
-## Males
+### Males
 
 ``` r
 m_outliers_names <- mutate(m_MMM, diff = max-min) %>% filter(diff>200 & diff<Inf)
@@ -90,8 +92,12 @@ ggtitle("Most variable repetitive sequences - Males") + theme(plot.title = eleme
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+## Relative comparison
+
+### Females
+
 ``` r
-f_outliers_names <- mutate(f_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
+f_outliers_names <- mutate(f_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.3)
 
 f_outliers <- filter(HGDP, familyname %in% f_outliers_names$familyname, type == "te", sex == "female")
 f_outliers <- f_outliers[order(f_outliers$copynumber,decreasing=T),]
@@ -99,7 +105,7 @@ f_outliers$familyname<-factor(f_outliers$familyname,levels=unique(f_outliers$fam
 
 ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Most variable repetitive sequences - Relative comparison - Females") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
@@ -107,7 +113,7 @@ ggplot(f_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F)
 Now we have a dataset containing only the TEs with the highest
 differences in abundance between minimum and maximum value.
 
-## Males
+### Males
 
 ``` r
 m_outliers_names <- mutate(m_MMM, ratio = max/min) %>% filter(ratio>2 & ratio<Inf & max>1.5)
@@ -118,7 +124,7 @@ m_outliers$familyname<-factor(m_outliers$familyname,levels=unique(m_outliers$fam
 
 ggplot(m_outliers, aes(x=familyname, y=log(copynumber))) + geom_boxplot(notch=F) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Most variable repetitive sequences - Relative comparison") + theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Most variable repetitive sequences - Relative comparison - Males") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ![](01_HGDP_TEvariation_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->

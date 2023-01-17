@@ -33,12 +33,12 @@ no_pcr_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/H
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-HGDP <- read_tsv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Oceania")) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
+HGDP <- read_csv("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt", col_names = c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch"), skip=1) %>% type_convert() %>% filter(!(ID %in% no_pcr_samples$ID))
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, pop, sex, country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -72,21 +72,21 @@ m<-filter(data, sex=="male") %>% dplyr::rename(m_mean = mean, m_sd = sd)
 (final_data <- inner_join(f, m, by = "familyname") %>% select(familyname, f_mean, m_mean, f_sd, m_sd) %>% mutate(f_mean_log=log(f_mean), m_mean_log=log(m_mean), diff=m_mean-f_mean, abs_diff=abs(diff), ratio=case_when(diff>=0 ~ m_mean/f_mean, diff<0 ~ f_mean/m_mean), more_in=case_when(diff>=0 ~ "male", diff<0 ~ "female")) %>% arrange(desc(ratio)) %>% mutate(familyname=fct_reorder(familyname,ratio)))
 ```
 
-    ## # A tibble: 968 × 11
-    ## # Groups:   familyname [968]
+    ## # A tibble: 965 × 11
+    ## # Groups:   familyname [965]
     ##    familyname    f_mean  m_mean    f_sd    m_sd f_mea…¹ m_mea…²     diff abs_d…³
     ##    <fct>          <dbl>   <dbl>   <dbl>   <dbl>   <dbl>   <dbl>    <dbl>   <dbl>
-    ##  1 BSRd         0       4.30e-4 0       1.70e-3 -Inf      -7.75  4.30e-4 4.30e-4
-    ##  2 EUTREP5      0       6.10e-4 0       2.08e-3 -Inf      -7.40  6.10e-4 6.10e-4
-    ##  3 UCON79       0       5.02e-4 0       2.95e-3 -Inf      -7.60  5.02e-4 5.02e-4
-    ##  4 X15_DNA      0       2.54e-4 0       1.50e-3 -Inf      -8.28  2.54e-4 2.54e-4
-    ##  5 X21_DNA      0       2.38e-4 0       1.45e-3 -Inf      -8.34  2.38e-4 2.38e-4
-    ##  6 X25_DNA      0       1.00e-4 0       8.25e-4 -Inf      -9.21  1.00e-4 1.00e-4
-    ##  7 HSATI        2.21e+2 1.64e+3 3.95e+1 3.71e+2    5.40    7.40  1.42e+3 1.42e+3
-    ##  8 UCON65       3.26e-4 1.46e-3 1.30e-3 3.61e-3   -8.03   -6.53  1.14e-3 1.14e-3
+    ##  1 EUTREP5      0       6.10e-4 0       2.08e-3 -Inf      -7.40  6.10e-4 6.10e-4
+    ##  2 UCON79       0       5.02e-4 0       2.95e-3 -Inf      -7.60  5.02e-4 5.02e-4
+    ##  3 X15_DNA      0       2.54e-4 0       1.50e-3 -Inf      -8.28  2.54e-4 2.54e-4
+    ##  4 X21_DNA      0       2.38e-4 0       1.45e-3 -Inf      -8.34  2.38e-4 2.38e-4
+    ##  5 X25_DNA      0       1.00e-4 0       8.25e-4 -Inf      -9.21  1.00e-4 1.00e-4
+    ##  6 X2a_DNA      0       1.17e-4 0       9.60e-4 -Inf      -9.05  1.17e-4 1.17e-4
+    ##  7 HSATI        2.22e+2 1.64e+3 3.96e+1 3.72e+2    5.40    7.40  1.42e+3 1.42e+3
+    ##  8 UCON65       3.26e-4 1.46e-3 1.31e-3 3.61e-3   -8.03   -6.53  1.14e-3 1.14e-3
     ##  9 Eutr2        1.52e-3 4.51e-4 3.47e-3 1.68e-3   -6.49   -7.70 -1.07e-3 1.07e-3
-    ## 10 Eutr13       3.95e-3 1.34e-3 8.37e-3 4.31e-3   -5.54   -6.61 -2.60e-3 2.60e-3
-    ## # … with 958 more rows, 2 more variables: ratio <dbl>, more_in <chr>, and
+    ## 10 Eutr13       3.95e-3 1.34e-3 8.37e-3 4.31e-3   -5.53   -6.61 -2.61e-3 2.61e-3
+    ## # … with 955 more rows, 2 more variables: ratio <dbl>, more_in <chr>, and
     ## #   abbreviated variable names ¹​f_mean_log, ²​m_mean_log, ³​abs_diff
 
 ## Comparing mean abundance between males and females
@@ -177,13 +177,14 @@ L1_50<-final_data %>% filter(str_detect(familyname, "^L1"), abs_diff>50)
 (L1_male <- filter(L1, more_in == "male"))
 ```
 
-    ## # A tibble: 3 × 11
-    ## # Groups:   familyname [3]
+    ## # A tibble: 4 × 11
+    ## # Groups:   familyname [4]
     ##   familyname f_mean m_mean   f_sd   m_sd f_mean_…¹ m_mea…²    diff abs_d…³ ratio
     ##   <fct>       <dbl>  <dbl>  <dbl>  <dbl>     <dbl>   <dbl>   <dbl>   <dbl> <dbl>
-    ## 1 L1M6B_5end  0.118  0.120 0.0276 0.0263     -2.13   -2.12 1.59e-3 1.59e-3  1.01
-    ## 2 L1M2A_5    25.1   25.3   1.01   0.823       3.22    3.23 2.38e-1 2.38e-1  1.01
-    ## 3 L1M7_5end   0.213  0.213 0.0151 0.0165     -1.55   -1.54 8.44e-4 8.44e-4  1.00
+    ## 1 L1M7_5end   0.203  0.206 0.0144 0.0161     -1.59   -1.58 0.00326 0.00326  1.02
+    ## 2 L1M6B_5end  0.119  0.120 0.0276 0.0263     -2.13   -2.12 0.00158 0.00158  1.01
+    ## 3 L1M2A_5    23.4   23.6   0.900  0.761       3.15    3.16 0.226   0.226    1.01
+    ## 4 L1P4c_5end  6.18   6.19  0.201  0.239       1.82    1.82 0.00535 0.00535  1.00
     ## # … with 1 more variable: more_in <chr>, and abbreviated variable names
     ## #   ¹​f_mean_log, ²​m_mean_log, ³​abs_diff
 
@@ -191,7 +192,7 @@ L1_50<-final_data %>% filter(str_detect(familyname, "^L1"), abs_diff>50)
 nrow(L1_male)
 ```
 
-    ## [1] 3
+    ## [1] 4
 
 ``` r
 nrow(L1)
