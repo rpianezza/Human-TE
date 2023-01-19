@@ -70,12 +70,12 @@ using PCR, while the vast majority is PCR-free. Let’s see if it has an
 impact.
 
 ``` r
-HGDP <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt")
+HGDP<-read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt")
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, Pop, sex, Country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -234,13 +234,158 @@ sgdp_pcr_free_samples <- inner_join(sgdp_pcr_free, sgdp_metadata, by="sample") %
 #write_tsv(sgdp_pcr_free_samples, "/Volumes/Temp1/rpianezza/investigation/SGDP-no-PCR/SGDP-no-PCR.tsv")
 ```
 
+### Check the effect of the GC bias
+
+    python /Volumes/Temp1/rpianezza/GC-content/gc-content.py /Volumes/Temp1/rpianezza/GC-content/reflibrary_humans_v6.2.fasta -o /Volumes/Temp1/rpianezza/GC-content/gc-content.tsv
+
+``` r
+repbase <- read_tsv("/Volumes/Temp1/rpianezza/GC-content/repbase_full_classification.txt", col_names = c("familyname", "superfamily", "shared_with", "class"))
+```
+
+    ## Rows: 1387 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (4): familyname, superfamily, shared_with, class
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+(gc <- read_tsv("/Volumes/Temp1/rpianezza/GC-content/gc-content.tsv"))
+```
+
+    ## Rows: 1703 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (2): familyname, type
+    ## dbl (2): GC_content, length
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## # A tibble: 1,703 × 4
+    ##    familyname type  GC_content length
+    ##    <chr>      <chr>      <dbl>  <dbl>
+    ##  1 LTR65      te          42.4    669
+    ##  2 HERVK3I    te          42.4   7242
+    ##  3 HERV9      te          45.5   8399
+    ##  4 L1PA12_5   te          56.4   3072
+    ##  5 LTR27C     te          54.0    767
+    ##  6 LTR16A1    te          54.0    457
+    ##  7 Tigger16a  te          46.8    933
+    ##  8 LTR23      te          38.9    437
+    ##  9 X32_DNA    te          29.8    336
+    ## 10 LTR53      te          51.2    519
+    ## # … with 1,693 more rows
+
+``` r
+repbase_gc <- inner_join(repbase, gc, by="familyname")
+
+(class_gc <- repbase_gc %>% group_by(class) %>% dplyr::summarise(GC = mean(GC_content)) %>% arrange(desc(GC)))
+```
+
+    ## # A tibble: 6 × 2
+    ##   class        GC
+    ##   <chr>     <dbl>
+    ## 1 satellite  50.1
+    ## 2 SINE       48.9
+    ## 3 LTR        47.8
+    ## 4 LINE       41.4
+    ## 5 DNA        39.8
+    ## 6 <NA>       38.2
+
+``` r
+superfamily_gc <- repbase_gc %>% group_by(superfamily) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
+family_gc <- repbase_gc %>% group_by(familyname) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
+
+(L1PA7_5 <- repbase_gc %>% filter(familyname=="L1PA7_5"))
+```
+
+    ## # A tibble: 1 × 7
+    ##   familyname superfamily shared_with  class type  GC_content length
+    ##   <chr>      <chr>       <chr>        <chr> <chr>      <dbl>  <dbl>
+    ## 1 L1PA7_5    L1          Homo sapiens LINE  te          54.1   1727
+
+``` r
+classification <- read_tsv("/Volumes/Temp1/rpianezza/GC-content/repbase_full_classification.txt")
+```
+
+    ## Rows: 1386 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (4): familyname, superfamily, shared_with, class
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+```
+
+    ## Rows: 676 Columns: 1
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (1): ID
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID) %>% inner_join(classification)
+```
+
+    ## Joining, by = "familyname"
+
+``` r
+HGDP_pcr <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID)) %>% inner_join(classification)
+```
+
+    ## Joining, by = "familyname"
+
+``` r
+HGDP_pcr_free_mean_fam <- HGDP_pcr_free %>% group_by(familyname, superfamily, class) %>% dplyr::summarise(mean_pcr_free = mean(copynumber))
+```
+
+    ## `summarise()` has grouped output by 'familyname', 'superfamily'. You can
+    ## override using the `.groups` argument.
+
+``` r
+HGDP_pcr_mean_fam <- HGDP_pcr %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
+
+HGDP_mean_family <- inner_join(HGDP_pcr_free_mean_fam, HGDP_pcr_mean_fam, by="familyname") %>% inner_join(family_gc, by="familyname") %>% arrange(desc(GC)) %>% mutate(diff_perc = (mean_pcr_free-mean_pcr)/((mean_pcr_free+mean_pcr)/2)*100)
+
+(gc_te <- ggplot(HGDP_mean_family, aes(GC, diff_perc, color=class))+
+  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + geom_text(aes(label = ifelse(diff_perc > 20 | diff_perc < (-20), familyname, "")), hjust = 0, vjust = 0, size=2)+ ylab("Copynumber % difference (PCR free - PCR)") + xlab("GC %"))
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+HGDP_pcr_free_scg <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID, type=="scg")
+HGDP_pcr_scg <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID), type=="scg")
+
+HGDP_pcr_free_mean_scg <- HGDP_pcr_free_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr_free = mean(copynumber))
+HGDP_pcr_mean_scg <- HGDP_pcr_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
+
+HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr_free-mean_pcr))
+
+(gc_scg <- ggplot(HGDP_mean_scg, aes(GC_content, diff))+
+  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + ylab("Copynumber (PCR free - PCR)") + xlab("GC %"))
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+
 ## Check the quality of sequencing in the two dataset
 
 By calculating variance of scg copynumbers in each sample, we can
 estimate the precision of the sequencing method used.
 
 ``` r
-SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff_mq0")
+SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff")
 ```
 
     ## Rows: 470028 Columns: 10
@@ -253,12 +398,12 @@ SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff_mq0")
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
-HGDP <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt")
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt")
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, Pop, sex, Country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -281,16 +426,16 @@ HGDP <- HGDP %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Ocea
     ## # Groups:   biosample, pop, country [276]
     ##    biosample    pop        country                  sex       var
     ##    <chr>        <chr>      <chr>                    <chr>   <dbl>
-    ##  1 SAMEA3302887 Jordanian  West Eurasia             male   0.0608
-    ##  2 SAMEA3302765 Crete      West Eurasia             female 0.0476
-    ##  3 SAMEA3302697 Mixe       America                  female 0.0461
+    ##  1 SAMEA3302887 Jordanian  West Eurasia             male   0.0609
+    ##  2 SAMEA3302765 Crete      West Eurasia             female 0.0475
+    ##  3 SAMEA3302697 Mixe       America                  female 0.0462
     ##  4 SAMEA3302833 Mbuti      Africa                   male   0.0453
-    ##  5 SAMEA3302625 Crete      West Eurasia             male   0.0445
+    ##  5 SAMEA3302625 Crete      West Eurasia             male   0.0444
     ##  6 SAMEA3302719 Australian Oceania                  female 0.0444
-    ##  7 SAMEA3302709 Quechua    America                  female 0.0441
-    ##  8 SAMEA3302768 Kyrgyz     Central Asia and Siberia female 0.0437
+    ##  7 SAMEA3302709 Quechua    America                  female 0.0442
+    ##  8 SAMEA3302768 Kyrgyz     Central Asia and Siberia female 0.0438
     ##  9 SAMEA3302733 Dinka      Africa                   male   0.0413
-    ## 10 SAMEA3302712 French     West Eurasia             male   0.0393
+    ## 10 SAMEA3302712 French     West Eurasia             male   0.0394
     ## # … with 266 more rows
 
 ``` r
@@ -304,33 +449,32 @@ HGDP <- HGDP %>% mutate(country = recode(country, "Oceania_(SGDP),Oceania"="Ocea
     ## # Groups:   ID, pop, country [828]
     ##    ID        pop         country            sex       var
     ##    <chr>     <chr>       <chr>              <chr>   <dbl>
-    ##  1 HGDP01024 Han         East_Asia          female 0.0379
-    ##  2 HGDP01263 Mozabite    Middle_East        male   0.0253
-    ##  3 HGDP01381 Adygei      Europe             female 0.0179
-    ##  4 HGDP00690 Palestinian Middle_East        female 0.0164
-    ##  5 HGDP00468 Mbuti       Africa             male   0.0147
+    ##  1 HGDP01024 Han         East_Asia          female 0.0380
+    ##  2 HGDP01263 Mozabite    Middle_East        male   0.0254
+    ##  3 HGDP01381 Adygei      Europe             female 0.0180
+    ##  4 HGDP00690 Palestinian Middle_East        female 0.0165
+    ##  5 HGDP00468 Mbuti       Africa             male   0.0148
     ##  6 HGDP00452 Biaka       Africa             male   0.0145
-    ##  7 HGDP00763 Japanese    East_Asia          male   0.0143
+    ##  7 HGDP00763 Japanese    East_Asia          male   0.0144
     ##  8 HGDP01254 Mozabite    Middle_East        female 0.0139
-    ##  9 HGDP00854 Maya        America            female 0.0135
+    ##  9 HGDP00854 Maya        America            female 0.0136
     ## 10 HGDP00119 Hazara      Central_South_Asia male   0.0127
     ## # … with 818 more rows
 
+``` r
+tot_scg_SGDP <- SGDP %>% filter(type=="scg") %>% group_by(type) %>% dplyr::summarise(var_SGDP = var(copynumber))
+(tot_scg <- HGDP %>% filter(type=="scg") %>% group_by(type) %>% dplyr::summarise(var_HGDP = var(copynumber)) %>% inner_join(tot_scg_SGDP, by="type") %>% select(!(type)))
+```
+
+    ## # A tibble: 1 × 2
+    ##   var_HGDP var_SGDP
+    ##      <dbl>    <dbl>
+    ## 1  0.00673   0.0129
+
 We conclude that the HGDP samples have on average higher quality, since
-only 2 samples have a variability in SCGs copynumber \> 0.2, compared to
-the SGDP where there are 26 samples over this threshold!
+only 2 samples have a variability in SCGs copy number \> 0.2, compared
+to the SGDP where there are 26 samples over this threshold! In fact, the
+**overall variability of scg copy number** is:
 
-## Run the pipeline on FASTQ files
-
-Our program is based on processing .cram files, the aligned file to the
-human reference genome. The unmapped reads were present in the files, so
-the fact that the file is aligned should not have an impact on our
-results. Anyway, here we run the pipeline on the .fastq files for 3
-african females and 3 european females and compare the results with the
-.cram files. We do this for both the datasets.
-
-First we download all the .fastq files for each sample and merge them in
-a single fastq file. Then, using a modified version of the mapping
-script (run.map.fastqp), we run the pipeline on these files.
-
-    cat /Volumes/Temp2/riccardo/fastq-control/ERR757740_1.fastq.gz /Volumes/Temp2/riccardo/fastq-control/ERR757740_2.fastq.gz >> /Volumes/Temp2/riccardo/fastq-control/full.fastq.files/HGDP00471_ERR757740.fastq.gz 
+- HGDP = 0.067 %
+- SGDP = 0.129 %
