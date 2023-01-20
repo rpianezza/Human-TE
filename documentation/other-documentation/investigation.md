@@ -1,10 +1,10 @@
 Why the results in the two datasets are that different?
 ================
 
-After processing the SGDP dataset, the results were ambiguous. While the
-most variable TEs are confirmed in both the datasets as well as the most
-divergent among sexes, the geographical pattern disappeared both in the
-world maps and in the copynumbers PCA. Let’s try to understand why.
+After processing the SGDP data set, the results were ambiguous. While
+the most variable TEs are confirmed in both the datasets as well as the
+most divergent among sexes, the geographical pattern disappeared both in
+the world maps and in the copynumbers PCA. Let’s try to understand why.
 
 ``` r
 library(tidyverse)
@@ -133,6 +133,15 @@ data <- inner_join(libraries, by_pop, by = "pop") %>% type_convert()
     ## )
 
 ``` r
+(somma <- summarise(libraries, PCR_free=sum(PCR_free), PCR=sum(PCR)))
+```
+
+    ## # A tibble: 1 × 2
+    ##   PCR_free   PCR
+    ##      <dbl> <dbl>
+    ## 1      649   152
+
+``` r
 plot_map <- function(data, famname){
 TE <- filter(data, familyname == famname)
 world_map = map_data("world")
@@ -184,8 +193,8 @@ plot_libraries(data, "PCR-libraries")
 ![](investigation_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 Wow. We can conclude that at, least partially, our geographic pattern IS
-influenced by this. I can filter the PCR samples from both the datasets
-(around 100 in HGDP, 16 in SGDP).
+influenced by this. I can filter the PCR samples from both the data sets
+(152 in HGDP, 16 in SGDP).
 
 ``` r
 no_pcr <- read_tsv("/Volumes/Temp1/rpianezza/investigation/SGDP_no_PCR.tsv", col_names = c("url",   "md5",  "Data_collection", "Data_type", "Analysis_group", "Sample", "Population", "Data reuse policy")) %>% select(Sample)
@@ -298,13 +307,8 @@ repbase_gc <- inner_join(repbase, gc, by="familyname")
 superfamily_gc <- repbase_gc %>% group_by(superfamily) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
 family_gc <- repbase_gc %>% group_by(familyname) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
 
-(L1PA7_5 <- repbase_gc %>% filter(familyname=="L1PA7_5"))
+#(L1PA7_5 <- repbase_gc %>% filter(familyname=="L1PA7_5"))
 ```
-
-    ## # A tibble: 1 × 7
-    ##   familyname superfamily shared_with  class type  GC_content length
-    ##   <chr>      <chr>       <chr>        <chr> <chr>      <dbl>  <dbl>
-    ## 1 L1PA7_5    L1          Homo sapiens LINE  te          54.1   1727
 
 ``` r
 classification <- read_tsv("/Volumes/Temp1/rpianezza/GC-content/repbase_full_classification.txt")
@@ -352,10 +356,10 @@ HGDP_pcr_free_mean_fam <- HGDP_pcr_free %>% group_by(familyname, superfamily, cl
 ``` r
 HGDP_pcr_mean_fam <- HGDP_pcr %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
 
-HGDP_mean_family <- inner_join(HGDP_pcr_free_mean_fam, HGDP_pcr_mean_fam, by="familyname") %>% inner_join(family_gc, by="familyname") %>% arrange(desc(GC)) %>% mutate(diff_perc = (mean_pcr_free-mean_pcr)/((mean_pcr_free+mean_pcr)/2)*100)
+HGDP_mean_family <- inner_join(HGDP_pcr_free_mean_fam, HGDP_pcr_mean_fam, by="familyname") %>% inner_join(family_gc, by="familyname") %>% arrange(desc(GC)) %>% mutate(diff_perc = (mean_pcr-mean_pcr_free)/((mean_pcr_free+mean_pcr)/2)*100)
 
 (gc_te <- ggplot(HGDP_mean_family, aes(GC, diff_perc, color=class))+
-  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + geom_text(aes(label = ifelse(diff_perc > 20 | diff_perc < (-20), familyname, "")), hjust = 0, vjust = 0, size=2)+ ylab("Copynumber % difference (PCR free - PCR)") + xlab("GC %"))
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + geom_text(aes(label = ifelse(diff_perc > 20 | diff_perc < (-20), familyname, "")), hjust = 0, vjust = 0, size=2)+ ylab("Copynumber difference (PCR - PCR free) %") + xlab("GC %") + ggtitle("Repetitive sequences copy number") + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
@@ -369,10 +373,10 @@ HGDP_pcr_scg <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID), type=="scg"
 HGDP_pcr_free_mean_scg <- HGDP_pcr_free_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr_free = mean(copynumber))
 HGDP_pcr_mean_scg <- HGDP_pcr_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
 
-HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr_free-mean_pcr))
+HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr-mean_pcr_free))
 
 (gc_scg <- ggplot(HGDP_mean_scg, aes(GC_content, diff))+
-  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + ylab("Copynumber (PCR free - PCR)") + xlab("GC %"))
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("Copynumber (PCR - PCR free)") + xlab("GC %") + ggtitle("Single copy genes copy number") + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
@@ -478,3 +482,227 @@ to the SGDP where there are 26 samples over this threshold! In fact, the
 
 - HGDP = 0.067 %
 - SGDP = 0.129 %
+
+### The 27 missing samples
+
+On the IGSR website there are 828 cram files. 152 are “whole-genome
+sequencing”, thus PCR based. 676 are “PCR-free”. On the other hand, when
+summing up the libraries indicated in the HGDP supplement, we have 152
+**HGDP PCR** (right) but only 649 **HGDP PCR-free**. Where are the 27
+missing samples?
+
+``` r
+(count <- HGDP %>% select(c(ID, pop)) %>% distinct() %>% group_by(pop) %>% dplyr::summarise(count=n()) %>% inner_join(libraries, by="pop") %>% mutate(libraries=PCR_free+PCR, missing=count-libraries))
+```
+
+    ## # A tibble: 54 × 8
+    ##    pop              count latitude longitude PCR_free   PCR libraries missing
+    ##    <chr>            <int>    <dbl>     <dbl>    <dbl> <dbl>     <dbl>   <dbl>
+    ##  1 Adygei              15     44        39         11     3        14       1
+    ##  2 Balochi             22     30.5      66.5       19     3        22       0
+    ##  3 BantuKenya          10     -3        37          0     9         9       1
+    ##  4 BantuSouthAfrica     4    -25.6      24.2        1     3         4       0
+    ##  5 Basque              22     43         0         21     0        21       1
+    ##  6 Bedouin             44     31        35         41     3        44       0
+    ##  7 BergamoItalian      10     46        10         10     0        10       0
+    ##  8 Biaka               24      4        17          3    17        20       4
+    ##  9 Bougainville        11     -6       155          5     4         9       2
+    ## 10 Brahui              23     30.5      66.5       20     3        23       0
+    ## # … with 44 more rows
+
+The 27 missing samples are distributed across different populations.
+Let’s put this on the map.
+
+``` r
+plot_missing <- function(data, famname){
+TE <- data %>% select(c(pop, latitude, longitude, count, missing)) %>% mutate(missing_freq = missing/count)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(x=longitude, y=latitude, color = missing_freq, size = count)
+  ) + geom_errorbar() + theme(legend.position="top") + scale_colour_gradient(low = "green", high = "red") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(famname)}
+
+plot_missing(count, "Missing samples")
+```
+
+    ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
+    ## region), : Ignoring unknown aesthetics: x and y
+
+![](investigation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Why there is this discrepancy is still a mistery. We downloaded the
+files from the IGSR website where the alignment files are stored. Here I
+check if the files stored in the ENA website, the official website for
+data accession indicated in the HGDP paper, correspond to the IGSR
+samples.
+
+``` r
+report_ENA <- read_tsv("/Volumes/Temp1/rpianezza/investigation/filereport_read_run_PRJEB6463_tsv.txt") %>% select(sample_title) %>% dplyr::rename(ID=sample_title) %>% distinct() %>% arrange(ID)
+```
+
+    ## Rows: 7942 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (3): run_accession, sample_accession, sample_title
+    ## dbl (2): read_count, base_count
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+HGDP_samples <- HGDP %>% select(ID) %>% distinct()
+
+all_equal(report_ENA, HGDP_samples)
+```
+
+    ## [1] TRUE
+
+The two websites contains 828 samples, with the same names. So it’s not
+a discrepancy due to the different websites.
+
+Could it be that 27 samples from the SGDP were included in those
+repository? We know that the read length is the same in all the samples
+in this repository, so we do not expect that cause the SGDP read length
+is 100 and not 150 as in the HGDP samples.
+
+``` r
+SGDP_samples <- read_tsv("/Volumes/Temp1/rpianezza/SGDP/metadata/SGDP_metadata.tsv") %>% select(sample) %>% dplyr::rename(ID=sample)
+```
+
+    ## Rows: 276 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (5): sample, biosample, sex, pop, country
+    ## dbl (2): latitude, longitude
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+overlap <- inner_join(SGDP_samples, HGDP_samples, by="ID")
+
+HGDP %>% select(ID, sex, country, pop) %>% distinct() %>% inner_join(overlap, by="ID")
+```
+
+    ## # A tibble: 12 × 4
+    ##    ID        sex    country pop            
+    ##    <chr>     <chr>  <chr>   <chr>          
+    ##  1 HGDP00540 male   Oceania PapuanSepik    
+    ##  2 HGDP00541 male   Oceania PapuanSepik    
+    ##  3 HGDP00543 male   Oceania PapuanSepik    
+    ##  4 HGDP00545 male   Oceania PapuanSepik    
+    ##  5 HGDP00546 male   Oceania PapuanSepik    
+    ##  6 HGDP00547 male   Oceania PapuanSepik    
+    ##  7 HGDP00549 male   Oceania PapuanHighlands
+    ##  8 HGDP00550 female Oceania PapuanHighlands
+    ##  9 HGDP00551 male   Oceania PapuanHighlands
+    ## 10 HGDP00553 male   Oceania PapuanHighlands
+    ## 11 HGDP00555 male   Oceania PapuanHighlands
+    ## 12 HGDP00556 male   Oceania PapuanHighlands
+
+So, 12/27 of the missing samples are in fact overlapping with the SGDP.
+They are all the Papuans that we have in the data set. Anyway, they have
+been re-sequenced for the HGDP with the rigth read length (150).
+
+What about the last 15 samples? Where are they from?
+
+#### The last 15
+
+9 samples were found to be overlapping with the SGDP, even if they are
+not included in the IGSR SGDP repository. Thus, these samples have been
+processed only from the HGDP repository.
+
+``` r
+(other_SGDP_overlap <- c("HGDP00857", "HGDP00855", "HGDP00449", "HGDP00476", "HGDP00713", "HGDP01274", "HGDP00232", "HGDP00987", "HGDP01036") %>% as_tibble())
+```
+
+    ## # A tibble: 9 × 1
+    ##   value    
+    ##   <chr>    
+    ## 1 HGDP00857
+    ## 2 HGDP00855
+    ## 3 HGDP00449
+    ## 4 HGDP00476
+    ## 5 HGDP00713
+    ## 6 HGDP01274
+    ## 7 HGDP00232
+    ## 8 HGDP00987
+    ## 9 HGDP01036
+
+The last 6?
+
+## 17 samples in the HGDP have not been assigned with a Y haplotype. Why?
+
+First, I check if this 17 samples are from the SGDP.
+
+``` r
+(y_hap_non <- read_csv("/Volumes/Temp1/rpianezza/TE/Y-chromosome/males-Y-chromosome.txt") %>% filter(haplotype=="non-assigned") %>% select(ID))
+```
+
+    ## Rows: 553 Columns: 3
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (3): ID, haplotype, hap_group
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## # A tibble: 17 × 1
+    ##    ID       
+    ##    <chr>    
+    ##  1 HGDP00119
+    ##  2 HGDP00321
+    ##  3 HGDP00465
+    ##  4 HGDP00468
+    ##  5 HGDP00490
+    ##  6 HGDP00763
+    ##  7 HGDP00768
+    ##  8 HGDP00823
+    ##  9 HGDP00919
+    ## 10 HGDP00981
+    ## 11 HGDP00983
+    ## 12 HGDP01087
+    ## 13 HGDP01092
+    ## 14 HGDP01097
+    ## 15 HGDP01226
+    ## 16 HGDP01371
+    ## 17 HGDP01413
+
+``` r
+inner_join(y_hap_non, overlap, by="ID")
+```
+
+    ## # A tibble: 0 × 1
+    ## # … with 1 variable: ID <chr>
+
+The answer is no, none of them is in the SGDP overlap.
+
+``` r
+(y_hap_non_meta <- HGDP %>% select(ID, sex, country, pop) %>% distinct() %>% inner_join(y_hap_non, by="ID"))
+```
+
+    ## # A tibble: 17 × 4
+    ##    ID        sex   country            pop         
+    ##    <chr>     <chr> <chr>              <chr>       
+    ##  1 HGDP00119 male  Central_South_Asia Hazara      
+    ##  2 HGDP00321 male  Central_South_Asia Kalash      
+    ##  3 HGDP00465 male  Africa             Biaka       
+    ##  4 HGDP00468 male  Africa             Mbuti       
+    ##  5 HGDP00490 male  Oceania            Bougainville
+    ##  6 HGDP00763 male  East_Asia          Japanese    
+    ##  7 HGDP00768 male  East_Asia          Japanese    
+    ##  8 HGDP00823 male  Oceania            Bougainville
+    ##  9 HGDP00919 male  Africa             Mandenka    
+    ## 10 HGDP00981 male  Africa             Biaka       
+    ## 11 HGDP00983 male  Africa             Mbuti       
+    ## 12 HGDP01087 male  Africa             Biaka       
+    ## 13 HGDP01092 male  Africa             Biaka       
+    ## 14 HGDP01097 male  East_Asia          Tujia       
+    ## 15 HGDP01226 male  East_Asia          Mongolian   
+    ## 16 HGDP01371 male  Europe             Basque      
+    ## 17 HGDP01413 male  Africa             BantuKenya

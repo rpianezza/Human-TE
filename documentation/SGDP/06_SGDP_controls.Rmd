@@ -1,0 +1,69 @@
+---
+title: "HGDP - Controls"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+Script 5. This scripts contains some controls on the data quality.
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff")
+```
+
+
+## Read length
+
+```{r}
+SGDP_report <- read_tsv('/Volumes/Temp1/rpianezza/SGDP/filereport_read_run_PRJEB9586_tsv.txt') %>% mutate(read_length = base_count/read_count)
+```
+
+First I wanted to check if the dataset used for my data analysis was still complete respect to the original one, so I compared the number of individuals in the two datasets.
+
+The total number of samples in the ENA repository is 279, against the 276 that are present in the IGSR repository.
+```{r}
+length(unique(SGDP_report$sample_accession))
+length(unique(SGDP$biosample))
+```
+
+Then I checked for the mean of read lenghts among all the samples. Surprisingly it is not `151`, as I was expecting looking at the dataset, but a bit lower.
+```{r}
+(mean_rl = mean(SGDP_report$read_length))
+```
+
+All the samples have read length 200.
+
+
+## Are there unmapped reads in the .cram file?
+
+Another important thing to check is if **unmapped reads** are present in the initial **.cram file**. If this is not the case, many reads with potentially interesting information would just be lost just because they do not align on the reference genome.
+
+To check for this, we can use this UNIX command giving the .cram file path.
+```
+samtools view HGDP00001-Brahui.cram | cut -f 3
+```
+
+In our dataset, the unmapped reads (identified with a `*` instead of the number of chromosome) are present.
+
+
+## Check scgx coverage
+
+```{r}
+scgx <- filter(SGDP, type=="scgx") %>% dplyr::rename(ID=biosample) %>% group_by(ID, sex, country) %>% dplyr::summarise(mean_scgx = mean(copynumber))
+
+ggplot(scgx, aes(ID, mean_scgx, color=sex))+
+  geom_point()
+
+ggplot(scgx, aes(ID, mean_scgx, color=country))+
+  geom_point() + facet_grid(~ sex)
+```
+
+Few outliers are present in both sexes, but in general the expected coverage (0.5 for males, 1 for females) is matched.

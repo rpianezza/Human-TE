@@ -6,7 +6,7 @@ editor_options:
     wrap: sentence
 ---
 
-After processing the SGDP dataset, the results were ambiguous. While the most variable TEs are confirmed in both the datasets as well as the most divergent among sexes, the geographical pattern disappeared both in the world maps and in the copynumbers PCA. Let's try to understand why.
+After processing the SGDP data set, the results were ambiguous. While the most variable TEs are confirmed in both the datasets as well as the most divergent among sexes, the geographical pattern disappeared both in the world maps and in the copynumbers PCA. Let's try to understand why.
 ```{r}
 library(tidyverse)
 ```
@@ -46,6 +46,8 @@ names(HGDP)<-c("ID","pop","sex","country","type","familyname","length","reads","
 by_pop <- filter(HGDP, type=='te') %>% group_by(pop, country, familyname, sex) %>% dplyr::summarise(sd=sd(copynumber), copynumber = mean(copynumber), count=n())
 
 data <- inner_join(libraries, by_pop, by = "pop") %>% type_convert()
+
+(somma <- summarise(libraries, PCR_free=sum(PCR_free), PCR=sum(PCR)))
 ```
 
 ```{r}
@@ -83,7 +85,7 @@ plot_map(data, "L1PA16")
 plot_libraries(data, "PCR-libraries")
 ```
 
-Wow. We can conclude that at, least partially, our geographic pattern IS influenced by this. I can filter the PCR samples from both the datasets (around 100 in HGDP, 16 in SGDP).
+Wow. We can conclude that at, least partially, our geographic pattern IS influenced by this. I can filter the PCR samples from both the data sets (152 in HGDP, 16 in SGDP).
 
 ```{r}
 no_pcr <- read_tsv("/Volumes/Temp1/rpianezza/investigation/SGDP_no_PCR.tsv", col_names = c("url",	"md5",	"Data_collection", "Data_type", "Analysis_group", "Sample", "Population", "Data reuse policy")) %>% select(Sample)
@@ -117,7 +119,7 @@ repbase_gc <- inner_join(repbase, gc, by="familyname")
 superfamily_gc <- repbase_gc %>% group_by(superfamily) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
 family_gc <- repbase_gc %>% group_by(familyname) %>% dplyr::summarise(GC = mean(GC_content), len=mean(length)) %>% arrange(desc(GC))
 
-(L1PA7_5 <- repbase_gc %>% filter(familyname=="L1PA7_5"))
+#(L1PA7_5 <- repbase_gc %>% filter(familyname=="L1PA7_5"))
 ```
 
 ```{r}
@@ -130,10 +132,10 @@ HGDP_pcr <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID)) %>% inner_join(
 HGDP_pcr_free_mean_fam <- HGDP_pcr_free %>% group_by(familyname, superfamily, class) %>% dplyr::summarise(mean_pcr_free = mean(copynumber))
 HGDP_pcr_mean_fam <- HGDP_pcr %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
 
-HGDP_mean_family <- inner_join(HGDP_pcr_free_mean_fam, HGDP_pcr_mean_fam, by="familyname") %>% inner_join(family_gc, by="familyname") %>% arrange(desc(GC)) %>% mutate(diff_perc = (mean_pcr_free-mean_pcr)/((mean_pcr_free+mean_pcr)/2)*100)
+HGDP_mean_family <- inner_join(HGDP_pcr_free_mean_fam, HGDP_pcr_mean_fam, by="familyname") %>% inner_join(family_gc, by="familyname") %>% arrange(desc(GC)) %>% mutate(diff_perc = (mean_pcr-mean_pcr_free)/((mean_pcr_free+mean_pcr)/2)*100)
 
 (gc_te <- ggplot(HGDP_mean_family, aes(GC, diff_perc, color=class))+
-  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + geom_text(aes(label = ifelse(diff_perc > 20 | diff_perc < (-20), familyname, "")), hjust = 0, vjust = 0, size=2)+ ylab("Copynumber % difference (PCR free - PCR)") + xlab("GC %"))
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + geom_text(aes(label = ifelse(diff_perc > 20 | diff_perc < (-20), familyname, "")), hjust = 0, vjust = 0, size=2)+ ylab("Copynumber difference (PCR - PCR free) %") + xlab("GC %") + ggtitle("Repetitive sequences copy number") + theme(plot.title = element_text(hjust = 0.5)))
 
 
 HGDP_pcr_free_scg <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID, type=="scg")
@@ -142,10 +144,10 @@ HGDP_pcr_scg <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID), type=="scg"
 HGDP_pcr_free_mean_scg <- HGDP_pcr_free_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr_free = mean(copynumber))
 HGDP_pcr_mean_scg <- HGDP_pcr_scg %>% group_by(familyname) %>% dplyr::summarise(mean_pcr = mean(copynumber))
 
-HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr_free-mean_pcr))
+HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr-mean_pcr_free))
 
 (gc_scg <- ggplot(HGDP_mean_scg, aes(GC_content, diff))+
-  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=F) + ylab("Copynumber (PCR free - PCR)") + xlab("GC %"))
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("Copynumber (PCR - PCR free)") + xlab("GC %") + ggtitle("Single copy genes copy number") + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 ## Check the quality of sequencing in the two dataset
@@ -174,9 +176,81 @@ We conclude that the HGDP samples have on average higher quality, since only 2 s
 * SGDP = 0.129 %
 
 
+### The 27 missing samples
+
+On the IGSR website there are 828 cram files. 152 are "whole-genome sequencing", thus PCR based. 676 are "PCR-free".
+On the other hand, when summing up the libraries indicated in the HGDP supplement, we have 152 **HGDP PCR** (right) but only 649 **HGDP PCR-free**.
+Where are the 27 missing samples?
+
+```{r}
+(count <- HGDP %>% select(c(ID, pop)) %>% distinct() %>% group_by(pop) %>% dplyr::summarise(count=n()) %>% inner_join(libraries, by="pop") %>% mutate(libraries=PCR_free+PCR, missing=count-libraries))
+```
+
+The 27 missing samples are distributed across different populations. Let's put this on the map.
+
+```{r}
+plot_missing <- function(data, famname){
+TE <- data %>% select(c(pop, latitude, longitude, count, missing)) %>% mutate(missing_freq = missing/count)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(x=longitude, y=latitude, color = missing_freq, size = count)
+  ) + geom_errorbar() + theme(legend.position="top") + scale_colour_gradient(low = "green", high = "red") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(famname)}
+
+plot_missing(count, "Missing samples")
+```
+
+Why there is this discrepancy is still a mistery. We downloaded the files from the IGSR website where the alignment files are stored. Here I check if the files stored in the ENA website, the official website for data accession indicated in the HGDP paper, correspond to the IGSR samples.
+```{r}
+report_ENA <- read_tsv("/Volumes/Temp1/rpianezza/investigation/filereport_read_run_PRJEB6463_tsv.txt") %>% select(sample_title) %>% dplyr::rename(ID=sample_title) %>% distinct() %>% arrange(ID)
+
+HGDP_samples <- HGDP %>% select(ID) %>% distinct()
+
+all_equal(report_ENA, HGDP_samples)
+```
+
+The two websites contains 828 samples, with the same names. So it's not a discrepancy due to the different websites.
+
+Could it be that 27 samples from the SGDP were included in those repository? We know that the read length is the same in all the samples in this repository, so we do not expect that cause the SGDP read length is 100 and not 150 as in the HGDP samples.
+
+```{r}
+SGDP_samples <- read_tsv("/Volumes/Temp1/rpianezza/SGDP/metadata/SGDP_metadata.tsv") %>% select(sample) %>% dplyr::rename(ID=sample)
+overlap <- inner_join(SGDP_samples, HGDP_samples, by="ID")
+
+HGDP %>% select(ID, sex, country, pop) %>% distinct() %>% inner_join(overlap, by="ID")
+```
+
+So, 12/27 of the missing samples are in fact overlapping with the SGDP. They are all the Papuans that we have in the data set.
+Anyway, they have been re-sequenced for the HGDP with the rigth read length (150).
+
+What about the last 15 samples? Where are they from?
+
+#### The last 15
+
+9 samples were found to be overlapping with the SGDP, even if they are not included in the IGSR SGDP repository. Thus, these samples have been processed only from the HGDP repository.
+```{r}
+(other_SGDP_overlap <- c("HGDP00857", "HGDP00855", "HGDP00449", "HGDP00476", "HGDP00713", "HGDP01274", "HGDP00232", "HGDP00987", "HGDP01036") %>% as_tibble())
+```
+
+The last 6?
 
 
+## 17 samples in the HGDP have not been assigned with a Y haplotype. Why?
 
+First, I check if this 17 samples are from the SGDP.
+```{r}
+(y_hap_non <- read_csv("/Volumes/Temp1/rpianezza/TE/Y-chromosome/males-Y-chromosome.txt") %>% filter(haplotype=="non-assigned") %>% select(ID))
 
+inner_join(y_hap_non, overlap, by="ID")
+```
 
+The answer is no, none of them is in the SGDP overlap.
 
+```{r}
+(y_hap_non_meta <- HGDP %>% select(ID, sex, country, pop) %>% distinct() %>% inner_join(y_hap_non, by="ID"))
+```
