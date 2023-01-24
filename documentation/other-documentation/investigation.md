@@ -19,6 +19,10 @@ library(tidyverse)
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
 
+``` r
+library(cowplot)
+```
+
 ## Check the amount of unmapped reads in both the datasets
 
 We expect the amount of unmapped reads in the two datasets to be
@@ -85,6 +89,19 @@ HGDP<-read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_r
 ``` r
 names(HGDP)<-c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch")
 
+SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff")
+```
+
+    ## Rows: 470028 Columns: 10
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (7): biosample, sex, pop, country, type, familyname, batch
+    ## dbl (3): length, reads, copynumber
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
 (libraries <- read_tsv("/Volumes/Temp1/rpianezza/investigation/libraries_HGDP_by_pop.tsv", col_names = c("pop", "country", "latitude", "longitude", "PCR_free", "PCR"), skip=1) %>% select(c(pop, latitude, longitude, PCR_free, PCR)))
 ```
 
@@ -375,13 +392,77 @@ HGDP_pcr_mean_scg <- HGDP_pcr_scg %>% group_by(familyname) %>% dplyr::summarise(
 
 HGDP_mean_scg <- inner_join(HGDP_pcr_free_mean_scg, HGDP_pcr_mean_scg, by="familyname") %>% inner_join(gc, by="familyname") %>% arrange(desc(GC_content)) %>% mutate(diff = (mean_pcr-mean_pcr_free))
 
-(gc_scg <- ggplot(HGDP_mean_scg, aes(GC_content, diff))+
-  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("Copynumber (PCR - PCR free)") + xlab("GC %") + ggtitle("Single copy genes copy number") + theme(plot.title = element_text(hjust = 0.5)))
+#(gc_scg <- ggplot(HGDP_mean_scg, aes(GC_content, diff))+
+  #geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("Copynumber (PCR - PCR free)") + #xlab("GC %") + ggtitle("Single copy genes copy number") + theme(plot.title = element_text(hjust = 0.5)))
+```
+
+``` r
+gc_scg_pcr_free <- HGDP_pcr_free_mean_scg %>% inner_join(gc, by="familyname") %>% ggplot(aes(GC_content, mean_pcr_free)) +
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("Copynumber") + xlab("GC %") + ggtitle("PCR-free samples") + theme(plot.title = element_text(hjust = 0.5))
+
+gc_scg_pcr <- HGDP_pcr_mean_scg %>% inner_join(gc, by="familyname") %>% ggplot(aes(GC_content, mean_pcr)) +
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("") + xlab("GC %") + ggtitle("PCR samples") + theme(plot.title = element_text(hjust = 0.5))
+
+plot_grid(gc_scg_pcr_free, gc_scg_pcr, align = "v", axis = "tb")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+scg <- function(data, id){
+  data %>% filter(type=="scg", ID==id) %>% inner_join(gc, by="familyname") %>% ggplot(aes(GC_content, copynumber)) +
+  geom_point(size=1)+geom_smooth(method = "loess", color="grey", se=T) + ylab("") + xlab("GC %") + ggtitle(paste0("Single copy genes - ", id)) + theme(plot.title = element_text(hjust = 0.5))
+}
+
+scg(HGDP, "HGDP00465")
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
 
-![](investigation_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](investigation_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+scg(HGDP, "HGDP00981")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+
+``` r
+scg(HGDP, "HGDP01097")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->
+
+``` r
+scg(HGDP, "HGDP00023")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->
+
+``` r
+scg(HGDP, "HGDP00197")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->
+
+``` r
+scg(HGDP, "HGDP01403")
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](investigation_files/figure-gfm/unnamed-chunk-11-6.png)<!-- -->
 
 ## Check the quality of sequencing in the two dataset
 
@@ -533,7 +614,7 @@ plot_missing(count, "Missing samples")
     ## Warning in geom_map(data = world_map, map = world_map, aes(long, lat, map_id =
     ## region), : Ignoring unknown aesthetics: x and y
 
-![](investigation_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](investigation_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Why there is this discrepancy is still a mistery. We downloaded the
 files from the IGSR website where the alignment files are stored. Here I

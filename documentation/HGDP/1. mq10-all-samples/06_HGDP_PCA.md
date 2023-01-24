@@ -20,12 +20,12 @@ library(tidyverse)
 
 ``` r
 library("ggpubr")
-HGDPcutoff <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_mq0_cutoff0.01.txt")
+HGDPcutoff <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt")
 ```
 
-    ## Rows: 1396835 Columns: 10
+    ## Rows: 1394352 Columns: 10
     ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
+    ## Delimiter: ","
     ## chr (7): ID, Pop, sex, Country, type, familyname, batch
     ## dbl (3): length, reads, copynumber
     ## 
@@ -102,16 +102,8 @@ out_names <- c(out_abs_names, out_rel_names[!(out_rel_names %in% out_abs_names)]
 
 most_variable<-subset(HGDPcutoff, type=="te") %>% filter(familyname %in% out_names)
 
-PCA(HGDPcutoff, "All the repetitive sequences")
+PCA(TE_cutoff, "All the repetitive sequences")
 ```
-
-    ## Warning in matrix(as.vector(m$copynumber), nrow = males, ncol = len, byrow =
-    ## T): data length [932910] is not a sub-multiple or multiple of the number of rows
-    ## [553]
-
-    ## Warning in matrix(as.vector(m$country), nrow = males, ncol = len, byrow = T):
-    ## data length [932910] is not a sub-multiple or multiple of the number of rows
-    ## [553]
 
     ## Loading required package: plyr
 
@@ -214,20 +206,20 @@ satellites_names <- c("Satellite", "satellite", "SAT")
 (classification <- HGDP_class %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
 ```
 
-    ## # A tibble: 1,396,835 × 13
+    ## # A tibble: 1,394,352 × 13
     ##    ID       pop   sex   country type  famil…¹ length reads copyn…² batch super…³
     ##    <chr>    <chr> <chr> <chr>   <chr> <chr>    <dbl> <dbl>   <dbl> <chr> <chr>  
-    ##  1 HGDP000… Brah… male  Centra… scg   chr1:9…   5136 1105.   0.861 ro    <NA>   
-    ##  2 HGDP000… Brah… male  Centra… scg   chr1:1…   3064  832.   1.09  ro    <NA>   
-    ##  3 HGDP000… Brah… male  Centra… scg   chr1:1…   3239  901.   1.11  ro    <NA>   
-    ##  4 HGDP000… Brah… male  Centra… scg   chr1:1…   4035 1102.   1.09  ro    <NA>   
-    ##  5 HGDP000… Brah… male  Centra… scg   chr1:1…   2500  733.   1.17  ro    <NA>   
-    ##  6 HGDP000… Brah… male  Centra… scg   chr1:1…   2599  580.   0.894 ro    <NA>   
-    ##  7 HGDP000… Brah… male  Centra… scg   chr1:1…   2124  477.   0.899 ro    <NA>   
-    ##  8 HGDP000… Brah… male  Centra… scg   chr1:2…   6284 1527.   0.973 ro    <NA>   
-    ##  9 HGDP000… Brah… male  Centra… scg   chr1:2…   3222  889.   1.10  ro    <NA>   
-    ## 10 HGDP000… Brah… male  Centra… scg   chr1:3…   3698  868.   0.940 ro    <NA>   
-    ## # … with 1,396,825 more rows, 2 more variables: shared_with <chr>, class <chr>,
+    ##  1 HGDP000… Brah… male  Centra… scg   chr1:9…   4152 1052.   1.02  ro    <NA>   
+    ##  2 HGDP000… Brah… male  Centra… scg   chr1:9…   5136 1092.   0.852 ro    <NA>   
+    ##  3 HGDP000… Brah… male  Centra… scg   chr1:1…   3064  832.   1.09  ro    <NA>   
+    ##  4 HGDP000… Brah… male  Centra… scg   chr1:1…   3239  901.   1.11  ro    <NA>   
+    ##  5 HGDP000… Brah… male  Centra… scg   chr1:1…   4035 1102.   1.09  ro    <NA>   
+    ##  6 HGDP000… Brah… male  Centra… scg   chr1:1…   2500  733.   1.18  ro    <NA>   
+    ##  7 HGDP000… Brah… male  Centra… scg   chr1:1…   2599  580.   0.895 ro    <NA>   
+    ##  8 HGDP000… Brah… male  Centra… scg   chr1:1…   2124  477.   0.900 ro    <NA>   
+    ##  9 HGDP000… Brah… male  Centra… scg   chr1:2…   6284 1527.   0.974 ro    <NA>   
+    ## 10 HGDP000… Brah… male  Centra… scg   chr1:2…   3222  884.   1.10  ro    <NA>   
+    ## # … with 1,394,342 more rows, 2 more variables: shared_with <chr>, class <chr>,
     ## #   and abbreviated variable names ¹​familyname, ²​copynumber, ³​superfamily
 
 This part of the code is work in progress. My idea was to give a bit of
