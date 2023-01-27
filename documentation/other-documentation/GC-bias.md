@@ -257,7 +257,26 @@ all_parabolas <- function(data){
 a_HGDP <- all_parabolas(HGDP)
 a_SGDP <- all_parabolas(SGDP)
 
-joined_HGDP <- inner_join(HGDP, a_HGDP, by="ID") %>% filter(type=="te") 
+(joined_HGDP <- inner_join(HGDP, a_HGDP, by="ID") %>% filter(type=="te"))
+```
+
+    ## # A tibble: 799,020 × 11
+    ##    ID       pop   sex   country type  famil…¹ length  reads copyn…² batch      a
+    ##    <chr>    <chr> <chr> <chr>   <chr> <chr>    <dbl>  <dbl>   <dbl> <chr>  <dbl>
+    ##  1 HGDP000… Brah… male  Centra… te    LTR65      669 1.10e3 6.57e+0 ro    -0.830
+    ##  2 HGDP000… Brah… male  Centra… te    HERVK3I   7242 3.89e4 2.15e+1 ro    -0.830
+    ##  3 HGDP000… Brah… male  Centra… te    HERV9     8399 3.12e5 1.49e+2 ro    -0.830
+    ##  4 HGDP000… Brah… male  Centra… te    L1PA12…   3072 6.41e4 8.36e+1 ro    -0.830
+    ##  5 HGDP000… Brah… male  Centra… te    LTR27C     767 3.13e3 1.63e+1 ro    -0.830
+    ##  6 HGDP000… Brah… male  Centra… te    LTR16A1    457 4.14e2 3.63e+0 ro    -0.830
+    ##  7 HGDP000… Brah… male  Centra… te    Tigger…    933 9.32e0 4.01e-2 ro    -0.830
+    ##  8 HGDP000… Brah… male  Centra… te    LTR23      437 7.70e3 7.06e+1 ro    -0.830
+    ##  9 HGDP000… Brah… male  Centra… te    X32_DNA    336 4.38e1 5.22e-1 ro    -0.830
+    ## 10 HGDP000… Brah… male  Centra… te    LTR53      519 1.36e3 1.05e+1 ro    -0.830
+    ## # … with 799,010 more rows, and abbreviated variable names ¹​familyname,
+    ## #   ²​copynumber
+
+``` r
 joined_SGDP <- inner_join(SGDP, a_SGDP, by="ID") %>% filter(type=="te")
 
 joined_HGDP_nopcr <- inner_join(HGDP_pcr_free, a_HGDP, by="ID") %>% filter(type=="te") 
@@ -356,7 +375,7 @@ Yes!
 ### Exploring other PCs
 
 ``` r
-PCA_GC_34 <- function(data, title){
+PCA_otherPC_GC <- function(data, title, PCx, PCy){
   m <- filter(data, sex=='male')
   f <- filter(data, sex=='female')
   len <- length(unique(data$familyname))
@@ -370,7 +389,7 @@ PCA_GC_34 <- function(data, title){
   f_matrixcont<-matrix(as.vector(f$country),nrow=females,ncol=len,byrow=T)
   f_framcont<-data.frame(f_matrixcont)
   f_rsqrcol<-unique(f$a)
-
+  
    m_matrix<-matrix(as.vector(m$copynumber),nrow=males,ncol=len,byrow=T)
    m_fram<-data.frame(m_matrix)
    names(m_fram)<-unique(m$familyname)
@@ -378,58 +397,204 @@ PCA_GC_34 <- function(data, title){
    m_matrixcont<-matrix(as.vector(m$country),nrow=males,ncol=len,byrow=T)
    m_framcont<-data.frame(m_matrixcont)
    m_rsqrcol<-unique(m$a)
-  
-    fHGDP.pca <- prcomp(f_fram, center = TRUE, scale = TRUE)
-    f_var <- summary(fHGDP.pca)$importance[2,1]
 
 fHGDP.pca <- prcomp(f_fram, center = TRUE, scale = TRUE)
-f_var1 <- summary(fHGDP.pca)$importance[2,1]
-f_var2 <- summary(fHGDP.pca)$importance[2,3]
+f_var1 <- summary(fHGDP.pca)$importance[2,PCx]
+f_var2 <- summary(fHGDP.pca)$importance[2,PCy]
 
-f_PCA <- ggplot(data=f_fram, aes(x=fHGDP.pca$x[,3], y=fHGDP.pca$x[,4], color = f_rsqrcol)) + 
+f_PCA <- ggplot(data=f_fram, aes(x=fHGDP.pca$x[,PCx], y=fHGDP.pca$x[,PCy], color = f_rsqrcol)) + 
   geom_point() + 
   ggtitle("Females") + 
-  xlab(paste0("PC1 (", round(f_var1,3)*100,"%)")) + 
-  ylab(paste0("PC3 (",round(f_var2,3)*100,"%)")) + 
-  theme(plot.title = element_text(size = 8, hjust = 0.5)) + 
-  guides(col = guide_colourbar(title = "Parabola quadratic coefficient"))
+  xlab(paste0("PC", PCx, " (", round(f_var1,3)*100,"%)")) + 
+  ylab(paste0("PC", PCy, " (",round(f_var2,3)*100,"%)")) + 
+  theme(plot.title = element_text(size = 8, hjust = 0.5)) +
+guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
 
 mHGDP.pca <- prcomp(m_fram, center = TRUE, scale = TRUE)
-m_var1 <- summary(mHGDP.pca)$importance[2,1]
-m_var2 <- summary(mHGDP.pca)$importance[2,3]
+m_var1 <- summary(mHGDP.pca)$importance[2,PCx]
+m_var2 <- summary(mHGDP.pca)$importance[2,PCy]
 
-m_PCA <- ggplot(data=m_fram, aes(x=mHGDP.pca$x[,3], y=mHGDP.pca$x[,4], color = m_rsqrcol)) +
+m_PCA <- ggplot(data=m_fram, aes(x=mHGDP.pca$x[,PCx], y=mHGDP.pca$x[,PCy], color = m_rsqrcol)) +
 geom_point() +
 ggtitle("Males") +
-xlab(paste0("PC1 (", round(m_var1,3)*100,"%)")) +
-ylab(paste0("PC3 (",round(m_var2,3)*100,"%)")) +
-theme(plot.title = element_text(size = 8, hjust = 0.5)) +
-guides(col = guide_colourbar(title = "Parabola quadratic coefficient"))
+xlab(paste0("PC", PCx, " (", round(f_var1,3)*100,"%)")) + 
+ylab(paste0("PC", PCy, " (",round(f_var2,3)*100,"%)")) + 
+theme(plot.title = element_text(size = 8, hjust = 0.5))  +
+guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
 
-      figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = FALSE, legend = "bottom", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
    
-    annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.lab = "")
+annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.lab = "")
 }
 
-PCA_GC_34(joined_HGDP, "HGDP - all samples")
+PCA_otherPC_GC(joined_HGDP, "HGDP - all samples", 1, 3)
 ```
 
 ![](GC-bias_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ``` r
-PCA_GC_34(joined_SGDP, "SGDP - all samples")
+PCA_otherPC_GC(joined_SGDP, "SGDP - all samples", 1, 3)
 ```
 
-![](GC-bias_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+![](GC-bias_files/figure-gfm/unnamed-chunk-10-2.png)<!-- --> \## SNPs
 
 ``` r
-PCA_GC_34(joined_HGDP_nopcr, "HGDP - PCR free")
-```
+SNP_GC <- function(freq_matrix, metadata, title){
 
-![](GC-bias_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
+matrix <- read_csv(freq_matrix)
+  
+f_metadata <- metadata %>% filter(sex=="female") %>% select(ID, sex, country, pop, a) %>% distinct()
+m_metadata <- metadata %>% filter(sex=="male") %>% select(ID, sex, country, pop, a) %>% distinct()
+males_matrix <- filter(matrix, ID %in% m_metadata$ID) %>% select(!(ID))
+females_matrix <- filter(matrix, ID %in% f_metadata$ID) %>% select(!(ID))
+
+f_pca_data <- females_matrix %>% select_if(negate(function(col) sd(col)==0))
+m_pca_data <- males_matrix %>% select_if(negate(function(col) sd(col)==0))
+
+f_pca_result <- prcomp(f_pca_data, center = TRUE, scale = TRUE)
+m_pca_result <- prcomp(m_pca_data, center = TRUE, scale = TRUE)
+  
+f_var_explained <- f_pca_result$sdev^2/sum(f_pca_result$sdev^2)
+m_var_explained <- m_pca_result$sdev^2/sum(m_pca_result$sdev^2)
+   
+f <- f_pca_result$x %>% as_tibble() %>% add_column(.before = 1, ID=f_metadata$ID, sex=f_metadata$sex, pop=f_metadata$pop, country=f_metadata$country, a=f_metadata$a) %>% as.data.frame() %>%
+ ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) + stat_ellipse() +
+labs(x=paste0("PC1: ",round(f_var_explained[1]*100,1),"%"),
+        y=paste0("PC2: ",round(f_var_explained[2]*100,1),"%")) + ggtitle(title) +
+ theme(plot.title = element_text(hjust = 0.5)) +
+guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
+   
+  m <- m_pca_result$x %>% as_tibble() %>% add_column(.before = 1, ID=m_metadata$ID, sex=m_metadata$sex, pop=m_metadata$pop, country=m_metadata$country, a=m_metadata$a) %>% as.data.frame() %>%
+  ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) + stat_ellipse() +
+   labs(x=paste0("PC1: ",round(m_var_explained[1]*100,1),"%"),
+        y=paste0("PC2: ",round(m_var_explained[2]*100,1),"%")) + ggtitle(title) +
+ theme(plot.title = element_text(hjust = 0.5)) +
+guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
+ 
+ggarrange(f, m, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+  }
+```
 
 ``` r
-PCA_GC_34(joined_SGDP_nopcr, "SGDP - PCR free")
+SNP_GC("/Volumes/Temp1/rpianezza/TE/SNP/try04/separed.all.08.5000x.matrix.tsv", joined_HGDP, "HGDP - all samples")
 ```
 
-![](GC-bias_files/figure-gfm/unnamed-chunk-10-4.png)<!-- -->
+    ## Rows: 828 Columns: 69481
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr     (1): ID
+    ## dbl (69480): HERV9_te_78A, HERV9_te_78T, HERV9_te_78C, HERV9_te_78G, HERV9_t...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## Warning: The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
+![](GC-bias_files/figure-gfm/all-1.png)<!-- -->
+
+``` r
+SNP_GC("/Volumes/Temp1/rpianezza/TE/SNP/try04/separed.all.08.5000x.matrix.tsv", joined_HGDP_nopcr, "HGDP - pcr-free samples")
+```
+
+    ## Rows: 828 Columns: 69481
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr     (1): ID
+    ## dbl (69480): HERV9_te_78A, HERV9_te_78T, HERV9_te_78C, HERV9_te_78G, HERV9_t...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## Warning: The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
+![](GC-bias_files/figure-gfm/all-2.png)<!-- -->
+
+``` r
+SNP_GC("/Volumes/Temp1/rpianezza/SGDP/SNP/separed.all.08.5000x.matrix.tsv", joined_SGDP, "SGDP - all samples")
+```
+
+    ## Rows: 276 Columns: 66289
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr     (1): ID
+    ## dbl (66288): HERV9_te_79A, HERV9_te_79T, HERV9_te_79C, HERV9_te_79G, HERV9_t...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## Warning: The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
+![](GC-bias_files/figure-gfm/all-3.png)<!-- -->
+
+``` r
+SNP_GC("/Volumes/Temp1/rpianezza/SGDP/SNP/separed.all.08.5000x.matrix.tsv", joined_SGDP_nopcr, "SGDP - pcr-free samples")
+```
+
+    ## Rows: 276 Columns: 66289
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr     (1): ID
+    ## dbl (66288): HERV9_te_79A, HERV9_te_79T, HERV9_te_79C, HERV9_te_79G, HERV9_t...
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## Warning: The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+    ## The following aesthetics were dropped during statistical transformation: colour
+    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+    ##   the data.
+    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+    ##   variable into a factor?
+
+![](GC-bias_files/figure-gfm/all-4.png)<!-- -->
