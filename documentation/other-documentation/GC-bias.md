@@ -458,14 +458,14 @@ f_var_explained <- f_pca_result$sdev^2/sum(f_pca_result$sdev^2)
 m_var_explained <- m_pca_result$sdev^2/sum(m_pca_result$sdev^2)
    
 f <- f_pca_result$x %>% as_tibble() %>% add_column(.before = 1, ID=f_metadata$ID, sex=f_metadata$sex, pop=f_metadata$pop, country=f_metadata$country, a=f_metadata$a) %>% as.data.frame() %>%
- ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) + stat_ellipse() +
+ ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) +
 labs(x=paste0("PC1: ",round(f_var_explained[1]*100,1),"%"),
         y=paste0("PC2: ",round(f_var_explained[2]*100,1),"%")) + ggtitle(title) +
  theme(plot.title = element_text(hjust = 0.5)) +
 guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
    
   m <- m_pca_result$x %>% as_tibble() %>% add_column(.before = 1, ID=m_metadata$ID, sex=m_metadata$sex, pop=m_metadata$pop, country=m_metadata$country, a=m_metadata$a) %>% as.data.frame() %>%
-  ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) + stat_ellipse() +
+  ggplot(aes(x=PC1,y=PC2, color=a)) + geom_point(size=2) +
    labs(x=paste0("PC1: ",round(m_var_explained[1]*100,1),"%"),
         y=paste0("PC2: ",round(m_var_explained[2]*100,1),"%")) + ggtitle(title) +
  theme(plot.title = element_text(hjust = 0.5)) +
@@ -488,22 +488,6 @@ SNP_GC("/Volumes/Temp1/rpianezza/TE/SNP/try04/separed.all.08.5000x.matrix.tsv", 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-    ## Warning: The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-
 ![](GC-bias_files/figure-gfm/all-1.png)<!-- -->
 
 ``` r
@@ -518,22 +502,6 @@ SNP_GC("/Volumes/Temp1/rpianezza/TE/SNP/try04/separed.all.08.5000x.matrix.tsv", 
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    ## Warning: The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
 
 ![](GC-bias_files/figure-gfm/all-2.png)<!-- -->
 
@@ -550,22 +518,6 @@ SNP_GC("/Volumes/Temp1/rpianezza/SGDP/SNP/separed.all.08.5000x.matrix.tsv", join
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-    ## Warning: The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-
 ![](GC-bias_files/figure-gfm/all-3.png)<!-- -->
 
 ``` r
@@ -580,21 +532,5 @@ SNP_GC("/Volumes/Temp1/rpianezza/SGDP/SNP/separed.all.08.5000x.matrix.tsv", join
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    ## Warning: The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
-    ## The following aesthetics were dropped during statistical transformation: colour
-    ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
-    ##   the data.
-    ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
-    ##   variable into a factor?
 
 ![](GC-bias_files/figure-gfm/all-4.png)<!-- -->
