@@ -13,6 +13,8 @@ Folder organization explained:
 
 -- SGDP: contains all the analysis done using the SGDP data (only with no-PCR samples and with mapping quality 10)
 
+--SNPs-comparison-H+S: documentation focused on the SNPs comparison between the two datasets
+
 -- other-documentation: contains other Rmd documents important to understand my work
 
 -- other-files: other useful files, such as Jupyter Notebook Python scripts used in the analysis or metadata files created for the datasets
