@@ -70,3 +70,37 @@ data.pca <- prcomp(fram, center = TRUE, scale = TRUE)
 ```{r}
 PCA(overlap, "Overlapping samples")
 ```
+
+
+```{r}
+PCA_otherPC <- function(data, title){
+  len <- length(unique(data$familyname))
+  ind <- length(unique(data$ID))*2
+
+  matrix<-matrix(as.vector(data$copynumber),nrow=ind,ncol=len,byrow=T)
+  fram <-data.frame(matrix)
+  names(fram)<-unique(data$familyname)
+  fram <- fram %>% select_if(negate(function(col) sd(col)==0))
+  matrixcont<-matrix(as.vector(data$ID),nrow=ind,ncol=len,byrow=T)
+  framcont<-data.frame(matrixcont)
+  matrixdataset<-matrix(as.vector(data$dataset),nrow=ind,ncol=len,byrow=T)
+  framdataset<-data.frame(matrixdataset)
+  contcol<-c(framcont$X1)
+  datasetcol<-c(framdataset$X1)
+  
+data.pca <- prcomp(fram, center = TRUE, scale = TRUE)
+   var1 <- summary(data.pca)$importance[2,2]
+   var2 <- summary(data.pca)$importance[2,3]
+ 
+ (PCAplot <- ggplot(data=fram, aes(x=data.pca$x[,3], y=data.pca$x[,2], shape = datasetcol, color = contcol)) + 
+   geom_point(size=3) + 
+   ggtitle(title) + 
+   xlab(paste0("PC3 (", round(var1,3)*100,"%)")) + 
+   ylab(paste0("PC2 (",round(var2,3)*100,"%)")) +
+    theme(plot.title = element_text(size = 15, hjust = 0.5)))
+}
+```
+
+```{r}
+PCA_otherPC(overlap, "Overlapping samples")
+```
