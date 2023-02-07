@@ -186,18 +186,20 @@ PCA_copynumber(HGDP_GC, "HGDP - GC TE content 45-55%")
 PCA_copynumber(HGDP_GC_pcrfree, "HGDP - GC TE content 45-55% - PCR free samples")
 PCA_copynumber(HGDP_GC_pcr, "HGDP - GC TE content 45-55% - PCR samples")
 ```
-## PCA excluding biased samples
+
+
+## PCA excluding biased samples (PCR samples + GC biased samples PCR free)
 
 ```{r}
-a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/copynumberPCA-all-analysis/a_HGDP.tsv")
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
 HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
 HGDP_nobiasedID <- filter(HGDP, ID %in% HGDP_nobiased_samples)
 HGDP_nobiasedID_pcrfree <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
-HGDP_nobiasedID_pcr <- filter(HGDP_pcr, ID %in% HGDP_nobiased_samples)
+HGDP_nobiasedID_pcrfree_varTE <- filter(HGDP_nobiasedID_pcrfree, familyname %in% variableTEs)
 
-PCA_copynumber(HGDP_nobiasedID, "HGDP - GC biased samples excluded")
-PCA_copynumber(HGDP_nobiasedID_pcrfree, "HGDP - GC biased samples excluded - PCR free samples")
-#PCA_copynumber(HGDP_nobiasedID_pcr, "HGDP - GC biased samples excluded - PCR samples")
+#PCA_copynumber(HGDP_nobiasedID, "HGDP - GC biased samples excluded")
+PCA_copynumber(HGDP_nobiasedID_pcrfree, "HGDP - GC biased samples excluded")
+PCA_copynumber(HGDP_nobiasedID_pcrfree_varTE, "HGDP - GC biased samples excluded - Variable TEs")
 ```
 
 # SGDP
@@ -235,6 +237,7 @@ PCA_copynumber_SGDP(SGDP_GC, "SGDP - GC TE content 45-55%")
 PCA_copynumber_SGDP(SGDP_GC_pcrfree, "SGDP - GC TE content 45-55% - PCR free samples")
 ```
 
+
 ## PCA excluding biased samples
 
 ```{r}
@@ -242,8 +245,9 @@ a_SGDP <- read_tsv("/Volumes/Temp1/rpianezza/copynumberPCA-all-analysis/a_SGDP.t
 SGDP_nobiased_samples <- filter(a_SGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
 SGDP_nobiasedID <- filter(SGDP, ID %in% SGDP_nobiased_samples)
 SGDP_nobiasedID_pcrfree <- filter(SGDP_pcr_free, ID %in% SGDP_nobiased_samples)
+SGDP_nobiasedID_pcrfree_varTE <- filter(SGDP_nobiasedID_pcrfree, familyname %in% variableTEs)
 
-PCA_copynumber_SGDP(SGDP_nobiasedID, "SGDP - GC biased samples excluded")
-PCA_copynumber_SGDP(SGDP_nobiasedID_pcrfree, "SGDP - GC biased samples excluded - PCR free samples")
+PCA_copynumber_SGDP(SGDP_nobiasedID_pcrfree, "SGDP - GC biased samples excluded")
+PCA_copynumber_SGDP(SGDP_nobiasedID_pcrfree_varTE, "SGDP - GC biased samples excluded - Variable TEs")
 ```
 
