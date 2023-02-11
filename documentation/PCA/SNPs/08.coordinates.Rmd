@@ -1,0 +1,100 @@
+---
+title: "SNPs PCAs - Correlation with geographic coordinates"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Setting the environment
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+# Preparing the filtered HGDP file
+
+## Read HGDP summary file
+```{r}
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt")
+names(HGDP) <- c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch")
+
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID)
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_final <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
+```
+
+## Read coordinates file
+```{r}
+coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
+data <- inner_join(coordinates, HGDP_final, by = "pop")
+```
+
+# PCA on the filtered dataset
+
+## Read the SNPs matrix
+
+```{r}
+matrix <- "/Volumes/Temp1/rpianezza/0.old/SNP/mod.08.5000.matrix_processed_processed"
+```
+
+## Function for PCA plotting
+```{r}
+PCA_SNPs <- function(freq_matrix, metadata, s, title){
+
+matrix <- read_csv(freq_matrix)
+  
+metadata <- metadata %>% filter(sex==s) %>% select(ID, country, pop, latitude, longitude) %>% distinct()
+(matrix <- inner_join(metadata, matrix, by="ID"))
+
+pca_data <- matrix %>%  select_if(~ !all(. == .[1]))
+pca_result <- prcomp(pca_data[, -c(1:5)], center = TRUE, scale = TRUE)
+var_explained <- pca_result$sdev^2/sum(pca_result$sdev^2)
+ 
+processed <- pca_result$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID = metadata$ID, lat=metadata$latitude, lon=metadata$longitude, country=metadata$country) %>% relocate(ID, .before = PC1)
+ 
+PC1_lat <- processed %>% ggplot(aes(lat, PC1)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
+PC2_lat <- processed %>% ggplot(aes(lat, PC2)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
+PC1_lon <- processed %>% ggplot(aes(lon, PC1)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
+PC2_lon <- processed %>% ggplot(aes(lon, PC2)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
+ 
+figure <- ggarrange(PC1_lat, PC2_lat, PC1_lon, PC2_lon, ncol = 2, nrow = 2, common.legend = TRUE)
+annotate_figure(figure, top = title)
+}
+
+PCA_SNPs(matrix, data, "female", "Females")
+PCA_SNPs(matrix, data, "male", "Males")
+```
+```{r}
+PCA_SNPs_spear <- function(freq_matrix, metadata, s, title){
+
+matrix <- read_csv(freq_matrix)
+  
+metadata <- metadata %>% filter(sex==s) %>% select(ID, country, pop, latitude, longitude) %>% distinct()
+(matrix <- inner_join(metadata, matrix, by="ID"))
+
+pca_data <- matrix %>%  select_if(~ !all(. == .[1]))
+pca_result <- prcomp(pca_data[, -c(1:5)], center = TRUE, scale = TRUE)
+var_explained <- pca_result$sdev^2/sum(pca_result$sdev^2)
+ 
+processed <- pca_result$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID = metadata$ID, lat=metadata$latitude, lon=metadata$longitude, country=metadata$country) %>% relocate(ID, .before = PC1)
+PC1_lat <- cor(processed$lat, processed$PC1, method = "spearman")
+PC2_lat <- cor(processed$lat, processed$PC2, method = "spearman")
+PC1_lon <- cor(processed$lon, processed$PC1, method = "spearman")
+PC2_lon <- cor(processed$lon, processed$PC2, method = "spearman")
+
+PC1_tibble <- tibble(sex = s, PC = 1, lat = PC1_lat, lon = PC1_lon)
+PC2_tibble <- tibble(sex = s, PC = 2, lat = PC2_lat, lon = PC2_lon)
+(result_tibble <- bind_rows(PC1_tibble, PC2_tibble))
+}
+
+PCA_SNPs_spear(matrix, data, "female", "Females")
+PCA_SNPs_spear(matrix, data, "male", "Males")
+```
+
+
+
+
