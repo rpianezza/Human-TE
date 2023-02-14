@@ -35,7 +35,7 @@ HGDP_final <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
 
 ## Read coordinates file
 ```{r}
-coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
+coordinates <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/american-to-east.tsv", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
 data <- inner_join(coordinates, HGDP_final, by = "pop")
 
 distance_from_ooa <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/dist-from-ooa.tsv", col_names = c("pop", "region", "distance")) %>% select(pop, distance)
@@ -67,68 +67,45 @@ m_var2 <- summary(mHGDP.pca)$importance[2,2]
 
 m_processed <- mHGDP.pca$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID = m_ID$ID, lat=m_ID$latitude, lon=m_ID$longitude, country=m_ID$country) %>% relocate(ID, .before = PC1)
 
+m_PC1_lat <- cor.test(m_processed$lat, m_processed$PC1, method = "spearman")
+m_PC2_lat <- cor.test(m_processed$lat, m_processed$PC2, method = "spearman")
+m_PC1_lon <- cor.test(m_processed$lon, m_processed$PC1, method = "spearman")
+m_PC2_lon <- cor.test(m_processed$lon, m_processed$PC2, method = "spearman")
+
+PC1_tibble <- tibble(sex = s, PC = 1, lat = m_PC1_lat$estimate, lon = m_PC1_lon$estimate, p_value = m_PC1_lat$p.value)
+PC2_tibble <- tibble(sex = s, PC = 2, lat = m_PC2_lat$estimate, lon = m_PC2_lon$estimate, p_value = m_PC2_lat$p.value)
+
+result_tibble <- bind_rows(PC1_tibble, PC2_tibble)
+
 m_PC1_lat <- m_processed %>% ggplot(aes(lat, PC1)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
 m_PC2_lat <- m_processed %>% ggplot(aes(lat, PC2)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
 m_PC1_lon <- m_processed %>% ggplot(aes(lon, PC1)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
 m_PC2_lon <- m_processed %>% ggplot(aes(lon, PC2)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
 
 figure <- ggarrange(m_PC1_lat, m_PC2_lat, m_PC1_lon, m_PC2_lon, ncol = 2, nrow = 2, common.legend = TRUE)
-annotate_figure(figure, top = title)
+image <- annotate_figure(figure, top = title)
+
+list(plot = image, tibble = result_tibble)
 }
 ```
 
 ```{r}
-PCA_coord(data, "male", "Males")
-PCA_coord(data, "female", "Females")
+male_coord <- PCA_coord(data, "male", "Males")
+female_coord <- PCA_coord(data, "female", "Females")
+
+male_coord$plot
+male_coord$tibble
+female_coord$plot
+female_coord$tibble
 ```
 
-## Spearman's Rank Correlation Coefficient for PCs and coordinates
-
-```{r}
-PCA_spear <- function(raw_data, s){
-data <- filter(raw_data, type=="te")
-m <- filter(data, sex==s)
-m_ID <- select(m, ID, country, latitude, longitude) %>% distinct()
-fam <- length(unique(data$familyname))
-males <- length(unique(m$ID))
-
-m_matrix <- matrix(as.vector(m$copynumber),nrow=males,ncol=fam,byrow=T)
-m_fram <- data.frame(m_matrix)
-names(m_fram)<-unique(m$familyname)
-m_fram <- m_fram %>% select_if(negate(function(col) sd(col)==0))
-m_matrixcont <- matrix(as.vector(m$country),nrow=males,ncol=fam,byrow=T)
-m_framcont <- data.frame(m_matrixcont)
-m_contcol<-c(m_framcont$X1)
-
-mHGDP.pca <- prcomp(m_fram, center = TRUE, scale = TRUE)
-m_var1 <- summary(mHGDP.pca)$importance[2,1]
-m_var2 <- summary(mHGDP.pca)$importance[2,2]
-
-m_processed <- mHGDP.pca$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID = m_ID$ID, lat=m_ID$latitude, lon=m_ID$longitude, country=m_ID$country) %>% relocate(ID, .before = PC1)
-
-
-m_PC1_lat <- cor(m_processed$lat, m_processed$PC1, method = "spearman")
-m_PC2_lat <- cor(m_processed$lat, m_processed$PC2, method = "spearman")
-m_PC1_lon <- cor(m_processed$lon, m_processed$PC1, method = "spearman")
-m_PC2_lon <- cor(m_processed$lon, m_processed$PC2, method = "spearman")
-
-PC1_tibble <- tibble(sex = s, PC = 1, lat = m_PC1_lat, lon = m_PC1_lon)
-PC2_tibble <- tibble(sex = s, PC = 2, lat = m_PC2_lat, lon = m_PC2_lon)
-(result_tibble <- bind_rows(PC1_tibble, PC2_tibble))
-}
-```
-
-```{r}
-PCA_spear(data, "male")
-PCA_spear(data, "female")
-```
 
 ## Correlation between PCs and distance from the OOA
 
 ```{r}
 PCA_distance <- function(raw_data, s, title){
 data <- filter(raw_data, type=="te")
-m <- filter(data, sex==s)
+m <- filter(data, sex==s, !(country %in% c("Africa","Oceania")))
 m_ID <- select(m, ID, country, distance) %>% distinct()
 fam <- length(unique(data$familyname))
 males <- length(unique(m$ID))
@@ -147,15 +124,41 @@ m_var2 <- summary(mHGDP.pca)$importance[2,2]
 
 m_processed <- mHGDP.pca$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID=m_ID$ID, distance=m_ID$distance, country=m_ID$country) %>% relocate(ID, .before = PC1)
 
-m_PC1 <- m_processed %>% ggplot(aes(distance, PC1)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
-m_PC2 <- m_processed %>% ggplot(aes(distance, PC2)) + geom_point(aes(color=country)) + geom_smooth(method = "lm", se = FALSE, color = "grey")
-
-
-figure <- ggarrange(m_PC1, m_PC2, ncol = 2, common.legend = TRUE)
-annotate_figure(figure, top = title)
-}
-
-PCA_distance(data_distance, "male", "Males")
-PCA_distance(data_distance, "female", "Females")
+m_PC1 <- cor.test(m_processed$distance, m_processed$PC1, method = "spearman")
+m_PC2 <- cor.test(m_processed$distance, m_processed$PC2, method = "spearman")
+  
+  PC1_tibble <- tibble(sex = s, PC = 1, coeff = m_PC1$estimate, p_value = m_PC1$p.value)
+  PC2_tibble <- tibble(sex = s, PC = 2, coeff = m_PC2$estimate, p_value = m_PC2$p.value)
+  
+  result_tibble <- bind_rows(PC1_tibble, PC2_tibble)
+  
+  m_PC1 <- m_processed %>% ggplot(aes(distance, PC1)) + 
+    geom_point(aes(color=country)) + 
+    geom_smooth(method = "lm", se = FALSE, color = "grey") + 
+    scale_color_manual(values=c("America"="#C49A00", "Central_South_Asia"="#53B400", 
+                                "East_Asia"="#00C094", "Europe"="#00B6EB", 
+                                "Middle_East"="#A58AFF"))
+  
+  m_PC2 <- m_processed %>% ggplot(aes(distance, PC2)) + 
+    geom_point(aes(color=country)) + 
+    geom_smooth(method = "lm", se = FALSE, color = "grey") + 
+    scale_color_manual(values=c("America"="#C49A00", "Central_South_Asia"="#53B400", 
+                                "East_Asia"="#00C094", "Europe"="#00B6EB", 
+                                "Middle_East"="#A58AFF"))
+  
+  figure <- ggarrange(m_PC1, m_PC2, ncol = 2, common.legend = TRUE)
+  image <- annotate_figure(figure, top = title)
+  
+  list(plot = image, tibble = result_tibble)
+  }
 ```
 
+```{r}
+dist_males <- PCA_distance(data_distance, "male", "Males")
+dist_females <- PCA_distance(data_distance, "female", "Females")
+
+dist_males$plot
+dist_males$tibble
+dist_females$plot
+dist_females$tibble
+```
