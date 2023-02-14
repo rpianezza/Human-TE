@@ -67,10 +67,10 @@ m_var2 <- summary(mHGDP.pca)$importance[2,2]
 
 m_processed <- mHGDP.pca$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID = m_ID$ID, lat=m_ID$latitude, lon=m_ID$longitude, country=m_ID$country) %>% relocate(ID, .before = PC1)
 
-m_PC1_lat <- cor.test(m_processed$lat, m_processed$PC1, method = "spearman")
-m_PC2_lat <- cor.test(m_processed$lat, m_processed$PC2, method = "spearman")
-m_PC1_lon <- cor.test(m_processed$lon, m_processed$PC1, method = "spearman")
-m_PC2_lon <- cor.test(m_processed$lon, m_processed$PC2, method = "spearman")
+m_PC1_lat <- cor.test(m_processed$lat, m_processed$PC1, method = "kendall")
+m_PC2_lat <- cor.test(m_processed$lat, m_processed$PC2, method = "kendall")
+m_PC1_lon <- cor.test(m_processed$lon, m_processed$PC1, method = "kendall")
+m_PC2_lon <- cor.test(m_processed$lon, m_processed$PC2, method = "kendall")
 
 PC1_tibble <- tibble(sex = s, PC = 1, lat = m_PC1_lat$estimate, lon = m_PC1_lon$estimate, p_value = m_PC1_lat$p.value)
 PC2_tibble <- tibble(sex = s, PC = 2, lat = m_PC2_lat$estimate, lon = m_PC2_lon$estimate, p_value = m_PC2_lat$p.value)
@@ -124,8 +124,8 @@ m_var2 <- summary(mHGDP.pca)$importance[2,2]
 
 m_processed <- mHGDP.pca$x %>% as_tibble() %>% select(c(PC1, PC2)) %>% mutate(ID=m_ID$ID, distance=m_ID$distance, country=m_ID$country) %>% relocate(ID, .before = PC1)
 
-m_PC1 <- cor.test(m_processed$distance, m_processed$PC1, method = "spearman")
-m_PC2 <- cor.test(m_processed$distance, m_processed$PC2, method = "spearman")
+m_PC1 <- cor.test(m_processed$distance, m_processed$PC1, method = "kendall")
+m_PC2 <- cor.test(m_processed$distance, m_processed$PC2, method = "kendall")
   
   PC1_tibble <- tibble(sex = s, PC = 1, coeff = m_PC1$estimate, p_value = m_PC1$p.value)
   PC2_tibble <- tibble(sex = s, PC = 2, coeff = m_PC2$estimate, p_value = m_PC2$p.value)
