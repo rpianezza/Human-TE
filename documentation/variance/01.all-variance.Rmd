@@ -1,0 +1,89 @@
+---
+title: "SNPs - Analysis of variance of each sequence"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Setting the environment
+```{r}
+library(tidyverse)
+```
+
+# Preparing the files
+
+## Read HGDP summary file
+```{r}
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID)
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a>(-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_final <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
+```
+
+## Read coordinates file
+```{r}
+coordinates <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/american-to-east.tsv", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
+data <- inner_join(coordinates, HGDP_final, by = "pop")
+
+distances <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/dist-from-ooa.tsv", col_names = c("pop", "region", "distance")) %>% select(pop, distance)
+data_distance <- inner_join(distances, HGDP_final, by = "pop")
+```
+
+## Read the variance matrix
+
+```{r}
+(matrix <- read_tsv("/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/filter_variance/variance_matrix_final"))
+```
+
+```{r}
+(avg_var <- matrix %>% group_by(familyname, type) %>% dplyr::summarise(avg_var=mean(var)) %>% arrange(desc(avg_var)))
+
+(avg_var_type <- avg_var %>% group_by(type) %>% dplyr::summarise(avg_var=mean(avg_var)))
+```
+
+```{r}
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+classification <- HGDP %>% 
+  select(familyname, superfamily, shared_with) %>% 
+  mutate(class = case_when(
+    superfamily %in% DNA_names ~ "DNA",
+    superfamily %in% LINE_names ~ "LINE",
+    superfamily %in% SINE_names ~ "SINE",
+    superfamily %in% LTR_names ~ "LTR",
+    superfamily %in% satellites_names ~ "satellite",
+    TRUE ~ "NC"))
+type <- c("te", "te", "te", "te", "te", "te", "krab", "scg")
+
+(avg_var_class <- avg_var %>% inner_join(classification, by="familyname") %>% group_by(class) %>% mutate(class = case_when(type=="krab" ~ "krab", type %in% c("scg", "scgx") ~ "scg", TRUE ~ class)) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% mutate(type=type) %>% mutate(class = reorder(class, avg_var, FUN = desc)) %>% ggplot(aes(class, avg_var, fill=type), fill=type) + geom_bar(stat="identity") + labs(x = "", y = "Average Variance", fill = "Type"))
+```
+
+```{r}
+avg_var_shared_with <- avg_var %>% filter(type=="te") %>% inner_join(classification, by="familyname") %>% group_by(familyname, shared_with, class) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% ungroup() %>% 
+  mutate(TMRCA = case_when(
+    shared_with == "Vertebrata" ~ "550",
+    shared_with == "Mammalia" ~ "200",
+    shared_with == "Theria" ~ "175",
+    shared_with == "Eutheria" ~ "105",
+    shared_with == "Primates" ~ "65",
+    shared_with == "Hominidae" ~ "6.5",
+    shared_with == "Homo sapiens" ~ "0.2",
+    )) %>% type_convert() %>% group_by(class, TMRCA) %>% summarise(avg_var=mean(avg_var)) %>% filter(TMRCA<500)
+ 
+avg_var_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + geom_smooth(method = "lm", se = FALSE, alpha = 0.5, size = 0.5) + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class")
+
+#avg_var_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class")
+```
+
+```{r}
+(scg <- matrix %>% filter(type %in% c("scg","scgx")) %>% arrange(desc(var)))
+```
