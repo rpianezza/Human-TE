@@ -1,0 +1,169 @@
+---
+title: "SNPs - SCGs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+This script has the goal to understand the genetic distance across the samples in the HGDP using the single copy genes (scg) present in our library. From the output files ".sync.gz", we first run the script *sync2matrix.py* to create a single file containing all the information, then the script *frequency_matrix_scgs.py* to call the SNPs only in the scg and in the scg on the x chromosome (scgx).
+
+Example on how to call the frequency_matrix_scgs.py script:
+```
+python /Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/frequency_matrix_scgs.py /Volumes/Temp1/rpianezza/0.old/SNP/allte.matrix /Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var008.frequency.matrix.tsv --perc_var 0.08 --min_cov 7
+```
+
+## Prepare the environment
+
+```{r env}
+library(tidyverse)
+library(ggpubr)
+```
+
+## Read the summary files
+
+Summary files:
+
+* **HGDP** = main HGDP summary file
+* **HGDP_pcr_free** = only the PCR free samples in the HGDP
+* **HGDP_final** = only the GC-bias free samples in the HGDP, defined as the samples for which the parabolic quadratic coefficient **a** is neither >0.5 or <0.5, meaning that the estimated copynumber for the sequence is not strongly influenced by the GC-bias (check the script *other-documentation/GC-bias* for more).
+
+```{r summary files}
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID)
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a>(-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_final <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
+```
+
+## Read coordinates files
+
+Coordinates files:
+
+* **coordinates** = lat and lon for each population in the dataset
+* **distances** = kilometric distance from the out of Africa (Egypt) for all the population in the dataset
+
+```{r}
+coordinates <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/american-to-east.tsv", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
+data <- inner_join(coordinates, HGDP_final, by = "pop")
+
+distances <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/dist-from-ooa.tsv", col_names = c("pop", "region", "distance")) %>% select(pop, distance)
+data_distance <- inner_join(distances, HGDP_final, by = "pop")
+```
+
+# PCA on the filtered dataset
+
+## Read the SNPs matrixes
+
+Different matrixes have been created using different parameters in the script *frequency_matrix_scgs.py*. In particular:
+
+* **min_cov** = the minimum coverage of a position to be considered for SNP calling. Given that the average coverage of the HGDP samples is 30, I tried **15** and **7** (half and quarter of the avg). 
+* **perc_var** = the minimum variance of the major allele frequency across the samples for a single position to be called as SNP. I tried:
+** **0.1247** = should include the firsts 1000 more variant SNPs (shown in *variance/01-all-variance*) 
+** **0.08** = should include the firsts 2000 more variant SNPs 
+** **0.1219** = should include the firsts 1000 more variant SNPs only considering the non GC-biased samples
+
+I created a matrix for all the tested parameters combinations, plus the matrix considering only the non GC-biased samples (cov 15).
+
+```{r}
+cov15_var01247 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15.var01247.frequency.matrix.tsv_processed"
+cov15_var008 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15.var008.frequency.matrix.tsv_processed"
+cov7_var01247 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var01247.frequency.matrix.tsv_processed"
+cov7_var008 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var008.frequency.matrix.tsv_processed"
+
+nogc_cov15_var01219 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.nogcbias-cov15.var01219.frequency.matrix.tsv_processed"
+```
+
+## Function for PCA plotting
+
+This function takes as input the SNP matrix, the summary file containing the metadata info, and the plot title and returns both the **PCA plot** visualized in ggplot2 and a tibble containing the results of an **ANOVA test** to check if the differences across groups (in this case "country" of the populations) are significant.
+
+```{r}
+PCA_SNPs <- function(freq_matrix, metadata, title){
+
+matrix <- read_csv(freq_matrix)
+  
+metadata <- metadata %>% filter(sex=="female") %>% select(ID, sex, country, pop) %>% distinct()
+matrix <- inner_join(metadata, matrix, by="ID")
+
+pca_data <- matrix %>%  select_if(~ !all(. == .[1]))
+pca_result <- prcomp(pca_data[, -c(1:3)], center = TRUE, scale = TRUE)
+
+var_explained <- pca_result$sdev^2/sum(pca_result$sdev^2)
+      
+figure <- ggplot(data.frame(pca_result$x, country=matrix$country), aes(x=PC1,y=PC2, color=country)) + geom_point(size=2, show.legend = TRUE) + labs(x=paste0("PC1: ",round(var_explained[1]*100,1),"%"), y=paste0("PC2: ",round(var_explained[2]*100,1),"%")) + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+
+
+# Create an empty tibble to store the results
+results <- tibble()
+
+# Perform ANOVA on PC1 and PC2 for the female samples
+for (i in c(1:10)) {
+  model <- aov(pca_result$x[,i] ~ matrix$country)
+  summary_res <- summary(model)
+  
+# Extract the F value and p-value from the summary and the explained variability
+f_value <- summary_res[[1]]$F[1]
+p_value <- summary_res[[1]]$`Pr(>F)`[1]
+explained_var <- (pca_result$sdev[i]^2/sum(pca_result$sdev^2))*100
+  
+  if (p_value < 0.001) {
+significance <- "strong"
+} else if (p_value >= 0.001 & p_value < 0.01) {
+significance <- "moderate"
+} else if (p_value >= 0.01 & p_value < 0.05) {
+significance <- "weak"
+} else if (p_value >= 0.05 & p_value < 0.1) {
+significance <- "little"
+} else {
+significance <- "no-evidence"
+}
+  
+# Store the results in the tibble
+results <- results %>% bind_rows(tibble(PC = paste0("PC", i), F = f_value, p = p_value, Explained_Variability = explained_var, Significance = significance))
+}
+
+list(plot = figure, anova = results)
+}
+```
+
+## PCA
+
+1) **Coverage 15 - Variance 0.127**: this plot should be the reference plot to compare with the others to see if the PCA is robust to parameter changes.
+```{r}
+pca_cov15_var01247 <- PCA_SNPs(cov15_var01247, HGDP, "SCG - SNPs - Cov 15 - Var 0.1247")
+pca_cov15_var01247$plot
+pca_cov15_var01247$anova
+```
+
+2) **Coverage 15 - Variance 0.08**: increasing the SNPs included by decreasing minimum variance, the analysis remains similar.
+```{r}
+pca_cov15_var008 <- PCA_SNPs(cov15_var008, HGDP, "SCG - SNPs - Cov 15 - Var 0.08")
+pca_cov15_var008$plot
+pca_cov15_var008$anova
+```
+
+3) **Coverage 7 - Variance 0.1247**: increasing the SNPs included by decreasing minimum coverage, the analysis remains similar.
+```{r}
+pca_cov7_var01247 <- PCA_SNPs(cov7_var01247, HGDP, "SCG - SNPs - Cov 7 - Var 0.1247")
+pca_cov7_var01247$plot
+pca_cov7_var01247$anova
+```
+
+4) **Coverage 7 - Variance 0.08**: increasing the SNPs included by decreasing minimum coverage and minimum variance, the analysis remains similar.
+```{r}
+pca_cov7_var008 <- PCA_SNPs(cov7_var008, HGDP, "SCG - SNPs - Cov 7 - Var 0.08")
+pca_cov7_var008$plot
+pca_cov7_var008$anova
+```
+
+5) **No GC-biased samples - Coverage 15 - Variance 0.1219**: considering only the samples without a significant GC-bias, the analysis obviously changes because almost all the African samples are removed from the analysis. I think that the PC2 is not separing anymore the African samples from the other, but the Americans from the East Asians. The rest of the analysis is very similar and I think it confirms the robustness of our approach.
+```{r}
+pca_nogc_cov15_var01219 <- PCA_SNPs(nogc_cov15_var01219, HGDP_final, "SCG - SNPs - No GC-biased samples - Cov 15 - Var 0.1247")
+pca_nogc_cov15_var01219$plot
+pca_nogc_cov15_var01219$anova
+```
+
