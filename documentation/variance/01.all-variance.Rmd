@@ -36,15 +36,47 @@ data_distance <- inner_join(distances, HGDP_final, by = "pop")
 
 ## Read the variance matrix
 
+The variance matrix is created starting from the overall matrix (sync file) containing all the counts of each base for each position of each sequence in the reference library. The python3 script *variance_matrix_v1.py* takes as input the overall matrix and gives as output the matrix read below.
+
+For each row of the matrix it:
+
+* Identify the major allele across all the samples in the matrix
+* Calculate the major allele frequency in all the samples
+* Calculate the variance of the major allele across all the samples in the matrix
+
+The output has 6 columns:
+
+* **familyname** = the sequence name
+* **type** = the sequence type (scg, scgx, krab, te)
+* **position** = position in the sequence
+* **main** = the base of the major allele
+* **avg** = the average frequency of the major allele across the samples
+* **var** = the variance of the major allele frequency across the samples
+
 ```{r}
 (matrix <- read_tsv("/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/filter_variance/variance_matrix_final"))
+matrix_nogc <- read_tsv("/Volumes/Temp1/rpianezza/variance/matrixes/nogcbias-variance.matrix.tsv")
 ```
 
+
+## Analysis of variance
+
+I did the analysis first for all the samples, then subsetting only the non GC-biased samples to check if the GC-bias has a real impact on the SNPs calling.
 ```{r}
-(avg_var <- matrix %>% group_by(familyname, type) %>% dplyr::summarise(avg_var=mean(var)) %>% arrange(desc(avg_var)))
+# All samples
+
+avg_var <- matrix %>% group_by(familyname, type) %>% dplyr::summarise(avg_var=mean(var)) %>% arrange(desc(avg_var))
 
 (avg_var_type <- avg_var %>% group_by(type) %>% dplyr::summarise(avg_var=mean(avg_var)))
+
+# No-GC biased samples
+
+avg_var_nogc <- matrix_nogc %>% group_by(familyname, type) %>% dplyr::summarise(avg_var=mean(var)) %>% arrange(desc(avg_var))
+
+avg_var_nogc_type <- avg_var_nogc %>% group_by(type) %>% dplyr::summarise(avg_var=mean(avg_var))
 ```
+
+The average variance of TE is much higher then krab, scg and scgx. This is expected due to the higher TE copynumber.
 
 ```{r}
 DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
@@ -64,10 +96,24 @@ classification <- HGDP %>%
     TRUE ~ "NC"))
 type <- c("te", "te", "te", "te", "te", "te", "krab", "scg")
 
-(avg_var_class <- avg_var %>% inner_join(classification, by="familyname") %>% group_by(class) %>% mutate(class = case_when(type=="krab" ~ "krab", type %in% c("scg", "scgx") ~ "scg", TRUE ~ class)) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% mutate(type=type) %>% mutate(class = reorder(class, avg_var, FUN = desc)) %>% ggplot(aes(class, avg_var, fill=type), fill=type) + geom_bar(stat="identity") + labs(x = "", y = "Average Variance", fill = "Type"))
+# All samples
+(avg_var_class <- avg_var %>% inner_join(classification, by="familyname") %>% group_by(class) %>% mutate(class = case_when(type=="krab" ~ "krab", type %in% c("scg", "scgx") ~ "scg", TRUE ~ class)) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% mutate(type=type) %>% mutate(class = reorder(class, avg_var, FUN = desc)) %>% ggplot(aes(class, avg_var, fill=type), fill=type) + geom_bar(stat="identity") + labs(x = "", y = "Average Variance", fill = "Type") + ggtitle("All samples") + theme(plot.title = element_text(hjust = 0.5)))
+
+# No GC-biased samples
+(avg_var_nogc_class <- avg_var_nogc %>% inner_join(classification, by="familyname") %>% group_by(class) %>% mutate(class = case_when(type=="krab" ~ "krab", type %in% c("scg", "scgx") ~ "scg", TRUE ~ class)) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% mutate(type=type) %>% mutate(class = reorder(class, avg_var, FUN = desc)) %>% ggplot(aes(class, avg_var, fill=type), fill=type) + geom_bar(stat="identity") + labs(x = "", y = "Average Variance", fill = "Type") + ggtitle("No GC-biased samples") + theme(plot.title = element_text(hjust = 0.5)))
 ```
 
+Among the different families of TE, we see:
+
+* **NC** (non-classified): are very old TE for which was not possible a classification. High variance is expected due to long time to mutate.
+* **DNA** TE: old and inactive, high variance expected
+* **LINE** and **SINE**: the higher copynumber TEs (ALU, ALU variants, L1s). Slight difference if not considering GC-biased sample.
+* **LTR**: low variance (weird?)
+* **satellite**: more impacted by GC-bias, as expected. Prone to errors due to PCR polymerase slippage.
+
 ```{r}
+# All samples
+
 avg_var_shared_with <- avg_var %>% filter(type=="te") %>% inner_join(classification, by="familyname") %>% group_by(familyname, shared_with, class) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% ungroup() %>% 
   mutate(TMRCA = case_when(
     shared_with == "Vertebrata" ~ "550",
@@ -79,11 +125,45 @@ avg_var_shared_with <- avg_var %>% filter(type=="te") %>% inner_join(classificat
     shared_with == "Homo sapiens" ~ "0.2",
     )) %>% type_convert() %>% group_by(class, TMRCA) %>% summarise(avg_var=mean(avg_var)) %>% filter(TMRCA<500)
  
-avg_var_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + geom_smooth(method = "lm", se = FALSE, alpha = 0.5, size = 0.5) + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class")
+avg_var_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + geom_smooth(method = "lm", se = FALSE, alpha = 0.5, size = 0.5) + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class") + ggtitle("All samples") + theme(plot.title = element_text(hjust = 0.5))
 
-#avg_var_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class")
+
+# No GC-biased samples
+
+avg_var_nogc_shared_with <- avg_var_nogc %>% filter(type=="te") %>% inner_join(classification, by="familyname") %>% group_by(familyname, shared_with, class) %>% dplyr::summarise(avg_var=mean(avg_var)) %>% arrange(desc(avg_var)) %>% ungroup() %>% 
+  mutate(TMRCA = case_when(
+    shared_with == "Vertebrata" ~ "550",
+    shared_with == "Mammalia" ~ "200",
+    shared_with == "Theria" ~ "175",
+    shared_with == "Eutheria" ~ "105",
+    shared_with == "Primates" ~ "65",
+    shared_with == "Hominidae" ~ "6.5",
+    shared_with == "Homo sapiens" ~ "0.2",
+    )) %>% type_convert() %>% group_by(class, TMRCA) %>% summarise(avg_var=mean(avg_var)) %>% filter(TMRCA<500)
+ 
+avg_var_nogc_shared_with %>% ggplot(aes(TMRCA, avg_var, color=class)) + geom_point() + geom_smooth(method = "lm", se = FALSE, alpha = 0.5, size = 0.5) + labs(x = "TMRCA (My)", y = "Average Variance", fill = "Class") + ggtitle("No GC-biased samples") + theme(plot.title = element_text(hjust = 0.5))
 ```
+
+From RepBase, we know the taxonomic group in which every TE family is shared. I converted this into TMRCA and looked for a correlation between the average variance of the sequence across the samples and the TMRCA. This is expected due to higher time to mutate. Wee see that there is a positive correlation for all the TE families.
+
+## SCGs variance
 
 ```{r}
-(scg <- matrix %>% filter(type %in% c("scg","scgx")) %>% arrange(desc(var)))
+(scg <- matrix %>% filter(type %in% c("scg","scgx")) %>% group_by(familyname) %>% dplyr::summarise(avg_var = mean(var)) %>% arrange(desc(avg_var)))
+scg_nogc <- matrix_nogc %>% filter(type %in% c("scg","scgx")) %>% group_by(familyname) %>% dplyr::summarise(avg_var = mean(var)) %>% arrange(desc(avg_var))
+
+(scg_SNPs <- matrix %>% filter(type %in% c("scg","scgx")) %>% arrange(desc(var)))
+(scg_nogc_SNPs <- matrix_nogc %>% filter(type %in% c("scg","scgx")) %>% arrange(desc(var)))
 ```
+
+How many SNPs are there in every gene? SNPs selected with a var threshold of 0.1247 | 0.1219 that comprehend the most variable 1000 SNPs across all samples | no gc-biased samples.
+```{r}
+(snps <- scg_SNPs %>% filter(var > 0.1247) %>% dplyr::summarise(count = n()))
+(snps_per_gene <- scg_SNPs %>% filter(var > 0.1247) %>% group_by(familyname) %>% dplyr::summarise(count = n()) %>% arrange(desc(count)))
+
+(snps_nogc <- scg_nogc_SNPs %>% filter(var > 0.1219) %>% dplyr::summarise(count = n()))
+(snps_per_gene_nogc <- scg_nogc_SNPs %>% filter(var > 0.1219) %>% group_by(familyname) %>% dplyr::summarise(count = n()) %>% arrange(desc(count)))
+```
+
+min var = 0.08 -> 2k SNPs
+min var = 0.02 -> 4k SNPs
