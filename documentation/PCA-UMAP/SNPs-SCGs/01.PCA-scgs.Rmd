@@ -8,7 +8,7 @@ editor_options:
 
 This script has the goal to understand the genetic distance across the samples in the HGDP using the single copy genes (scg) present in our library. From the output files ".sync.gz", we first run the script *sync2matrix.py* to create a single file containing all the information, then the script *frequency_matrix_scgs.py* to call the SNPs only in the scg and in the scg on the x chromosome (scgx).
 
-Example on how to call the frequency_matrix_scgs.py script:
+Example on how to call the *frequency_matrix_scgs.py* script:
 ```
 python /Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/frequency_matrix_scgs.py /Volumes/Temp1/rpianezza/0.old/SNP/allte.matrix /Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var008.frequency.matrix.tsv --perc_var 0.08 --min_cov 7
 ```
@@ -26,7 +26,7 @@ Summary files:
 
 * **HGDP** = main HGDP summary file
 * **HGDP_pcr_free** = only the PCR free samples in the HGDP
-* **HGDP_final** = only the GC-bias free samples in the HGDP, defined as the samples for which the parabolic quadratic coefficient **a** is neither >0.5 or <0.5, meaning that the estimated copynumber for the sequence is not strongly influenced by the GC-bias (check the script *other-documentation/GC-bias* for more).
+* **HGDP_final** = only the GC-bias free samples in the HGDP, defined as the samples for which the parabolic quadratic coefficient **a** is neither >0.5 or <0.5, meaning that the estimated copy number for the sequence is not strongly influenced by the GC-bias (check the script *other-documentation/GC-bias* for more).
 
 ```{r summary files}
 HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
@@ -43,15 +43,15 @@ HGDP_final <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
 
 Coordinates files:
 
-* **coordinates** = lat and lon for each population in the dataset
-* **distances** = kilometric distance from the out of Africa (Egypt) for all the population in the dataset
+* **coordinates** = lat and lon for each population in the dataset.
+* **distances** = chilometric distance from the out of Africa (Egypt) for all the population in the dataset.
 
 ```{r}
 coordinates <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/american-to-east.tsv", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
-data <- inner_join(coordinates, HGDP_final, by = "pop")
+data <- inner_join(coordinates, HGDP, by = "pop")
 
 distances <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/dist-from-ooa.tsv", col_names = c("pop", "region", "distance")) %>% select(pop, distance)
-data_distance <- inner_join(distances, HGDP_final, by = "pop")
+data_distance <- inner_join(distances, HGDP, by = "pop")
 ```
 
 # PCA on the filtered dataset
@@ -63,7 +63,8 @@ Different matrixes have been created using different parameters in the script *f
 * **min_cov** = the minimum coverage of a position to be considered for SNP calling. Given that the average coverage of the HGDP samples is 30, I tried **15** and **7** (half and quarter of the avg). 
 * **perc_var** = the minimum variance of the major allele frequency across the samples for a single position to be called as SNP. I tried:
 ** **0.1247** = should include the firsts 1000 more variant SNPs (shown in *variance/01-all-variance*) 
-** **0.08** = should include the firsts 2000 more variant SNPs 
+** **0.08** = should include the firsts 2000 more variant SNPs
+** **0.02** = should include the firsts 4000 more variant SNPs
 ** **0.1219** = should include the firsts 1000 more variant SNPs only considering the non GC-biased samples
 
 I created a matrix for all the tested parameters combinations, plus the matrix considering only the non GC-biased samples (cov 15).
@@ -73,7 +74,8 @@ cov15_var01247 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15
 cov15_var008 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15.var008.frequency.matrix.tsv_processed"
 cov7_var01247 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var01247.frequency.matrix.tsv_processed"
 cov7_var008 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov7.var008.frequency.matrix.tsv_processed"
-
+cov15_var002 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15.var002.frequency.matrix.tsv_processed"
+cov15_var001 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.cov15.var001.frequency.matrix.tsv_processed"
 nogc_cov15_var01219 <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/scgs/scg.nogcbias-cov15.var01219.frequency.matrix.tsv_processed"
 ```
 
@@ -166,4 +168,13 @@ pca_nogc_cov15_var01219 <- PCA_SNPs(nogc_cov15_var01219, HGDP_final, "SCG - SNPs
 pca_nogc_cov15_var01219$plot
 pca_nogc_cov15_var01219$anova
 ```
+6) **Coverage 15 - Variance 0.02** and **Variance 0.01**: considering more SNPs lowering the variance threshold (around 4k SNPs for 0.02).
+```{r}
+pca_cov15_var002 <- PCA_SNPs(cov15_var002, HGDP, "SCG - SNPs - Cov 15 - Var 0.02")
+pca_cov15_var002$plot
+pca_cov15_var002$anova
 
+pca_cov15_var001 <- PCA_SNPs(cov15_var001, HGDP, "SCG - SNPs - Cov 15 - Var 0.01")
+pca_cov15_var001$plot
+pca_cov15_var001$anova
+```

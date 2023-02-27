@@ -163,7 +163,80 @@ How many SNPs are there in every gene? SNPs selected with a var threshold of 0.1
 
 (snps_nogc <- scg_nogc_SNPs %>% filter(var > 0.1219) %>% dplyr::summarise(count = n()))
 (snps_per_gene_nogc <- scg_nogc_SNPs %>% filter(var > 0.1219) %>% group_by(familyname) %>% dplyr::summarise(count = n()) %>% arrange(desc(count)))
+
+#min var = 0.08 -> 2k SNPs
+#min var = 0.02 -> 4k SNPs
 ```
 
-min var = 0.08 -> 2k SNPs
-min var = 0.02 -> 4k SNPs
+We note that the gene **chr16:765731-768798** is a big outlier with 185 SNPs within the 1000 most variable SNPs, followed by **chr1:960583-965719** with 49. In the filtered dataset for GC-bias the situation is very similar.
+
+Overall, the most variable 1K SNPs are well distributed across 299 SCGs.
+
+### Check heterozigosity and homozigosity
+
+Here we use a custom script (*variance_matrix_scg.py*) to process the sync file into a matrix containing:
+
+* familyname, type, position
+* **average** = the average error for that specific position and sequence across all the samples.
+
+The **error** is a measure of the distance between the observed allele frequency and the expected allele frequency (0.5 or 1).
+If the **major allele frequency** (maf) for that specific cell is >0.75, the position is considered **homozigotic** for that sample (error = 1-maf). Otherwise, it's called as an **heterozygotic** position (abs(0.5-maf)).
+
+The matrix is then ordered in descending order of average error to show the most problematic **positions**.
+```{r}
+(errors_pos <- read_tsv("/Volumes/Temp1/rpianezza/variance/matrixes/error2.tsv-position.tsv") %>% arrange(desc(average)) %>% separate(familyname, into = c("familyname", "type"), sep = "_"))
+```
+
+Here we show the average error for each **gene**, considering the averaged error for each position. Again, we show the most problematic genes at the top.
+```{r}
+(errors_gene <- errors_pos %>% group_by(familyname) %>% dplyr::summarise(average = mean(average)) %>% arrange(desc(average)))
+```
+
+Then I check the average error for the most variable 1000 SNPs previously identified. The maximum error is 0.05, which is considerably low (the max value in the dataset is 0.21, the maximum possible is 0.25).
+```{r}
+(problematic_snps_01247 <- scg_SNPs %>% filter(var > 0.1247) %>% inner_join(errors_pos, by=c("familyname", "position", "type")) %>% rename(error=average) %>% arrange(desc(error)))
+
+(problematic_snps_0008 <- scg_SNPs %>% filter(var > 0.008) %>% inner_join(errors_pos, by=c("familyname", "position", "type")) %>% rename(error=average) %>% arrange(desc(error)))
+
+(problematic_snps_0002 <- scg_SNPs %>% filter(var > 0.002) %>% inner_join(errors_pos, by=c("familyname", "position", "type")) %>% rename(error=average) %>% arrange(desc(error)))
+
+(problematic_snps_0001 <- scg_SNPs %>% filter(var > 0.001) %>% inner_join(errors_pos, by=c("familyname", "position", "type")) %>% rename(error=average) %>% arrange(desc(error)))
+```
+
+```{r}
+mean_error0.1247 <- summarise(problematic_snps_01247, average_error = mean(error))
+mean_error0.08 <- summarise(problematic_snps_0008, average_error = mean(error))
+mean_error0.02 <- summarise(problematic_snps_0002, average_error = mean(error))
+mean_error0.01 <- summarise(problematic_snps_0001, average_error = mean(error))
+
+(mean_errors <- bind_rows(mean_error0.1247, mean_error0.08, mean_error0.02, mean_error0.01) %>% mutate(variance = c("0.1247", "0.008", "0.002", "0.001")))
+```
+
+The second output file of the script is the one with suffix "-sample". It calculates the average error for each single copy gene in each sample, averaging across all the positions in the gene. The goal is to identify possible problematic samples or genes.
+```{r}
+(errors_sample <- read_tsv("/Volumes/Temp1/rpianezza/variance/matrixes/error2.tsv-sample") %>% separate(familyname, into = c("familyname", "type"), sep = "_"))
+```
+
+First I calculate the average error for each sample across all the genes.
+```{r}
+errors_each_sample <- errors_sample %>% select(!(type)) %>% summarize_all(mean, na.rm = TRUE) %>% t() %>% as_tibble() %>% slice(-1) %>% rename(average_error=V1)
+samples_names <- colnames(errors_sample) %>% as_tibble() %>% slice(-1, -2) %>% rename(sample = value)
+
+(average_error_per_sample <- bind_cols(samples_names, errors_each_sample) %>% mutate(method = if_else(sample %in% HGDP_pcr_free_samples$ID, "pcr-free", "pcr")) %>% arrange(desc(average_error)))
+```
+
+The I check if the **method** (PCR-free or PCR) have an influence on the average error.
+```{r}
+(by_method <- average_error_per_sample %>% group_by(method) %>% dplyr::summarise(average_error = mean(average_error)))
+```
+
+I check if the average error per gene calculated from the "-sample" file is equal to the error per gene calculated from the file "-position". The results are very similar but not equal, this is explainable by different approximation during the calculation processes.
+```{r}
+by_gene_control <- data.frame(rowMeans(errors_sample[-c(1:2)]))
+colnames(by_gene_control) <- "average_error"
+rownames(by_gene_control) <- errors_sample$familyname
+
+by_gene_control %>% arrange(desc(average_error))
+errors_gene
+```
+
