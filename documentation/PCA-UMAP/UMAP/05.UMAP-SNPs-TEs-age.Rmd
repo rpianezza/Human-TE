@@ -1,0 +1,120 @@
+---
+title: "UMAP - SNPs - HGDP - Different TE MRCAs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Prepare the environment
+
+```{r env}
+library(tidyverse)
+library(ggpubr)
+library(umap)
+```
+
+## Select samples with no GC-bias
+
+```{r samples selection}
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+```
+
+## Read the SNPs matrixes
+
+```{r SNP-matrixes}
+sapiens_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/sapiens-cov15-10000SNPs.matrix.tsv"
+homo_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/hominidae-cov15-10000SNPs.matrix.tsv"
+primates_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/primates-cov15-10000SNPs.matrix.tsv"
+mammalia_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/mammalia-cov15-10000SNPs.matrix.tsv"
+theria_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/theria-cov15-10000SNPs.matrix.tsv"
+eutheria_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/eutheria-cov15-10000SNPs.matrix.tsv"
+vertebrata_k10SNPs <- "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/MRCAs/vertebrata-cov15-10000SNPs.matrix.tsv"
+```
+
+## Create the function for UMAP plotting
+
+```{r split-function}
+UMAP_split <- function(freq_matrix, metadata, titlee){
+
+matrix <- read_csv(freq_matrix)
+  
+f_metadata <- metadata %>% filter(sex=="female") %>% select(ID, sex, country, pop) %>% distinct()
+m_metadata <- metadata %>% filter(sex=="male") %>% select(ID, sex, country, pop) %>% distinct()
+males_matrix <- inner_join(m_metadata, matrix, by="ID")
+females_matrix <- inner_join(f_metadata, matrix, by="ID")
+
+f_pca_data <- females_matrix %>% select_if(~ !all(. == .[1]))
+m_pca_data <- males_matrix %>% select_if(~ !all(. == .[1]))
+f_matrix <- as.matrix(f_pca_data[, -c(1,2,3)])
+m_matrix <- as.matrix(m_pca_data[, -c(1,2,3)])
+
+f_umap_result <- umap(f_matrix, n_neighbors = 15, min_dist = 0.3)
+m_umap_result <- umap(m_matrix, n_neighbors = 15, min_dist = 0.3)
+
+f_umap <- f_umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+m_umap <- m_umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+
+f <- f_umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = f_metadata$country))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", subtitle = "Females", color = "Region") + theme(plot.subtitle = element_text(hjust = 0.5), legend.title = element_text(face = "bold"))
+
+m <- m_umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = m_metadata$country))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", subtitle = "Males", color = "Region") + theme(plot.subtitle = element_text(hjust = 0.5), legend.title = element_text(face = "bold"))
+
+plot <- ggarrange(f, m, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+figure <- annotate_figure(plot, top = text_grob(titlee, face = "bold", size = 14))
+}
+```
+
+```{r joined-function}
+UMAP <- function(freq_matrix, metadata, titlee){
+
+matrix <- read_csv(freq_matrix)
+metadata <- metadata %>% select(ID, sex, country, pop) %>% distinct()
+matrix <- inner_join(metadata, matrix, by="ID")
+
+pca_data <- matrix %>% select_if(~ !all(. == .[1]))
+matrix <- as.matrix(pca_data[, -c(1,2,3,4)])
+
+umap_result <- umap(matrix, n_neighbors = 15, min_dist = 0.3)
+umap <- umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+
+plot <- umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = metadata$country, shape = metadata$sex))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", title = titlee, subtitle = "Females and males", color = "Region", shape = "Sex") + theme(plot.title = element_text(hjust = 0.5, face = "bold"), plot.subtitle = element_text(hjust = 0.5), legend.title = element_text(face = "bold"))
+}
+```
+
+```{r HS}
+(UMAP_sapiens_k10SNPs <- UMAP_split(sapiens_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with Homo sapiens"))
+(UMAP_sapiens_10k <- UMAP(sapiens_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with Homo sapiens"))
+```
+
+```{r Homo}
+(UMAP_homo_k10SNPs <- UMAP_split(homo_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with Hominidae"))
+(UMAP_homo_10k <- UMAP(homo_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with Hominidae"))
+```
+
+```{r Primates}
+(UMAP_primates_k10SNPs <- UMAP_split(primates_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with primates"))
+(UMAP_primates_10k <- UMAP(primates_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with primates"))
+```
+
+```{r Mammals}
+(UMAP_mammalia_k10SNPs <- UMAP_split(mammalia_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with mammals"))
+(UMAP_mammalia_10k <- UMAP(mammalia_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with mammals"))
+```
+
+```{r Theria}
+(UMAP_theria_k10SNPs <- UMAP_split(theria_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with theria"))
+(UMAP_theria_10k <- UMAP(theria_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with theria"))
+```
+
+```{r Eutheria}
+(UMAP_eutheria_k10SNPs <- UMAP_split(eutheria_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with eutheria"))
+(UMAP_eutheria_10k <- UMAP(eutheria_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with eutheria"))
+```
+
+```{r Vertebrata}
+(UMAP_vertebrata_k10SNPs <- UMAP_split(vertebrata_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with vertebrata"))
+(UMAP_vertebrata_10k <- UMAP(vertebrata_k10SNPs, HGDP, "HGDP - 10.000 SNPs in RepSeq shared with vertebrata"))
+```

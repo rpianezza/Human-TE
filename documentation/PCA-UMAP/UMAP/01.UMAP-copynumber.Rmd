@@ -1,0 +1,91 @@
+---
+title: "UMAP - Copynumber"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(umap)
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/TE/summary-HGDP/USEME_HGDP_complete_reflib6.2_mq10_batchinfo_cutoff0.01.txt")
+names(HGDP) <- c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch")
+
+SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff") %>% dplyr::rename(ID=biosample)
+
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID)
+HGDP_pcr <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID))
+
+SGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/SGDP/ric-documentation/SGDP-no-PCR.tsv")
+SGDP_pcr_free <- SGDP %>% filter(ID %in% SGDP_pcr_free_samples$ID)
+
+HvariableTEs <- filter(HGDP_pcr_free, type == "te") %>% group_by(familyname) %>% summarise(variance = var(copynumber)) %>% filter(variance>0.5) %>% select(familyname) %>% pull()
+```
+
+# Function for UMAP
+
+```{r}
+UMAP_copynumber <- function(raw_data, title){
+data <- filter(raw_data, type=="te")
+m <- filter(data, sex=='male')
+f <- filter(data, sex=='female')
+len <- length(unique(data$familyname))
+males <- length(unique(m$ID))
+females <- length(unique(f$ID))
+
+f_matrix <- matrix(as.vector(f$copynumber),nrow=females,ncol=len,byrow=T)
+f_fram <- data.frame(f_matrix)
+names(f_fram) <- unique(f$familyname)
+f_fram <- f_fram %>% select_if(negate(function(col) sd(col)==0))
+f_matrixcont <- matrix(as.vector(f$country),nrow=females,ncol=len,byrow=T)
+f_framcont <- data.frame(f_matrixcont)
+f_contcol<-c(f_framcont$X1)
+
+m_matrix <- matrix(as.vector(m$copynumber),nrow=males,ncol=len,byrow=T)
+m_fram <- data.frame(m_matrix)
+names(m_fram)<-unique(m$familyname)
+m_fram <- m_fram %>% select_if(negate(function(col) sd(col)==0))
+m_matrixcont <- matrix(as.vector(m$country),nrow=males,ncol=len,byrow=T)
+m_framcont <- data.frame(m_matrixcont)
+m_contcol<-c(m_framcont$X1)
+
+f_umap_result <- umap(f_fram, n_neighbors = 15, min_dist = 0.3)
+m_umap_result <- umap(m_fram, n_neighbors = 15, min_dist = 0.3)
+
+f_umap <- f_umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+m_umap <- m_umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+
+f <- f_umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = f_contcol))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", subtitle = "Females")
+
+m <- m_umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = m_contcol))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", subtitle = "Males")
+
+plot <- ggarrange(f, m, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", align = "hv", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+}
+```
+
+
+# PCA
+
+PCA excluding biased samples (PCR samples + GC biased samples PCR free) and excluding non-variable TEs.
+
+## HGDP
+
+```{r}
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_nobiasedID <- filter(HGDP, ID %in% HGDP_nobiased_samples)
+HGDP_nobiasedID_pcrfree <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
+HGDP_nobiasedID_pcrfree_varTE <- filter(HGDP_nobiasedID_pcrfree, familyname %in% HvariableTEs)
+
+(UMAP_HGDP <- UMAP_copynumber(HGDP_nobiasedID_pcrfree_varTE, "HGDP - GC biased samples excluded - Variable TEs"))
+```
