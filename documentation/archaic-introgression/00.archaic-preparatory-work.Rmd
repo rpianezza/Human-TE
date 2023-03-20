@@ -1,0 +1,76 @@
+---
+title: "Archaic humans - Preparatory work"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+## Prepare metaadata
+
+```{r vindija nh}
+metadata_vindija <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/vindija-nh-PRJEB21157.txt") %>% separate(fastq_ftp, into=c("ftp", "ftp1", "ftp2"), sep=";") %>% select(-ftp1, -ftp2, -experiment_accession) %>% separate(fastq_md5, into=c("md5", "md51", "md52"), sep=";") %>% select(-md51, -md52)
+vindija_md5 <- metadata_vindija %>% select(run_accession, md5)
+
+writeLines(metadata_vindija$ftp, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/vindija-ftp.txt")
+writeLines(metadata_vindija$run_accession, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/vindija-runs.txt")
+write_tsv(vindija_md5, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/vindija-md5.txt")
+```
+
+```{r denisova nh}
+(metadata_denisova_nh <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova-nh_PRJEB1265_tsv.txt") %>% separate(fastq_ftp, into=c("ftp", "ftp1", "ftp2"), sep=";") %>% select(-ftp1, -ftp2, -experiment_accession) %>% separate(fastq_md5, into=c("md5", "md51", "md52"), sep=";") %>% select(-md51, -md52))
+(denisova_nh_md5 <- metadata_denisova_nh %>% select(run_accession, md5))
+
+writeLines(metadata_denisova_nh$ftp, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova_nh-ftp.txt")
+writeLines(metadata_denisova_nh$run_accession, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova_nh-runs.txt")
+write_tsv(denisova_nh_md5, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova_nh-md5.txt")
+```
+
+```{r denisovan}
+metadata_denisova <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova_PRJEB3092_tsv.txt")%>% slice(1:13) %>% select(-experiment_accession)
+
+metadata_denisova_split <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova_PRJEB3092_tsv.txt")%>% slice(14:27) %>% select(-experiment_accession) %>% separate(fastq_ftp, into=c("ftp1", "ftp2"), sep=";") %>% separate(fastq_md5, into=c("md51", "md52"), sep=";")
+
+denisova <- metadata_denisova %>% rename(md5 = fastq_md5, ftp = fastq_ftp) %>% select(run_accession, md5, ftp)
+denisova1 <- metadata_denisova_split %>% rename(md5 = md51, ftp = ftp1) %>% select(run_accession, md5, ftp) %>% mutate(run_accession = paste0(run_accession, "_1"))
+denisova2 <- metadata_denisova_split%>% rename(md5 = md52, ftp = ftp2) %>% select(run_accession, md5, ftp) %>% mutate(run_accession = paste0(run_accession, "_2"))
+denisova_all <- bind_rows(denisova, denisova1, denisova2)
+
+denisova_md5 <- denisova_all %>% select(run_accession, md5)
+
+writeLines(denisova_all$ftp, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova-ftp.txt")
+writeLines(denisova_all$run_accession, con="/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova-runs.txt")
+write_tsv(denisova_md5, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/denisova-md5.txt")
+```
+
+## Check md5
+
+```
+md5 /Volumes/Temp/Riccardo/1000genomes/data/*.fastq.gz > /Volumes/Temp/Riccardo/1000genomes/md5-downloaded-1.txt 
+```
+
+```{r}
+(denisova_nh_downloaded_md5 <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/denisova-nh/md5-downloaded.txt", col_names = c("n", "path", "=", "md5")) %>% select(path, md5) %>% separate(path, into=c("a", "b", "c", "d", "e", "f", "g", "file"), sep = "/") %>% select(md5, file) %>% separate(file, into=c("run_accession", "f", "c"), sep = "\\.") %>% select(md5, run_accession))
+
+(denisova_downloaded_md5 <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/denisova/md5-downloaded.txt", col_names = c("n", "path", "=", "md5")) %>% select(path, md5) %>% separate(path, into=c("a", "b", "c", "d", "e", "f", "g", "file"), sep = "/") %>% select(md5, file) %>% separate(file, into=c("run_accession", "f", "c"), sep = "\\.") %>% select(md5, run_accession))
+
+(vindija_downloaded_md5 <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/vindija/md5-downloaded.txt", col_names = c("n", "path", "=", "md5")) %>% select(path, md5) %>% separate(path, into=c("a", "b", "c", "d", "e", "f", "g", "h", "file"), sep = "/") %>% select(md5, file) %>% separate(file, into=c("run_accession", "f", "c"), sep = "\\.") %>% select(md5, run_accession))
+```
+
+```{r}
+(md5_check_denisova_nh <- inner_join(denisova_nh_md5, denisova_nh_downloaded_md5, by="run_accession") %>% filter(md5.x != md5.y))
+
+(md5_check_denisova <- inner_join(denisova_md5, denisova_downloaded_md5, by="run_accession") %>% filter(md5.x != md5.y))
+
+(md5_check_vindija <- inner_join(vindija_md5, vindija_downloaded_md5, by="run_accession") %>% filter(md5.x != md5.y))
+```
