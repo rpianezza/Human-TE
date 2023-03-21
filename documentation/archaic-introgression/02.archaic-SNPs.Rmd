@@ -1,0 +1,163 @@
+---
+title: "Archaic humans - SNPs found in NH and DH"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+Set the environment and creating metadata file.
+```{r}
+library(tidyverse)
+library(umap)
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv") %>% select(ID, sex, country, pop) %>% distinct()
+
+archaic <- tibble(
+  ID = c("Vindija", "Altai", "Denisovan"),
+  pop = c("Vindija", "Altai", "Denisova"),
+  country = c("Neandertal", "Neandertal", "Denisovan"),
+  sex = c("female", "female", "female")
+)
+
+HGDP_arch <- bind_rows(HGDP, archaic)
+```
+
+```{r}
+afr <- HGDP %>% filter(country == "Africa") %>% select(ID)
+#write_tsv(afr, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/ID-Afr")
+```
+
+## SCGs
+
+Reading the matrixes for the archaic variants in SCGs in the HGDP. 1 file for each archaic genome.
+```{r scg-matrixes}
+scg_vindija_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/vindija1k")
+scg_altai_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/altai1k")
+scg_denisova_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/denisova1k")
+```
+
+Read the files containing info about the variants called in the archaic genome. Is important the "total_diff" column, which is an indicator of the distance between the allele frequencies in the Africans and in the archaic genome.
+
+Is comprised between 0 (same allele frequencies for that position) and 2 (complete non-overlapping allele frequencies for that position).
+
+```{r scg-variants}
+scg_diff_vindija <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/vindija1k_afr-arch") %>% select(familyname, position, total_diff)
+scg_diff_altai <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/altai1k_afr-arch") %>% select(familyname, position, total_diff)
+scg_diff_denisova <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/denisova1k_afr-arch") %>% select(familyname, position, total_diff)
+```
+
+Merge the two files read above for each of the three genome and select only the variance with a **total_diff** > a certain threshold. In this case, I use 1.75. This means that, for single copy genes, both the alleles must be different between archaic and africans to keep the variant in this code. Ideally, this will result in a total_diff = 2, but due to sequencing error and aDNA bias I use a lower threshold (1.75).
+
+```{r scg-selected-variants}
+(scg_vindija <- inner_join(scg_vindija_all, scg_diff_vindija, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff)))
+scg_altai <- inner_join(scg_altai_all, scg_diff_altai, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+scg_denisova <- inner_join(scg_denisova_all, scg_diff_denisova, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+```
+
+With the selected variants, I then look for potentially introgressed variants in all the HGDP samples: the variants which are very different between archaic and africans (total_diff very high) but that in a genome are not that different. I use a threshold of **total_diff** of 1.25 to select those variant which are supposed to be introgressed in one copy in a genome (ideally 1).
+
+```{r scg-introgressed}
+intro_vindija <- scg_vindija %>% select(-familyname, -position, -total_diff) %>% summarise_all(~sum(. <1.25, na.rm=TRUE)) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID")
+intro_altai <- scg_altai %>% select(-familyname, -position, -total_diff) %>% summarise_all(~sum(. <1.25, na.rm=TRUE)) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID")
+(intro_denisova <- scg_denisova %>% select(-familyname, -position, -total_diff) %>% summarise_all(~sum(. <1.25, na.rm=TRUE)) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID"))
+```
+
+From the info above, I produce these plots averaging the number of introgressed variants for each population.
+
+```{r scg-plot-pop}
+(scg_v_plot <- intro_vindija %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+  
+(scg_a_plot <- intro_altai %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+(scg_d_plot <- intro_denisova %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
+Here I do the same for each region ("country").
+
+```{r scg-plot-country}
+(scg_v_plot_cou <- intro_vindija %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+  
+(scg_a_plot_cou <- intro_altai %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+(scg_d_plot_cou <- intro_denisova %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
+# TEs
+
+Here I try to produce similar plot using the archaic variants called in the repetitive sequences.
+```{r te-matrixes}
+te_vindija_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/vindija10k")
+te_altai_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/altai10k")
+te_denisova_all <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/denisova10k")
+```
+
+```{r te-variants}
+te_diff_vindija <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/vindija10k_afr-arch") %>% select(familyname, position, total_diff)
+te_diff_altai <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/altai10k_afr-arch") %>% select(familyname, position, total_diff)
+te_diff_denisova <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/10k/denisova10k_afr-arch") %>% select(familyname, position, total_diff)
+```
+
+```{r te-selected-variants}
+te_vindija <- inner_join(te_vindija_all, te_diff_vindija, by=c("familyname", "position")) %>% filter(total_diff>1.00) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+
+te_altai <- inner_join(te_altai_all, te_diff_altai, by=c("familyname", "position")) %>% filter(total_diff>1.00) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+
+te_denisova <- inner_join(te_denisova_all, te_diff_denisova, by=c("familyname", "position")) %>% filter(total_diff>1.00) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+```
+
+Instead of just putting a cutoff to the **total_diff** to select the introgressed variants, I try to select the variants that differed the most from the **total_diff** found between archaic and africans. This makes more sense to me.
+
+```{r te-introgressed}
+te_intro_vindija <- te_vindija %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.5, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID")
+
+te_intro_altai <- te_altai %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.5, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID")
+
+te_intro_denisova <- te_denisova %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.5, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID")
+```
+
+```{r te-plot-pop}
+(te_v_plot <- te_intro_vindija %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+  
+(te_a_plot <- te_intro_altai %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in ReqSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+(te_d_plot <- te_intro_denisova %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
+```{r te-plot-country}
+(te_v_plot_cou <- te_intro_vindija %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+  
+(te_a_plot_cou <- te_intro_altai %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in ReqSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+(te_d_plot_cou <- te_intro_denisova %>% group_by(country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(country, -mean_intro), y=mean_intro, fill=country))+
+  geom_col()+
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
