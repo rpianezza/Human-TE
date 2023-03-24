@@ -26,6 +26,8 @@ archaic <- tibble(
 )
 
 HGDP_arch <- bind_rows(HGDP, archaic)
+
+coordinates <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
 ```
 
 ```{r}
@@ -38,6 +40,7 @@ fem <- HGDP %>% filter(sex=="female") %>% select(ID)
 mal <- HGDP %>% filter(sex=="male") %>% select(ID)
 #write_tsv(mal, "/Volumes/Temp1/rpianezza/PCA-SNPs-all-analysis/matrixes/females/males.IDs")
 ```
+
 
 ## SCGs
 
@@ -58,12 +61,12 @@ scg_diff_altai <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-huma
 scg_diff_denisova <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/scg/1k/denisova1k_afr-arch") %>% select(familyname, position, total_diff)
 ```
 
-Merge the two files read above for each of the three genome and select only the variance with a **total_diff** > a certain threshold. In this case, I use 1.75. This means that, for single copy genes, both the alleles must be different between archaic and africans to keep the variant in this code. Ideally, this will result in a total_diff = 2, but due to sequencing error and aDNA bias I use a lower threshold (1.75).
+Merge the two files read above for each of the three genome and select only the variance with a **total_diff** > a certain threshold. In this case, I use 1.75. This means that, for single copy genes, both the alleles must be different between archaic and africans to keep the variant in this code. Ideally, this will result in a total_diff = 2, but due to sequencing error and aDNA bias I use a lower threshold (1.97).
 
 ```{r scg-selected-variants}
-(scg_vindija <- inner_join(scg_vindija_all, scg_diff_vindija, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff)))
-scg_altai <- inner_join(scg_altai_all, scg_diff_altai, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff))
-scg_denisova <- inner_join(scg_denisova_all, scg_diff_denisova, by=c("familyname", "position")) %>% filter(total_diff>1.75) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+scg_vindija <- inner_join(scg_vindija_all, scg_diff_vindija, by=c("familyname", "position")) %>% filter(total_diff>1.97) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+scg_altai <- inner_join(scg_altai_all, scg_diff_altai, by=c("familyname", "position")) %>% filter(total_diff>1.97) %>% relocate(total_diff) %>% arrange(desc(total_diff))
+scg_denisova <- inner_join(scg_denisova_all, scg_diff_denisova, by=c("familyname", "position")) %>% filter(total_diff>1.97) %>% relocate(total_diff) %>% arrange(desc(total_diff))
 ```
 
 With the selected variants, I then look for potentially introgressed variants in all the HGDP samples: the variants which are very different between archaic and africans (total_diff very high) but that in a genome are not that different. I use a threshold of **total_diff** of 1.25 to select those variant which are supposed to be introgressed in one copy in a genome (ideally 1).
@@ -77,17 +80,43 @@ intro_altai <- scg_altai %>% select(-familyname, -position, -total_diff) %>% sum
 From the info above, I produce these plots averaging the number of introgressed variants for each population.
 
 ```{r scg-plot-pop}
-(scg_v_plot <- intro_vindija %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+(scg_v_plot <- intro_vindija %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed), sd_intro = sd(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
   geom_col()+
+  geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro), 
+                width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
   
-(scg_a_plot <- intro_altai %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+(scg_a_plot <- intro_altai %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed), sd_intro = sd(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
   geom_col()+
+  geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro), 
+                width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
 
-(scg_d_plot <- intro_denisova %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+(scg_d_plot <- intro_denisova %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed), sd_intro = sd(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
   geom_col()+
+  geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro), 
+                width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in SCGs")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
+```{r scg-map}
+plot_map <- function(intro, coord, title){
+  
+full <- inner_join(intro, coord, by="pop") %>% group_by(pop, longitude, latitude) %>% dplyr::summarise(introgressed = mean(introgressed), count = n())
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = introgressed, size = count)) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(title)
+}
+
+
+plot_map(intro_vindija, coordinates, "Variants introgressed from Vindija NH found in SCGs")
+plot_map(intro_altai, coordinates, "Variants introgressed from Altai NH found in SCGs")
+plot_map(intro_denisova, coordinates, "Variants introgressed from Denisovans found in SCGs")
 ```
 
 Here I do the same for each region ("country").
@@ -109,51 +138,247 @@ Here I do the same for each region ("country").
 # TEs (variants selected using only African females)
 
 ```{r females}
-HGDP_fem <- filter(HGDP, sex=="female")
+HGDP_fem <- filter(HGDP, sex=="female") %>% select(ID, country, pop)
+
+HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-no-PCR/HGDP-only-pcr-free-samples.tsv", col_names = "ID")
+
+HGDP_pcr_free <- HGDP_fem %>% filter(ID %in% HGDP_pcr_free_samples$ID)
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_nobiasedID <- filter(HGDP_fem, ID %in% HGDP_nobiased_samples)
+HGDP_clean_fem <- filter(HGDP_pcr_free, ID %in% HGDP_nobiased_samples)
 ```
 
-```{r te-matrixes-fem}
-te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/vindija1k-fem")
-te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/altai1k-fem")
-te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/denisova1k-fem")
+```{r copynumber}
+fem_cn <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv") %>% select(ID, country, sex, type, familyname, copynumber) %>% filter(type=="te", sex=="female", ID %in% HGDP_clean_fem$ID) %>% mutate(familyname = paste0(familyname, "_", type)) %>% group_by(familyname) %>% dplyr::summarise(afr_copynumber = mean(copynumber))
+
+vindija_cn <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/vindija/vindija.mq10.mapstat", skip = 8, col_names = c("type", "familyname", "length", "reads", "copynumber")) %>% select(type, familyname, copynumber) %>% filter(type=="te") %>% mutate(familyname = paste0(familyname, "_", type)) %>% select(-type)
+
+altai_cn <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/denisova-nh/denisova-nh.mq10.mapstat", skip = 8, col_names = c("type", "familyname", "length", "reads", "copynumber")) %>% select(type, familyname, copynumber) %>% filter(type=="te") %>% mutate(familyname = paste0(familyname, "_", type)) %>% select(-type)
+
+denisova_cn <- read_delim("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/data/denisova/denisova.mq10.mapstat", skip = 8, col_names = c("type", "familyname", "length", "reads", "copynumber")) %>% select(type, familyname, copynumber) %>% filter(type=="te") %>% mutate(familyname = paste0(familyname, "_", type)) %>% select(-type)
+
+#write_tsv(fem_cn, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/females_copynumber")
+#write_tsv(vindija_cn, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/vindija_copynumber")
+#write_tsv(altai_cn, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/altai_copynumber")
+#write_tsv(denisova_cn, "/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/denisova_copynumber")
 ```
 
-```{r te-variants-fem}
-te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/vindija1k-fem_afr-arch") %>% select(familyname, position, total_diff)
-te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/altai1k-fem_afr-arch") %>% select(familyname, position, total_diff)
-te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/1k/denisova1k-fem_afr-arch") %>% select(familyname, position, total_diff)
-```
-
-```{r te-selected-variants-fem}
-te_vindija_f <- inner_join(te_vindija_fem, te_diff_vindija_fem, by=c("familyname", "position")) %>% filter(total_diff>0.5) %>% relocate(total_diff) %>% arrange(desc(total_diff))
-
-te_altai_f <- inner_join(te_altai_fem, te_diff_altai_fem, by=c("familyname", "position")) %>% filter(total_diff>1) %>% relocate(total_diff) %>% arrange(desc(total_diff))
-
-te_denisova_f <- inner_join(te_denisova_fem, te_diff_denisova_fem, by=c("familyname", "position")) %>% filter(total_diff>0.5) %>% relocate(total_diff) %>% arrange(desc(total_diff))
-```
-
-```{r te-introgressed-fem}
-(te_intro_vindija_f <- te_vindija_f %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.25, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID"))
-
-te_intro_altai_f <- te_altai_f %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.25, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
-
-te_intro_denisova_f <- te_denisova_f %>% summarise(across(where(is.numeric) & !contains("total_diff"), ~ sum(total_diff - . > 0.25, na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
-```
-
-```{r te-plot-pop-fem}
-(te_v_plot_f <- te_intro_vindija_f %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
-  geom_col()+
-  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Vindija Neandertal found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```{r}
+normalize_cn <- function(sync_matrix, total_diff_matrix, titlee){
   
-(te_a_plot_f <- te_intro_altai_f %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
-  geom_col()+
-  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Altai Neandertal found in ReqSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+  my_colors <- c("#F8766D", "#C49A00", "#53B400", "#00C094", "#00B6EB", "#A58AFF", "#FB61D7")
+  
+  cn <- total_diff_matrix %>% select(familyname, position, afr_copynumber, total_diff) %>% mutate(single_diff = total_diff/afr_copynumber) %>% select(-total_diff)
+  merged <- inner_join(cn, sync_matrix, by=c("familyname","position")) %>% rename(copynumber = afr_copynumber)
+  estimates <- merged %>% mutate_at(vars(5:ncol(merged)), ~ ((single_diff - .)/2)*copynumber ) %>% mutate_all(~ ifelse(. < 0, 0, .)) %>% select(-copynumber, -single_diff) 
+  summary <- estimates %>% summarise(across(where(is.numeric) & !contains("position"), ~ sum(., na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID") %>% distinct()
+  
+plot <- summary %>% 
+  group_by(pop, country) %>% 
+  summarise(mean_intro = mean(introgressed), 
+            sd_intro = sd(introgressed)) %>% 
+  ggplot(aes(x = reorder(pop, -mean_intro), y = mean_intro, fill = country)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro),
+                width = 0.2, position = position_dodge(0.9)) +
+  scale_fill_manual(values = setNames(my_colors, c("Africa", "America", "Central_South_Asia", "East_Asia", "Europe", "Middle_East", "Oceania"))) +
+  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, titlee)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
+        legend.position = "bottom", 
+        plot.title = element_text(hjust = 0.5)) #+ 
+  #ylim(0, NA)
 
-(te_d_plot_f <- te_intro_denisova_f %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
-  geom_col()+
-  labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Introgressed variants from Denisovans found in RepSeq")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+plot
+}
+```
+
+## 10k variants
+
+### Cutoff = 10.000 copies
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/vindija-cutoff10k-10kSNPs")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/altai-cutoff10k-10kSNPs")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/denisova-cutoff10k-10kSNPs")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/vindija-cutoff10k-10kSNPs_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/altai-cutoff10k-10kSNPs_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10.000/denisova-cutoff10k-10kSNPs_afr-arch")
+```
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq")
+```
+
+
+### Cutoff = 1.000 copies
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/vindija-cutoff1k")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/altai-cutoff1k")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/denisova-cutoff1k")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/vindija-cutoff1k_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/altai-cutoff1k_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.000/denisova-cutoff1k_afr-arch")
+```
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq (CN < 1.000)")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq (CN < 1.000)")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq (CN < 1.000)")
+```
+
+### Cutoff = 100 copies
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/vindija-cutoff100-10kSNPs")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/altai-cutoff100-10kSNPs")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/denisova-cutoff100-10kSNPs")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/vindija-cutoff100-10kSNPs_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/altai-cutoff100-10kSNPs_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-100/denisova-cutoff100-10kSNPs_afr-arch")
+```
+
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq (CN < 100)")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq (CN < 100)")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq (CN < 100)")
+```
+
+### Cutoff = 10 copies
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/vindija-cutoff10-10kSNPs")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/altai-cutoff10-10kSNPs")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/denisova-cutoff10-10kSNPs")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/vindija-cutoff10-10kSNPs_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/altai-cutoff10-10kSNPs_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-10/denisova-cutoff10-10kSNPs_afr-arch")
+```
+
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq (CN < 10)")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq (CN < 10)")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq (CN < 10)")
+```
+
+
+### Cutoff = 2 copies
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/vindija-cutoff2-10kSNPs")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/altai-cutoff2-10kSNPs")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/denisova-cutoff2-10kSNPs")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/vindija-cutoff2-10kSNPs_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/altai-cutoff2-10kSNPs_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-2/denisova-cutoff2-10kSNPs_afr-arch")
+```
+
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq (CN < 2)")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq (CN < 2)")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq (CN < 2)")
+```
+
+
+### Cutoff = 1 copy
+
+```{r}
+te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/vindija-cutoff1.2-10kSNPs")
+te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/altai-cutoff1.2-10kSNPs")
+te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/denisova-cutoff1.2-10kSNPs")
+```
+
+```{r}
+te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/vindija-cutoff1.2-10kSNPs_afr-arch")
+te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/altai-cutoff1.2-10kSNPs_afr-arch")
+te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/cutoff-1.2/denisova-cutoff1.2-10kSNPs_afr-arch")
+```
+
+
+```{r}
+#(te_denisova <- inner_join(te_denisova_fem, te_diff_denisova_fem, by=c("familyname", "position")) %>% filter(total_diff>1) %>% relocate(total_diff) %>% arrange(desc(total_diff)))
+
+#(intro_denisova <- te_denisova %>% select(-familyname, -position, -total_diff) %>% summarise_all(~sum(. <1, na.rm=TRUE)) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP, by="ID"))
+
+#(te_d_plot <- intro_denisova %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed), sd_intro = sd(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  #geom_col()+
+  #geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro), width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
+  #labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq (CN < 1)")
+normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq (CN < 1)")
+normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq (CN < 1)")
 ```
 
 
 
+## 50k variants
+
+### Cutoff = 10.000 copies
+
+```{r}
+#te_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kvindija.normalized")
+#te_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kaltai.normalized")
+#te_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kdenisova.normalized")
+```
+
+```{r}
+#te_diff_vindija_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kvindija.normalized_afr-arch")
+#te_diff_altai_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kaltai.normalized_afr-arch")
+#te_diff_denisova_fem <- read_tsv("/Volumes/Temp1/rpianezza/ancient_humans/archaic-humans/analysis/archaic-variants/te/all/50kdenisova.normalized_afr-arch")
+```
+
+```{r}
+#normalize_cn(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq")
+#normalize_cn(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq")
+#normalize_cn(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisovans found in RepSeq")
+```
+
+
+## Test
+
+```{r}
+#normalize_cn_2 <- function(sync_matrix, total_diff_matrix, titlee){
+  
+ # cn <- total_diff_matrix %>% select(familyname, position, afr_copynumber, total_diff) %>% mutate(single_diff = total_diff/afr_copynumber) %>% select(-total_diff)
+  
+  #merged <- inner_join(cn, sync_matrix, by=c("familyname","position")) %>% rename(copynumber = afr_copynumber)
+  #estimates <- merged %>% mutate_at(vars(5:ncol(merged)), ~ ifelse(abs(single_diff - .) < (0.1*single_diff), 0, ((single_diff - .)/2)*copynumber)) %>% select(-copynumber, -single_diff) #%>% mutate_all(~ ifelse(. < 0, 0, .)) 
+  
+#  summary <- estimates %>% summarise(across(where(is.numeric) & !contains("position"), ~ sum(., na.rm = TRUE))) %>% t() %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% dplyr::rename("introgressed" = "V1") %>% as_tibble() %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID") %>% distinct()
+  
+  #plot <- summary %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(introgressed)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+  #geom_col()+
+  #labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, titlee)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5))
+#plot
+#}
+
+#normalize_cn_2(te_vindija_fem, te_diff_vindija_fem, "Introgressed variants from Vindija Neandertal found in RepSeq")
+#normalize_cn_2(te_altai_fem, te_diff_altai_fem, "Introgressed variants from Altai Neandertal found in RepSeq")
+#normalize_cn_2(te_denisova_fem, te_diff_denisova_fem, "Introgressed variants from Denisova found in RepSeq")
+```
 
