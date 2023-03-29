@@ -58,36 +58,52 @@ plot_introgression <- function(data, titlee){
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, titlee)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5))
 }
 
-introgression_diagnostic <- function(matrix, diagnostic_bases, titlee){
+
+plot_map <- function(intro, coord, title){
+  
+full <- inner_join(intro, coord, by="pop") %>% group_by(pop, longitude, latitude) %>% dplyr::summarise(introgressed = mean(introgressed), count = n())
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = introgressed, size = count)) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(title)
+}
+
+
+introgression_diagnostic <- function(matrix, diagnostic_bases, coord, titlee){
   
 archaic <- read_tsv(matrix) %>% select(-diagnostic, -afr_copynumber)
 diag <- read_tsv(diagnostic_bases) %>% select(familyname, position, afr_copynumber, diagnostic)
 
 merged <- inner_join(archaic, diag, by=c("familyname", "position")) %>% relocate(diagnostic, afr_copynumber) %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% filter(afr_copynumber<250) %>% select(-c(diagnostic, afr_copynumber, familyname, position)) %>% dplyr::summarise_all(~sum(. >1, na.rm=TRUE)) %>% t %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% as_tibble() %>% dplyr::rename("introgressed" = "V1") %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
 
-(plot_introgression(merged, titlee))
+bar <- plot_introgression(merged, titlee)
+mappa <- plot_map(merged, coord, titlee)
+
+list(barplot = bar, map = mappa)
 }
 ```
 
 ```{r}
-introgression_diagnostic(vindija, vindija_diag, "Variants introgressed (Vindija) - RepSeq")
-introgression_diagnostic(altai, altai_diag, "Variants introgressed (Altai) - RepSeq")
-introgression_diagnostic(denisova, denisova_diag, "Variants introgressed (Denisovans) - RepSeq")
+introgression_diagnostic(vindija, vindija_diag, coordinates, "Variants introgressed (Vindija) - RepSeq")
+introgression_diagnostic(altai, altai_diag, coordinates, "Variants introgressed (Altai) - RepSeq")
+introgression_diagnostic(denisova, denisova_diag, coordinates, "Variants introgressed (Denisovans) - RepSeq")
 ```
 
 ```{r}
-introgression_diagnostic_sum <- function(matrix, diagnostic_bases, titlee){
-  
+diagnostic_SNPs <- function(matrix, diagnostic_bases){
 archaic <- read_tsv(matrix) %>% select(-diagnostic, -afr_copynumber)
 diag <- read_tsv(diagnostic_bases) %>% select(familyname, position, afr_copynumber, diagnostic)
 
-merged <- inner_join(archaic, diag, by=c("familyname", "position")) %>% relocate(diagnostic, afr_copynumber) %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% select(-c(diagnostic, afr_copynumber, familyname, position)) %>% dplyr::summarise_all(sum, na.rm = TRUE) %>% t %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% as_tibble() %>% dplyr::rename("introgressed" = "V1") %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
-
-(plot_introgression(merged, titlee))
+(snps <- inner_join(archaic, diag, by=c("familyname", "position")) %>% relocate(diagnostic, afr_copynumber) %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% filter(afr_copynumber<250) %>% distinct())
 }
 
-#introgression_diagnostic_sum(vindija, vindija_diag, "Variants introgressed (Vindija) - RepSeq")
-#introgression_diagnostic_sum(altai, altai_diag, "Variants introgressed (Altai) - RepSeq")
-#introgression_diagnostic_sum(denisova, denisova_diag, "Variants introgressed (Denisovans) - RepSeq")
+
+diagnostic_SNPs(vindija, vindija_diag)
+diagnostic_SNPs(altai, altai_diag)
+diagnostic_SNPs(denisova, denisova_diag)
 ```
 
