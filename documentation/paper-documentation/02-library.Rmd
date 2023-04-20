@@ -1,0 +1,65 @@
+---
+title: "HGDP - Library insights"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "Satellite"))
+```
+
+
+```{r}
+(class <- classification %>% filter(type == "te") %>% select(familyname, class) %>% distinct() %>% group_by(class) %>% summarise(count = n()))
+
+(pie <- ggplot(class, aes(x="", y=count, fill=class))+
+  geom_col(width = 1) + labs(fill='') +
+  coord_polar(theta="y")+
+  theme_void()+
+  geom_text(aes(label = count), 
+           position = position_stack(vjust = 0.5), 
+            size = 3)+
+  theme(legend.position = "bottom")+
+ scale_fill_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF", "#D89000")))
+```
+
+```{r}
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(longitude, latitude, color = copynumber, size = count)
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname)}
+```
+
+```{r}
+
+
+```

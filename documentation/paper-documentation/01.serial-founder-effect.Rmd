@@ -1,0 +1,142 @@
+---
+title: "HGDP - Analyzing the TEs with the highest variance"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_clean <- filter(HGDP, ID %in% HGDP_nobiased_samples)
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+(classification <- HGDP_clean %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
+```
+
+```{r}
+cn <- HGDP_clean %>% filter(type=="te") %>% group_by(familyname) %>% summarise(mean = mean(copynumber)) %>% filter(mean < 1000) %>% select(familyname) %>% pull()
+```
+
+```{r}
+variability <- HGDP_clean %>% filter(familyname %in% cn) %>% group_by(pop, sex, familyname, country) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup()
+
+(pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct())
+
+(country <- pop %>% group_by(country) %>% summarise(mean_cv = mean(mean_cv, na.rm = TRUE)) %>% arrange(desc(mean_cv)))
+
+#(females <- cn %>% filter(sex=="female"))
+#(males <- cn %>% filter(sex=="male"))
+```
+
+```{r}
+continents <- c("Africa", "Middle_East", "Central_South_Asia", "East_Asia", "Europe", "America", "Oceania")
+
+latitudes <- c(0, 30, 20, 35, 50, -10, -25)
+longitudes <- c(20, 45, 70, 105, 15, -60, 135)
+
+coordinates_con <- tibble(country = continents, latitude = latitudes, longitude = longitudes)
+
+coordinates_pop <- read_tsv("/Users/rpianezza/TE/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("pop", "region", "latitude", "longitude")) %>% select(pop, latitude, longitude)
+```
+
+
+```{r}
+plot_map_country <- function(data, coord, title){
+  
+full <- inner_join(data, coord, by="country")
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = mean_cv), size = 12) + 
+  geom_errorbar() + 
+  scale_colour_gradient(low = "red", high = "green") + 
+  theme(legend.position="right", legend.direction = "vertical") + 
+  labs(color = "Mean CV") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  ggtitle(title)
+}
+
+plot_map_pop <- function(data, coord, title){
+  
+full <- inner_join(data, coord, by="pop")
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = mean_cv), size = 4) + 
+  geom_errorbar() + 
+  scale_colour_gradient(low = "red", high = "green") + 
+  theme(legend.position="right", legend.direction = "vertical") + 
+  labs(color = "Mean CV") + 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  ggtitle(title)
+}
+
+
+plot_map_country(country, coordinates_con, "Variability in Repetitive Sequence Copynumbers per Continent")
+
+#plot_map_pop(pop, coordinates_pop, "Variability in Repetitive Sequence Copynumbers per Population")
+```
+
+```{r}
+cv_by_class <- function(data, c){
+  
+selected <- data %>% filter(class==c) %>% select(familyname) %>% pull()
+variability <- data %>% filter(familyname %in% selected, familyname %in% cn) %>% group_by(pop, sex, familyname, country) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup()
+pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct()
+
+(country <- pop %>% group_by(country) %>% summarise(mean_cv = mean(mean_cv, na.rm = TRUE)) %>% arrange(desc(mean_cv)))
+}
+```
+
+```{r}
+(LINE_cv <- cv_by_class(classification, "LINE"))
+(LTR_cv <- cv_by_class(classification, "LTR"))
+(DNA_cv <- cv_by_class(classification, "DNA"))
+```
+
+```{r}
+#outliers <- c("L1PA10", "MLT2A2", "TIGGER1")
+#box <- classification %>% filter(type=="te", familyname %in% outliers)
+
+#(scatter <- ggplot(box, aes(x = familyname, y = copynumber, fill = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
+#theme(axis.text.x = element_text(angle = 90, hjust = 1)))# +
+#scale_fill_manual(values = c("#FFFF33", "#FF9900")))
+```
+
+```{r}
+#(tot_TE <- classification %>% filter(type == "te", !(class %in% c("satellite", NA))) %>% group_by(ID, pop, country, sex) %>% summarise(total = sum(copynumber)) %>% arrange(desc(total)))
+
+#(box <- ggplot(tot_TE, aes(x = country, y = total, fill = country)) +
+  #geom_boxplot(notch = FALSE) +
+#theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+```
+
+
