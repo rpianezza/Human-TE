@@ -340,7 +340,7 @@ m <- classification %>% filter(sex=="male") %>% select(ID) %>% summarise(individ
 
 f <- classification %>% filter(sex=="female") %>% select(ID) %>% summarise(individuals = n()) %>% pull()
 
-(thanos <- classification %>% filter(type=="te") %>% group_by(sex) %>% summarise(total_te_sum = sum(copynumber), normalized_te_sum = if_else(sex=="female", total_te_sum/f, total_te_sum/m)) %>% distinct())
+(thanos <- classification %>% filter(type=="te") %>% group_by(sex) %>% summarise(total_te_sum = sum(copynumber), normalized_te_sum = if_else(sex=="female", total_te_sum/f, total_te_sum/m), kb=if_else(sex=="female", sum(copynumber*length)/f, sum(copynumber*length)/m)) %>% distinct())
 ```
 
     ## Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in
@@ -354,12 +354,12 @@ f <- classification %>% filter(sex=="female") %>% select(ID) %>% summarise(indiv
     ## `summarise()` has grouped output by 'sex'. You can override using the `.groups`
     ## argument.
 
-    ## # A tibble: 2 × 3
+    ## # A tibble: 2 × 4
     ## # Groups:   sex [2]
-    ##   sex    total_te_sum normalized_te_sum
-    ##   <chr>         <dbl>             <dbl>
-    ## 1 female   141764828.              331.
-    ## 2 male     224098901.              328.
+    ##   sex    total_te_sum normalized_te_sum      kb
+    ##   <chr>         <dbl>             <dbl>   <dbl>
+    ## 1 female   141764828.              331. 168182.
+    ## 2 male     224098901.              328. 164618.
 
 ``` r
 te_sum_m <- thanos %>% filter(sex=="male") %>% select(normalized_te_sum) %>% pull()
