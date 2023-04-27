@@ -16,6 +16,8 @@ Set the environment and creating metadata file.
 library(tidyverse)
 library(umap)
 
+theme_set(theme_bw())
+
 HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv") %>% select(ID, sex, country, pop) %>% distinct()
 
 archaic <- tibble(
@@ -87,11 +89,6 @@ list(barplot = bar, map = mappa)
 }
 ```
 
-```{r}
-introgression_diagnostic(vindija, vindija_diag, coordinates, "Variants introgressed (Vindija) - RepSeq")
-introgression_diagnostic(altai, altai_diag, coordinates, "Variants introgressed (Altai) - RepSeq")
-introgression_diagnostic(denisova, denisova_diag, coordinates, "Variants introgressed (Denisovans) - RepSeq")
-```
 
 ```{r}
 diagnostic_SNPs <- function(matrix, diagnostic_bases){
@@ -107,3 +104,43 @@ diagnostic_SNPs(altai, altai_diag)
 diagnostic_SNPs(denisova, denisova_diag)
 ```
 
+# Round 2
+
+```{r}
+denny <- read_tsv(denisova) %>% select(-diagnostic, -afr_copynumber)
+vindy <- read_tsv(vindija) %>% select(-diagnostic, -afr_copynumber)
+altay <- read_tsv(altai) %>% select(-diagnostic, -afr_copynumber)
+
+denny_diag <- read_tsv(denisova_diag) %>% select(familyname, position, afr_copynumber, diagnostic)
+altay_diag <- read_tsv(altai_diag) %>% select(familyname, position, afr_copynumber, diagnostic)
+vindy_diag <- read_tsv(vindija_diag) %>% select(familyname, position, afr_copynumber, diagnostic)
+
+d <- inner_join(denny, denny_diag, by=c("familyname", "position")) %>% mutate(SNP = paste0(familyname, "_", position)) %>% distinct()
+a <- inner_join(altay, altay_diag, by=c("familyname", "position")) %>% mutate(SNP = paste0(familyname, "_", position)) %>% distinct()
+v <- inner_join(vindy, vindy_diag, by=c("familyname", "position")) %>% mutate(SNP = paste0(familyname, "_", position)) %>% distinct()
+
+names_denis <- d %>% mutate(SNP = paste0(familyname, "_", position)) %>% select(SNP)
+names_vindi <- v %>% mutate(SNP = paste0(familyname, "_", position)) %>% select(SNP)
+names_altai <- a %>% mutate(SNP = paste0(familyname, "_", position)) %>% select(SNP)
+
+specific_v <- names_vindi %>% filter(!(SNP %in% names_altai$SNP)) %>% inner_join(v, by="SNP")
+two_n <- bind_rows(a, specific_v)
+
+names_nea <- two_n %>% select(SNP)
+(specific_d <- names_denis %>% filter(!(SNP %in% names_nea$SNP)) %>% inner_join(d, by="SNP") %>% distinct())
+(specific_n <- names_nea %>% filter(!(SNP %in% names_denis$SNP)) %>% inner_join(two_n, by="SNP") %>% distinct())
+```
+
+```{r}
+n_variants <- specific_n %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% filter(afr_copynumber<250) %>% select(-c(diagnostic, afr_copynumber, familyname, position)) %>% dplyr::summarise_all(~sum(. >1, na.rm=TRUE)) %>% t %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% as_tibble() %>% dplyr::rename("introgressed" = "V1") %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
+
+(bar <- plot_introgression(n_variants, "Neandertal"))
+(mappa <- plot_map(n_variants, coordinates, "Neandertal"))
+```
+
+```{r}
+d_variants <- specific_d %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% filter(afr_copynumber<250) %>% select(-c(diagnostic, afr_copynumber, familyname, position)) %>% dplyr::summarise_all(~sum(. >1, na.rm=TRUE)) %>% t %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% as_tibble() %>% dplyr::rename("introgressed" = "V1") %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
+
+(bar <- plot_introgression(d_variants, "Denisova"))
+(mappa <- plot_map(d_variants, coordinates, "Denisova"))
+```
