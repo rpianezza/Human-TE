@@ -110,6 +110,6 @@ n_variants <- specific_n %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copyn
 ```{r}
 d_variants <- specific_d %>% mutate_at(vars(starts_with("HGDP")), ~. * afr_copynumber) %>% filter(afr_copynumber<100) %>% select(-c(diagnostic, afr_copynumber, familyname, position)) %>% dplyr::summarise_all(~sum(. >1, na.rm=TRUE)) %>% t %>% as.data.frame() %>% rownames_to_column(var = "ID") %>% as_tibble() %>% dplyr::rename("introgressed" = "V1") %>% separate(ID, into=c("ID", "pop"), sep="-", remove=FALSE) %>% select(-pop) %>% inner_join(HGDP_fem, by="ID")
 
-(bar <- plot_introgression(d_variants, "Denisova (RepSeq)"))
-(mappa <- plot_map(d_variants, coordinates, "Denisova (RepSeq)"))
+(bar <- plot_introgression(d_variants, "Denisovan (RepSeq)"))
+(mappa <- plot_map(d_variants, coordinates, "Denisovan (RepSeq)"))
 ```
