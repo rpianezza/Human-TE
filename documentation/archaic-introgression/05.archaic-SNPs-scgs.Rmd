@@ -73,29 +73,6 @@ With the selected variants, I then look for potentially introgressed variants in
 
 From the info above, I produce these plots averaging the number of introgressed variants for each population.
 
-```{r scg-map}
-plot_map <- function(intro, coord, title){
-  
-full <- inner_join(intro, coord, by="pop") %>% group_by(pop, longitude, latitude) %>% dplyr::summarise(introgressed = mean(introgressed), count = n())
-world_map = map_data("world")
-
-ggplot() +
-  geom_map(
-    data = world_map, map = world_map,
-    aes(long, lat, map_id = region),
-    color = "white", fill = "lightgray", size = 0) +
-  geom_point(data = full, aes(x=longitude, y=latitude, color = introgressed, size = count)) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(title)
-}
-
-
-#plot_map(intro_vindija, coordinates, "Variants introgressed from Vindija NH found in SCGs")
-#plot_map(intro_altai, coordinates, "Variants introgressed from Altai NH found in SCGs")
-#plot_map(intro_denisova, coordinates, "Variants introgressed from Denisovans found in SCGs")
-```
-
-
-## Round 2
-
 ```{r}
 IDs <- colnames(scg_vindija)[4:ncol(scg_vindija)]
 
@@ -117,16 +94,14 @@ archaic_SNPs <- bind_rows(d_SNPs, n_SNPs)  %>% distinct() %>% summarise(archaic=
 denisovan_SNPs <- d_SNPs %>% filter(!(SNP %in% n_SNPs$SNP)) %>% summarise(denisovan=n())
 neandertal_SNPs <- n_SNPs %>% filter(!(SNP %in% d_SNPs$SNP)) %>% summarise(neandertal=n())
 
-(sample <- bind_cols(archaic_SNPs, neandertal_SNPs, denisovan_SNPs) %>% mutate("ID" = id))
+sample <- bind_cols(archaic_SNPs, neandertal_SNPs, denisovan_SNPs) %>% mutate("ID" = id)
 
 complete_introgression <- bind_rows(complete_introgression, sample)
 }
-
-complete_introgression
 ```
 
 ```{r}
-(data_introgression <- complete_introgression %>% separate(ID, into=c("ID","pop"), sep="\\-") %>% select(-pop) %>% inner_join(HGDP, by="ID"))
+data_introgression <- complete_introgression %>% separate(ID, into=c("ID","pop"), sep="\\-") %>% select(-pop) %>% inner_join(HGDP, by="ID")
 ```
 
 ```{r}
@@ -138,16 +113,42 @@ complete_introgression
 
 
 ```{r}
-(neandertal_introgression <- data_introgression %>% select(ID, pop, country, neandertal) %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(neandertal), sd_intro = sd(neandertal)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+neandertal_introgression <- data_introgression %>% select(ID, pop, country, neandertal)
+ 
+(plot <- neandertal_introgression %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(neandertal), sd_intro = sd(neandertal)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
  geom_col()+
   geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro),         width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Neandertal (SCGs)")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+
+full <- inner_join(neandertal_introgression, coordinates, by="pop") %>% group_by(pop, longitude, latitude) %>% dplyr::summarise(introgressed = mean(neandertal), count = n())
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = introgressed, size = count)) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Neandertal (SCGs)") + labs(colour = "Introgressed variants", size = "Samples")
 ```
 
 ```{r}
-(denisovan_introgression <- data_introgression %>% select(ID, pop, country, denisovan) %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(denisovan), sd_intro = sd(denisovan)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
+denisovan_introgression <- data_introgression %>% select(ID, pop, country, denisovan)
+ 
+(plot <-denisovan_introgression %>% group_by(pop, country) %>% dplyr::summarise(mean_intro = mean(denisovan), sd_intro = sd(denisovan)) %>% ggplot(aes(x = reorder(pop, -mean_intro), y=mean_intro, fill=country))+
  geom_col()+
   geom_errorbar(aes(ymin = mean_intro - sd_intro, ymax = mean_intro + sd_intro),         width = 0.2, position = position_dodge(0.9), alpha = 0.5)+
   labs(x = "", y = "Introgressed variants", title = element_text(face = "bold", size = 14, "Denisovan (SCGs)")) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), legend.position = "bottom", plot.title = element_text(hjust = 0.5)))
+
+
+full <- inner_join(denisovan_introgression, coordinates, by="pop") %>% group_by(pop, longitude, latitude) %>% dplyr::summarise(introgressed = mean(denisovan), count = n())
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(data = full, aes(x=longitude, y=latitude, color = introgressed, size = count)) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle("Denisovan (SCGs)") + labs(colour = "Introgressed variants", size = "Samples")
 ```
 
