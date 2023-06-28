@@ -114,7 +114,7 @@ cn <- classification %>% filter(type=="te") %>% group_by(familyname, sex, class,
 ``` r
 colnames(new_tibble) <- c("familyname", "class", "superfamily", "female_cn", "male_cn")
 
-(different <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff > ((mean_cn/100)*3.2), diff>1) %>% arrange(desc(diff)))
+(different_fem <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff > ((mean_cn/100)*3.2), diff>1) %>% arrange(desc(diff)))
 ```
 
     ## # A tibble: 128 × 7
@@ -134,24 +134,52 @@ colnames(new_tibble) <- c("familyname", "class", "superfamily", "female_cn", "ma
     ## # ℹ 118 more rows
 
 ``` r
-(more_in_males <- different %>% filter(male_cn>female_cn))
+(different_mal <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff>1) %>% arrange(desc(diff)))
 ```
 
-    ## # A tibble: 8 × 7
-    ## # Groups:   familyname, class [8]
-    ##   familyname class     superfamily           female_cn male_cn mean_cn    diff
-    ##   <chr>      <chr>     <chr>                     <dbl>   <dbl>   <dbl>   <dbl>
-    ## 1 HSATI      satellite SAT                      341.    2122.  1232.   1781.  
-    ## 2 LTR14C     LTR       ERV2                      67.1     76.1   71.6     8.93
-    ## 3 HERV9      LTR       ERV1                     134.     142.   138.      7.35
-    ## 4 LTR22      LTR       ERV2                      47.5     53.5   50.5     6.07
-    ## 5 LTR6A      LTR       ERV1                      68.7     71.3   70.0     2.67
-    ## 6 HERV-K14CI LTR       ERV2                       8.63    10.9    9.76    2.28
-    ## 7 LTR22B     LTR       ERV2                      41.6     43.6   42.6     2.00
-    ## 8 HERV30I    LTR       Endogenous Retrovirus      9.77    10.9   10.3     1.09
+    ## # A tibble: 291 × 7
+    ## # Groups:   familyname, class [291]
+    ##    familyname class     superfamily female_cn male_cn mean_cn  diff
+    ##    <chr>      <chr>     <chr>           <dbl>   <dbl>   <dbl> <dbl>
+    ##  1 ALU        SINE      SINE1/7SL     196091. 192089. 194090. 4002.
+    ##  2 HSATI      satellite SAT              341.   2122.   1232. 1781.
+    ##  3 HSATII     satellite SAT            28262.  27132.  27697. 1130.
+    ##  4 ALR1       satellite SAT            70870.  71586.  71228.  716.
+    ##  5 ALR_       satellite SAT            77235.  76912.  77073.  324.
+    ##  6 ALR        satellite SAT            31525.  31812.  31669.  286.
+    ##  7 THE1_I     LTR       ERV3            4436.   4273.   4355.  164.
+    ##  8 THE1B      LTR       ERV3            6287.   6134.   6211.  153.
+    ##  9 L1PA4      LINE      L1              4347.   4195.   4271.  152.
+    ## 10 L1         LINE      L1              3661.   3551.   3606.  110.
+    ## # ℹ 281 more rows
 
 ``` r
-(more_in_females <- different %>% filter(male_cn<female_cn))
+(more_in_males <- different_mal %>% filter(male_cn>female_cn))
+```
+
+    ## # A tibble: 16 × 7
+    ## # Groups:   familyname, class [16]
+    ##    familyname class     superfamily           female_cn male_cn  mean_cn    diff
+    ##    <chr>      <chr>     <chr>                     <dbl>   <dbl>    <dbl>   <dbl>
+    ##  1 HSATI      satellite SAT                      341.    2122.   1232.   1781.  
+    ##  2 ALR1       satellite SAT                    70870.   71586.  71228.    716.  
+    ##  3 ALR        satellite SAT                    31525.   31812.  31669.    286.  
+    ##  4 ALRb       satellite SAT                    28610.   28660.  28635.     49.6 
+    ##  5 LTR14C     LTR       ERV2                      67.1     76.1    71.6     8.93
+    ##  6 HERV9      LTR       ERV1                     134.     142.    138.      7.35
+    ##  7 LTR22      LTR       ERV2                      47.5     53.5    50.5     6.07
+    ##  8 6kbHsap    satellite satellite                299.     302.    300.      3.17
+    ##  9 MER22      <NA>      MER22                    160.     163.    161.      3.11
+    ## 10 LTR6A      LTR       ERV1                      68.7     71.3    70.0     2.67
+    ## 11 LTR12D     LTR       ERV1                     205.     208.    207.      2.46
+    ## 12 HERV-K14CI LTR       ERV2                       8.63    10.9     9.76    2.28
+    ## 13 HERVK9I    LTR       ERV2                     147.     149.    148.      2.09
+    ## 14 LTR22B     LTR       ERV2                      41.6     43.6    42.6     2.00
+    ## 15 LTR15      LTR       ERV1                     121.     123.    122.      1.11
+    ## 16 HERV30I    LTR       Endogenous Retrovirus      9.77    10.9    10.3     1.09
+
+``` r
+(more_in_females <- different_fem %>% filter(male_cn<female_cn))
 ```
 
     ## # A tibble: 120 × 7
@@ -206,6 +234,10 @@ pie_tibble <- pie_tibble %>% mutate(percent = count/sum(pie_tibble$count)*100)
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/sex-diff-pie.png", pie, dpi = 300, width = 6, height = 6)
+```
+
+``` r
 females <- more_in_females %>% group_by(class) %>% summarise(count = n()) 
 
 females <- females %>% mutate(percent = count/sum(females$count)*100)
@@ -233,7 +265,7 @@ x_values <- ifelse(females_mod$class == "Other", 1.3, 1.3)
   geom_col(width = 1) + labs(fill='') +
   coord_polar(theta="y")+
   theme_void()+
-  geom_text(aes(x = x_values, label = count), 
+  geom_text(aes(x = 1.3, label = count), 
             position = position_stack(vjust = 0.5), 
             size = 5)+
   scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
@@ -257,8 +289,8 @@ sum_satellite_na <- males %>%
     ## # A tibble: 2 × 3
     ##   class count percent
     ##   <chr> <int>   <dbl>
-    ## 1 LTR       7    87.5
-    ## 2 Other     1    12.5
+    ## 1 LTR      10    62.5
+    ## 2 Other     6    37.5
 
 ``` r
 x_values <- ifelse(males_mod$class == "Other", 1.3, 1.3)
@@ -274,6 +306,11 @@ x_values <- ifelse(males_mod$class == "Other", 1.3, 1.3)
 ```
 
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
+
+``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/male-diff-pie.png", m_pie, dpi = 300, width = 8, height = 6)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/female-diff-pie.png", f_pie, dpi = 300, width = 8, height = 6)
+```
 
 ``` r
 (sex_diff <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn), diff_normalized = diff/mean_cn) %>% filter(diff > 2, !(class %in% c("satellite", NA))) %>% arrange(desc(diff_normalized)) %>% filter(diff_normalized > 0.06))
@@ -304,14 +341,10 @@ outliers <- HGDP_clean %>% filter(type=="te", familyname %in% sex_diff$familynam
 outliers <- outliers[order(outliers$diff_normalized,decreasing=T),]
 outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familyname))
 
-(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
-theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-scale_fill_manual(values = c("#FFFF33", "#FF9900")))
-```
+#(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
+#theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+#scale_fill_manual(values = c("#FFFF33", "#FF9900")))
 
-![](00-cv-sex_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
 (scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
 theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
 scale_fill_manual(values = c("#FFFF33", "#FF9900")) +
@@ -321,7 +354,7 @@ ylim(0, 100))
 
     ## Warning: Removed 2640 rows containing non-finite values (`stat_boxplot()`).
 
-![](00-cv-sex_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](00-cv-sex_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 (scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
@@ -333,7 +366,7 @@ ylim(140, 620))
 
     ## Warning: Removed 7498 rows containing non-finite values (`stat_boxplot()`).
 
-![](00-cv-sex_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
+![](00-cv-sex_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
 m <- classification %>% filter(sex=="male") %>% select(ID) %>% summarise(individuals = n()) %>% pull()
@@ -404,6 +437,12 @@ outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familynam
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/cn.png", box, dpi = 300, width = 8, height = 6)
+```
+
+    ## Warning: Removed 660 rows containing non-finite values (`stat_boxplot()`).
+
+``` r
 (correlation <- classification %>% filter(type=="te", class!="satellite") %>% group_by(familyname, sex, class) %>% summarise(mean = mean(copynumber), cv = (var(copynumber))/mean, var = var(copynumber)) %>% ungroup() %>% group_by(familyname, class) %>% summarise(cn = mean(mean), cv = mean(cv), var=mean(var)))
 ```
 
@@ -439,11 +478,12 @@ cn10k <- correlation %>% filter(cn < 10000)
 cn1k <- correlation %>% filter(cn < 1000)
 cn100 <- correlation %>% filter(cn < 100)
 
-(vplot <- ggplot(cn10k, aes(x = cn, y = cv, color = class)) +
+(vplot1 <- ggplot(cn10k, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.3) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "Mean copynumber", y = "Variance")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
@@ -451,11 +491,12 @@ cn100 <- correlation %>% filter(cn < 100)
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
-(vplot <- ggplot(cn1k, aes(x = cn, y = cv, color = class)) +
+(vplot2 <- ggplot(cn1k, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.06) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "Mean copynumber", y = "Variance")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
@@ -463,16 +504,23 @@ cn100 <- correlation %>% filter(cn < 100)
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
-(vplot <- ggplot(cn100, aes(x = cn, y = cv, color = class)) +
+(vplot3 <- ggplot(cn100, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.1) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "Mean copynumber", y = "Variance")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
 
 ![](00-cv-sex_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
+
+``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/var-cn.png", vplot2, dpi = 300, width = 8, height = 6)
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
 
 ``` r
 #(f_cn <- classification %>% filter(type=="te", sex=="female") %>% group_by(familyname, class, superfamily) %>% summarise(mean = mean(copynumber), var = var(copynumber), cv = var/mean) %>% arrange(desc(cv)) %>% filter(!(class %in% c("satellite", NA)), mean>1) %>% filter(cv > 1.62))
@@ -521,7 +569,11 @@ cn100 <- correlation %>% filter(cn < 100)
   #theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     #ylim(150000,220000)+
  #scale_color_manual(values=c("#D89000")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/var-cn-alu.png", box_ALU, dpi = 300, width = 8, height = 6)
 ```
+
+    ## Warning: Removed 18480 rows containing non-finite values (`stat_boxplot()`).
 
 ``` r
 cn <- classification %>% filter(type=="te") %>% group_by(familyname, class, superfamily) %>% summarise(mean = mean(copynumber), var = var(copynumber), cv = var/mean) %>% arrange(desc(cv)) %>% filter(!(class %in% c("satellite", NA)), mean>1) %>% filter(cv > 1.58)

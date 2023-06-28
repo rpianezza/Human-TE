@@ -59,18 +59,7 @@ HGDP<-read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/USEME_HGDP_complet
 
 ``` r
 names(HGDP)<-c("ID","pop","sex","country","type","familyname","length","reads","copynumber","batch")
-
-SGDP <- read_tsv("/Volumes/Temp2/rpianezza/SGDP/summary/USEME_SGDP_cutoff") %>% dplyr::rename(ID=biosample)
 ```
-
-    ## Rows: 470028 Columns: 10
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
-    ## chr (7): biosample, sex, pop, country, type, familyname, batch
-    ## dbl (3): length, reads, copynumber
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 Here I create a tibble containing all the elements in our reference
 library associated with their GC content %.
@@ -122,21 +111,6 @@ HGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/investigation/HGDP-n
 ``` r
 HGDP_pcr_free <- HGDP %>% filter(ID %in% HGDP_pcr_free_samples$ID)
 HGDP_pcr <- HGDP %>% filter(!(ID %in% HGDP_pcr_free_samples$ID))
-
-SGDP_pcr_free_samples <- read_tsv("/Volumes/Temp1/rpianezza/SGDP/ric-documentation/SGDP-no-PCR.tsv")
-```
-
-    ## Rows: 261 Columns: 1
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: "\t"
-    ## chr (1): ID
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-SGDP_pcr_free <- SGDP %>% filter(ID %in% SGDP_pcr_free_samples$ID)
-SGDP_pcr <- SGDP %>% filter(!(ID %in% SGDP_pcr_free_samples$ID))
 ```
 
 ## Defining the GC-bias
@@ -289,7 +263,6 @@ all_parabolas <- function(data){
 }
 
 a_HGDP <- all_parabolas(HGDP)
-a_SGDP <- all_parabolas(SGDP)
 
 (joined_HGDP <- inner_join(HGDP, a_HGDP, by="ID") %>% filter(type=="te"))
 ```
@@ -311,10 +284,7 @@ a_SGDP <- all_parabolas(SGDP)
     ## # ℹ 1 more variable: a <dbl>
 
 ``` r
-joined_SGDP <- inner_join(SGDP, a_SGDP, by="ID") %>% filter(type=="te")
-
 joined_HGDP_nopcr <- inner_join(HGDP_pcr_free, a_HGDP, by="ID") %>% filter(type=="te") 
-joined_SGDP_nopcr <- inner_join(SGDP_pcr_free, a_SGDP, by="ID") %>% filter(type=="te")
 ```
 
 We create our PCA on TE copy number but coloring the data for the value
@@ -381,12 +351,6 @@ PCA_GC_parabolas(joined_HGDP, "HGDP - all samples")
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
-``` r
-PCA_GC_parabolas(joined_SGDP, "SGDP - all samples")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
-
 The above PCAs are considering **all the samples**, thus not excluding
 the PCR samples from the data sets. As expected, the clustering is
 strongly dependent on the GC bias. But does this bias remaing when we
@@ -397,12 +361,6 @@ PCA_GC_parabolas(joined_HGDP_nopcr, "HGDP - PCR free")
 ```
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
-``` r
-PCA_GC_parabolas(joined_SGDP_nopcr, "SGDP - PCR free")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 Yes!
 

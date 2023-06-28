@@ -1,0 +1,91 @@
+---
+title: "UMAP - HGDP - SNPs - SCGs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+## Prepare the environment
+
+```{r env}
+library(tidyverse)
+library(ggpubr)
+library(umap)
+```
+
+## Select samples with no GC-bias
+
+```{r samples selection}
+HGDP <- read_delim("/home/riccardo/Desktop/human-te/HGDP_cutoff_classified.tsv")
+
+(HGDP_metadata <- HGDP %>% select(ID, sex, pop, country) %>% distinct())
+```
+
+```{r}
+big <- read_tsv("/home/riccardo/Desktop/human-te/merged.vcf_variants")
+big# %>% select(position, HGDP00942.vcf, HGDP00151.vcf)
+```
+
+```{r}
+#(sample <- big %>% sample_n(50000))
+```
+
+```{r}
+revertable <- big %>% mutate(SNP = paste0(familyname, "_", position)) %>% select(-familyname, -position) %>% relocate(SNP, before = NULL)
+
+columns <- revertable %>% select(-SNP)
+samples <- colnames(columns)
+```
+
+```{r}
+reverted_raw <- revertable %>%
+  t() %>%
+  as_tibble()
+colnames(reverted_raw) <- reverted_raw[1, ]
+reverted <- slice(reverted_raw, -1)
+
+samp <- samples %>% as_tibble %>% rename("ID" = "value")
+pca_matrix <- samp %>% cbind(reverted) %>% as_tibble()
+pca_matrix$ID <- str_remove(pca_matrix$ID, "\\.vcf$")
+(pca_data <- HGDP_metadata %>% inner_join(pca_matrix, by="ID") %>% distinct())
+```
+
+```{r}
+all <- HGDP_metadata
+pcaable <- pca_data %>% select(ID)
+
+#(missing <- all %>% filter(!(ID %in% pcaable$ID)))
+```
+
+
+```{r}
+write_tsv(pca_data, "/home/riccardo/Desktop/human-te/PCAble")
+```
+
+## Read the SNPs matrix
+
+```{r SNP-matrixes}
+data <- "/home/riccardo/Desktop/human-te/PCAble"
+```
+
+## Create the function for UMAP plotting
+
+```{r main-function}
+UMAP <- function(freq_matrix, titlee){
+
+file <- read_tsv(freq_matrix)
+matrix <- as.matrix(file[, -c(1,2,3,4)])
+
+umap_result <- umap(matrix, n_neighbors = 15, min_dist = 0.3)
+
+umap <- umap_result$layout %>% as.data.frame() %>% rename(UMAP1="V1",UMAP2="V2")
+
+plot <- umap %>% ggplot(aes(x = UMAP1, y = UMAP2, color = file$country))+
+  geom_point()+ labs(x = "UMAP1", y = "UMAP2", title = titlee, color = "Region") + theme(plot.title = element_text(hjust = 0.5, face = "bold"), legend.title = element_text(face = "bold"))
+}
+```
+
+```{r}
+(results <- UMAP(data, ""))
+```

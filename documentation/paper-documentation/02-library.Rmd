@@ -42,6 +42,8 @@ classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~
             size = 3)+
   theme(legend.position = "bottom")+
  scale_fill_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF", "#D89000")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/approach/library.png", pie, dpi=600)
 ```
 
 ```{r}
@@ -59,7 +61,3 @@ ggplot() +
   facet_wrap(~sex) + ggtitle(famname)}
 ```
 
-```{r}
-
-
-```

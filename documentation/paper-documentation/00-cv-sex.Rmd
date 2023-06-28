@@ -58,10 +58,13 @@ cn <- classification %>% filter(type=="te") %>% group_by(familyname, sex, class,
 (new_tibble <- tidyr::spread(cn, key = sex, value = mean))
 colnames(new_tibble) <- c("familyname", "class", "superfamily", "female_cn", "male_cn")
 
-(different <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff > ((mean_cn/100)*3.2), diff>1) %>% arrange(desc(diff)))
+(different_fem <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff > ((mean_cn/100)*3.2), diff>1) %>% arrange(desc(diff)))
 
-(more_in_males <- different %>% filter(male_cn>female_cn))
-(more_in_females <- different %>% filter(male_cn<female_cn))
+(different_mal <- new_tibble %>% mutate(mean_cn = (female_cn+male_cn)/2, diff = abs(female_cn-male_cn)) %>% filter(diff>1) %>% arrange(desc(diff)))
+
+
+(more_in_males <- different_mal %>% filter(male_cn>female_cn))
+(more_in_females <- different_fem %>% filter(male_cn<female_cn))
 ```
 
 ```{r}
@@ -83,6 +86,8 @@ pie_tibble <- pie_tibble %>% mutate(percent = count/sum(pie_tibble$count)*100)
             size = 5))+
   theme(legend.position = "left")+
   scale_fill_manual(values=c("#FFFF33", "#FF9900", "#999999"))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/sex-diff-pie.png", pie, dpi = 300, width = 6, height = 6)
 ```
 
 ```{r}
@@ -103,7 +108,7 @@ x_values <- ifelse(females_mod$class == "Other", 1.3, 1.3)
   geom_col(width = 1) + labs(fill='') +
   coord_polar(theta="y")+
   theme_void()+
-  geom_text(aes(x = x_values, label = count), 
+  geom_text(aes(x = 1.3, label = count), 
             position = position_stack(vjust = 0.5), 
             size = 5)+
   scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
@@ -130,6 +135,9 @@ x_values <- ifelse(males_mod$class == "Other", 1.3, 1.3)
             position = position_stack(vjust = 0.5), 
             size = 5)+
   scale_fill_manual(values=c("#00BFC4", "#C77CFF")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/male-diff-pie.png", m_pie, dpi = 300, width = 8, height = 6)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/female-diff-pie.png", f_pie, dpi = 300, width = 8, height = 6)
 ```
 
 ```{r}
@@ -139,21 +147,25 @@ outliers <- HGDP_clean %>% filter(type=="te", familyname %in% sex_diff$familynam
 outliers <- outliers[order(outliers$diff_normalized,decreasing=T),]
 outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familyname))
 
-(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
-theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-scale_fill_manual(values = c("#FFFF33", "#FF9900")))
+#(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
+#theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+#scale_fill_manual(values = c("#FFFF33", "#FF9900")))
 
-(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
+(scatter1 <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
 theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
 scale_fill_manual(values = c("#FFFF33", "#FF9900")) +
 scale_color_manual(values = c("#7CAE00", "#00BFC4")) +
 ylim(0, 100))
 
-(scatter <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
+(scatter2 <- ggplot(outliers, aes(x = familyname, y = copynumber, fill = sex, color = class)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
 theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
 scale_fill_manual(values = c("#FFFF33", "#FF9900")) +
 scale_color_manual(values = c("#7CAE00", "#00BFC4")) +
 ylim(140, 620))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/sex/sex-diff-part1.png", scatter1, dpi = 600, width = 8, height = 6)
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/sex/sex-diff-part2.png", scatter2, dpi = 600, width = 8, height = 6)
 ```
 
 ```{r}
@@ -183,6 +195,8 @@ outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familynam
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     ylim(0,7000)+
  scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/cn.png", box, dpi = 600, width = 8, height = 6)
 ```
 
 ```{r}
@@ -194,23 +208,30 @@ cn10k <- correlation %>% filter(cn < 10000)
 cn1k <- correlation %>% filter(cn < 1000)
 cn100 <- correlation %>% filter(cn < 100)
 
-(vplot <- ggplot(cn10k, aes(x = cn, y = cv, color = class)) +
+(vplot1 <- ggplot(cn10k, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.3) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "mean copynumber", y = "coefficient of variation")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
 
-(vplot <- ggplot(cn1k, aes(x = cn, y = cv, color = class)) +
+(vplot2 <- ggplot(cn1k, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.06) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "mean copynumber", y = "coefficient of variation")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
 
-(vplot <- ggplot(cn100, aes(x = cn, y = cv, color = class)) +
+(vplot3 <- ggplot(cn100, aes(x = cn, y = cv, color = class)) +
   geom_point() +
   geom_text(aes(label=ifelse(familyname %in% fam, as.character(familyname), "")), color = "black", size=2.5, alpha = 0.7, nudge_y = 0.1) +
   geom_smooth(method = "lm", se = FALSE, color = "grey") +
-  labs(x = "Mean copynumber", y = "Variance"))
+  labs(x = "mean copynumber", y = "coefficient of variation")+
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#D89000")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/var-cn.png", vplot2, dpi = 600, width = 8, height = 6)
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/var-cn-supp.png", vplot1, dpi = 600, width = 8, height = 6)
 ```
 
 
@@ -255,6 +276,8 @@ cn100 <- correlation %>% filter(cn < 100)
   #theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     #ylim(150000,220000)+
  #scale_color_manual(values=c("#D89000")))
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/var-cn-alu.png", box_ALU, dpi = 600, width = 8, height = 6)
 ```
 
 ```{r}
@@ -272,21 +295,44 @@ outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familynam
 # Most abundant
 
 ```{r}
-(most_ab <- classification %>% filter(type=="te") %>% group_by(familyname, class, superfamily) %>% summarise(mean = mean(copynumber)) %>% filter(!(class %in% c("satellite", NA)), mean>1) %>% filter(mean > 850) %>% arrange(desc(mean)))
+(most_ab <- classification %>% filter(type=="te") %>% group_by(familyname, class, superfamily) %>% summarise(mean = mean(copynumber)) %>% filter(mean > 850) %>% arrange(desc(mean)))
 
-outliers <- HGDP_clean %>% filter(type=="te", familyname %in% most_ab$familyname) %>% inner_join(cn, by="familyname")
+copyn <- classification %>% filter(type=="te") %>% group_by(familyname, class, superfamily) %>% summarise(mean = mean(copynumber))
+
+outliers <- HGDP_clean %>% filter(type=="te", familyname %in% most_ab$familyname) %>% inner_join(copyn, by="familyname")
 outliers <- outliers[order(outliers$mean,decreasing=T),]
 outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familyname))
 
 (box <- ggplot(outliers, aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
     ylim(0,6500)+
- scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
+ scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF","#D89000")))
+
+(box_sat <- ggplot(outliers, aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    ylim(25000,80000)+
+ scale_color_manual(values=c("#C77CFF")))
 
 (box_alu <- ggplot(outliers, aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    ylim(100000,220000)+
+    ylim(160000,220000)+
  scale_color_manual(values=c("#D89000")))
+
+# Define the breaks and limits for the y-axis
+#y_breaks <- c(0, 6000, 25000, 80000, 150000, 200000)
+#y_limits <- c(0, 200000)
+
+# Create the plot with discontinuous y-axis
+#(box_disc <- ggplot(outliers, aes(x = familyname, y = copynumber)) +
+  #geom_boxplot(notch = FALSE, aes(color = class)) +
+  #theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  #scale_color_manual(values = c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF", "#D89000")) +
+  #scale_y_continuous(breaks = y_breaks, limits = y_limits))
+
+
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/copynumber1.png", box, dpi = 600, width = 8, height = 4)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/copynumber2.png", box_sat, dpi = 600, width = 8, height = 4)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/cv/copynumber3.png", box_alu, dpi = 600, width = 8, height = 4)
 ```
 
 # Other stuff

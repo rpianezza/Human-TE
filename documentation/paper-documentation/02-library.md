@@ -70,3 +70,18 @@ classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~
 ```
 
 ![](02-library_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(longitude, latitude, color = copynumber, size = count)
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname)}
+```

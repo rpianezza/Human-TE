@@ -1,0 +1,145 @@
+---
+title: "HGDP - Detecting private SNPs of single TEs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(umap)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/home/riccardo/Desktop/human-te/HGDP_cutoff_classified.tsv")
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite"))
+
+HGDP_meta <- HGDP %>% select(ID, pop, country, sex) %>% distinct()
+
+females <- HGDP %>% filter(sex=="female") %>% select(ID)
+males <- HGDP %>% filter(sex=="male") %>% select(ID)
+```
+
+## Functions
+
+Function which finds private SNPs in each population. Takes as input a merged file (PCAable + metadata) and a frequency threshold (es. 0.5). It counts how many SNPs are present in at least 50% of the individuals in a population and not present in more than 15 other samples.
+
+```{r}
+private <- function(data, threshold, percentage_pop_with_snp){
+snps <- colnames(data)[3:length(colnames(data))]
+populations <- data %>% select(location) %>% distinct() %>% pull()
+private_snps <- tibble(location=NULL, SNP=NULL, thr=NULL, perc_shared_in_pop=NULL, number_external=NULL)
+
+for (pop in populations){
+  for (snp in snps){
+    p <- data %>% select(ID, location, !!snp) %>% filter(location==pop)
+    other <- filter(data, location!=pop)
+    shared <- sum(p[[snp]] < threshold)
+    count_pop <- p %>% summarise(count = n()) %>% pull()
+    other_shared <- sum(other[[snp]] < threshold)
+    if ((shared > (count_pop/100*percentage_pop_with_snp)) & other_shared<15){
+      row <- tibble(location=pop, SNP=snp, thr=threshold, perc_shared_in_pop=shared/count_pop, number_external=other_shared)
+      private_snps <- bind_rows(private_snps, row)
+    }
+  }
+}
+private_snps
+}
+```
+
+Function to loop the function "private()" over multiple thresholds (from 0.5 to 0.9). A private SNP with 0.5 frequency is a very strong proof of a bottleneck during the invasion, while a SNP with only 0.9 is not that significant.
+
+```{r}
+different_thresholds <- function(data, percentage_pop_with_snp){
+result_tibble <- tibble(location=NULL, SNP=NULL, thr=NULL, perc_shared_in_pop=NULL, number_external=NULL)
+for (t in seq(0.5, 0.95, +0.05)){
+  tib <- private(data, t, percentage_pop_with_snp)
+  result_tibble <- bind_rows(result_tibble, tib)
+}
+
+if (!is_empty(result_tibble)){
+pops <- result_tibble %>% select(location) %>% distinct() %>% pull()
+filtered_tibble <- tibble(location=NULL, SNP=NULL, thr=NULL, perc_shared_in_pop=NULL, number_external=NULL)
+for (pop in pops){
+  only_pop <- filter(result_tibble, location==pop)
+  filtered <- only_pop %>% filter(thr==0.5)
+for (t in seq(0.5, 0.95, +0.05)){
+  th <- filter(only_pop, thr<t) %>% select(SNP) %>% pull()
+  non_overlapping <- filter(only_pop, thr==t, !(SNP %in% th))
+  filtered <- bind_rows(filtered, non_overlapping)
+}
+  filtered_tibble <- bind_rows(filtered_tibble, filtered) %>% distinct()
+}
+}
+else{
+  filtered_tibble <- tibble(location=NULL, SNP=NULL, thr=NULL, perc_shared_in_pop=NULL, number_external=NULL)
+}
+filtered_tibble
+}
+```
+
+Function which takes as input the tibble returned from "different_thresholds" and creates a barplot.
+
+```{r}
+private_plot <- function(data, metadata, titlee){
+  all_countries <- metadata %>% select(country) %>% distinct() %>% pull()
+  all_thresholds <- seq(0.05, 0.5, +0.05)
+  
+  if (!is_empty(data)){
+  plottable <- data %>% group_by(location, thr) %>% summarise(count = n()) %>% mutate(thr=1-thr)
+  countries <- data %>% select(location) %>% distinct() %>% pull()
+  thresholds <- data %>% select(thr) %>% distinct() %>% pull()
+  missing_countries <- setdiff(all_countries, countries)
+  missing_thresholds <- setdiff(all_thresholds, thresholds)
+  for (t in missing_thresholds){
+  missing <- tibble(location = missing_countries, thr = t, count = 0)
+  plottable <- bind_rows(plottable, missing)}
+  plottable$thr <- round((plottable$thr), 2)
+  plottable$thr <- as.character(plottable$thr)
+  }
+  
+  else{
+    plottable <- tibble(location=NULL, thr=NULL, count=NULL)
+    for (t in all_thresholds){
+  missing <- tibble(location = all_countries, thr = t, count = 0)
+  plottable <- bind_rows(plottable, missing)}
+  plottable$thr <- round((plottable$thr), 2)
+  plottable$thr <- as.character(plottable$thr)
+  }
+  
+  ggplot(plottable, aes(x = thr, y = count, fill = location)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Frequency threshold", y = "Private SNPs", fill = "Location") +
+  ggtitle(titlee) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) #+ xlim(0,0.6)
+}
+```
+
+```{r}
+cn_filtered <- HGDP %>% group_by(familyname) %>% summarise(mean_cn = mean(copynumber)) %>% filter(mean_cn > 5) %>% mutate(te = paste0(familyname, "_te")) %>% select(te) %>% pull()
+
+folder = "/home/riccardo/Desktop/human-te/single-TEs/pcaable/"
+files <- list.files(path = folder, full.names = FALSE)
+meta_country <- HGDP_meta %>% select(-pop, -sex) %>% rename("location"="country")
+
+for (file in files){
+  te <- sub("^[^_]*_", "", file)
+  if (te %in% cn_filtered){
+    path = paste0(folder, file)
+    test <- read_tsv(path) %>% separate(familyname_position, into = c("ID", "pop"), sep = "-") %>% select(-pop)
+    joined <- inner_join(meta_country, test, by="ID")
+    tib_test <- different_thresholds(joined, 33)
+    plo <- private_plot(tib_test, HGDP_meta, te)
+    print(plo)
+  }
+}
+```
