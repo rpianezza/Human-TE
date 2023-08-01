@@ -1,0 +1,202 @@
+---
+title: "HGDP - Analyzing the TE abundance in the two sexes"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_clean <- filter(HGDP, ID %in% HGDP_nobiased_samples)
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+classification <- HGDP_clean %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite"))
+
+coordinates <- read_tsv("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("population","country","lat","long")) %>% select(-country)
+```
+
+# Sex differences
+
+Male genome length = 6,045,293,052 bp
+Female genome length = 5,948,152,252 bp
+
+```{r}
+f = 6045293052
+m = 5948152252
+
+diff_mf = f-m
+diff_perc = (diff_mf/mean(f, m))*100
+
+diff_perc
+```
+
+We expect a slight increase in females copynumber due to the bigger genome they have: **1.6%** bigger than males (Y chromosome is shorter than the X).
+
+We chose a conservative threshold of **3.2%** to state that a TE copynumber is significantly different between the sexes despite the genome length difference.
+
+```{r}
+cn <- classification %>% filter(type=="te") %>% group_by(familyname, sex, class, superfamily) %>% summarise(mean = mean(copynumber)) %>% filter(mean>1)
+
+new_tibble <- tidyr::spread(cn, key = sex, value = mean)
+colnames(new_tibble) <- c("familyname", "class", "superfamily", "female_cn", "male_cn")
+
+(different_fem <- new_tibble %>% mutate(diff = abs(female_cn-male_cn)) %>% filter(diff > ((female_cn/100)*3.2), diff>1) %>% arrange(desc(diff)))
+(different_mal <- new_tibble %>% mutate(diff = abs(female_cn-male_cn)) %>% filter(diff > ((male_cn/100)*1.6), diff>1) %>% arrange(desc(diff)))
+
+(more_in_males <- different_mal %>% filter(male_cn>female_cn) %>% ungroup())
+(more_in_females <- different_fem %>% filter(male_cn<female_cn) %>% ungroup())
+```
+
+```{r}
+mim_names <- more_in_males %>% select(familyname) %>% pull()
+mif_names <- more_in_females %>% select(familyname) %>% pull()
+
+mim <- classification %>% filter(type=="te", familyname %in% mim_names) %>% group_by(familyname, sex, class, country) %>% summarise(mean = mean(copynumber)) %>% filter(mean>1, class!="satellite")
+mif <- classification %>% filter(type=="te", familyname %in% mif_names) %>% group_by(familyname, sex, class, country) %>% summarise(mean = mean(copynumber)) %>% filter(mean>1, class!="satellite")
+
+continents <- c("Africa", "Middle_East", "Central_South_Asia", "East_Asia", "Europe", "America", "Oceania")
+latitudes <- c(0, 30, 20, 35, 50, -10, -25)
+longitudes <- c(20, 45, 70, 105, 15, -60, 135)
+coordinates_con <- tibble(country = continents, lat = latitudes, long = longitudes)
+
+spreaded_m <- tidyr::spread(mim, key = sex, value = mean) %>% na.omit()
+colnames(spreaded_m) <- c("familyname", "class", "country", "female_cn", "male_cn")
+(diff_m <- spreaded_m %>% mutate(avg_cn=(male_cn+female_cn)/2, diff=male_cn-female_cn, fold_diff=diff/avg_cn) %>% select(-female_cn, -male_cn) %>% arrange(desc(fold_diff)) %>% inner_join(coordinates_con, by="country"))
+
+spreaded_f <- tidyr::spread(mif, key = sex, value = mean) %>% na.omit()
+(diff_f <- spreaded_f %>% mutate(avg_cn=(male+female)/2, diff=female-male, fold_diff=diff/avg_cn) %>% select(-female, -male) %>% arrange(desc(fold_diff)) %>% inner_join(coordinates_con, by="country"))
+```
+
+```{r}
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(long, lat, color = diff), size = 12
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) + ggtitle(famname) + labs(size = "samples") + theme(legend.position = "left")}
+
+#plot_map(diff_m, "LTR14C")
+```
+
+```{r}
+selected_f <- diff_f %>% group_by(familyname) %>% summarise(avg_fold_diff = mean(fold_diff)) %>% arrange(desc(avg_fold_diff)) %>% filter(avg_fold_diff>0.087)
+
+selected_m <- diff_m %>% group_by(familyname) %>% summarise(avg_fold_diff = mean(fold_diff)) %>% arrange(desc(avg_fold_diff))
+
+plot_sex_country <- function(data, fam){
+  
+different <- classification %>% filter(familyname==fam)
+
+(plots <- ggplot(different, aes(x = familyname, y = copynumber, shape = sex, color = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1))
+}
+
+#plot_sex_country(selected_f, "HERV46I")
+#plot_sex_country(selected_f, "LTR25")
+#plot_sex_country(selected_f, "MER4BI")
+#plot_sex_country(selected_f, "HERVFH19I")
+#plot_sex_country(selected_f, "L1MA1")
+#plot_sex_country(selected_f, "LTR21A")
+#plot_sex_country(selected_f, "L1MA2")
+#plot_sex_country(selected_f, "L1MDB_5")
+#plot_sex_country(selected_f, "LTR46")
+#plot_sex_country(selected_f, "L1PA13_5")
+
+#plot_sex_country(selected_m, "HERV-K14CI")
+#plot_sex_country(selected_m, "LTR14C")
+#plot_sex_country(selected_m, "LTR22")
+#plot_sex_country(selected_m, "HERV30I")
+#plot_sex_country(selected_m, "HERV9")
+#plot_sex_country(selected_m, "LTR22B")
+#plot_sex_country(selected_m, "LTR6A")
+```
+
+```{r}
+max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(1) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 1)
+second_max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(2) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 2)
+third_max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(3) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 3)
+fourth_max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(4) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 4)
+fifth_max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(5) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 5)
+sixth_max_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(6) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 6)
+min_values <- diff_f %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(7) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 7)
+
+pos_f <- bind_rows(max_values, second_max_values, third_max_values, fourth_max_values, fifth_max_values, sixth_max_values, min_values)
+
+(pos_f_plot <- ggplot(pos_f, aes(position, count, fill=country))+
+  geom_bar(stat = "identity")+
+  scale_x_continuous(breaks = 1:7)+
+  ylab("TE families more abundant in females")+
+  xlab("position (from maximum to minimum difference between sexes)")+
+  theme(legend.position = "none"))
+```
+
+```{r}
+max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(1) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 1)
+second_max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(2) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 2)
+third_max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(3) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 3)
+fourth_max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(4) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 4)
+fifth_max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(5) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 5)
+sixth_max_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(6) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 6)
+min_values <- diff_m %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(7) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 7)
+
+pos_m <- bind_rows(max_values, second_max_values, third_max_values, fourth_max_values, fifth_max_values, sixth_max_values, min_values)
+
+(pos_m_plot <- ggplot(pos_m, aes(position, count, fill=country))+
+  geom_bar(stat = "identity")+
+  scale_x_continuous(breaks = 1:7)+
+  ylab("TE families more abundant in males")+
+  xlab("position (from maximum to minimum difference between sexes)")+
+  theme(legend.position = "none"))
+```
+
+
+```{r}
+f_L1 <- diff_f %>% filter(class=="LINE")
+
+max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(1) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 1)
+second_max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(2) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 2)
+third_max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(3) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 3)
+fourth_max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(4) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 4)
+fifth_max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(5) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 5)
+sixth_max_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(6) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 6)
+min_values <- f_L1 %>% group_by(familyname) %>% arrange(desc(fold_diff)) %>% slice(7) %>% ungroup() %>% group_by(country) %>% summarise(count=n()) %>% mutate(position = 7)
+
+pos_f_l1 <- bind_rows(max_values, second_max_values, third_max_values, fourth_max_values, fifth_max_values, sixth_max_values, min_values)
+
+(pos_f_l1_plot <- ggplot(pos_f_l1, aes(position, count, fill=country))+
+  geom_bar(stat = "identity")+
+  scale_x_continuous(breaks = 1:7)+
+  ylab("LINE families more abundant in females")+
+  xlab("position (from maximum to minimum difference between sexes)")+
+  theme(legend.position = "none"))
+```
+
+```{r}
+ggsave(pos_f_plot, file="/Volumes/Temp1/rpianezza/paper/figures/sex-2/position-f.png", dpi=800, width = 8, height = 5)
+ggsave(pos_m_plot, file="/Volumes/Temp1/rpianezza/paper/figures/sex-2/position-m.png", dpi=800, width = 8, height = 5)
+```

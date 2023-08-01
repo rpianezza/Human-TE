@@ -1,0 +1,58 @@
+---
+title: "Geographic distribution by population for the most interesting TEs"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/GC-content/HGDP-final-dataset.tsv")
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.3)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_clean <- filter(HGDP, ID %in% HGDP_nobiased_samples)
+```
+
+```{r}
+(by_pop <- group_by(HGDP, pop, country, familyname, sex, lat, long) %>% dplyr::summarise(sd=sd(gc_copynumber), copynumber = mean(gc_copynumber), count=n()))
+(by_pop_unbiased <- group_by(HGDP_clean, pop, country, familyname, sex, lat, long) %>% dplyr::summarise(sd=sd(gc_copynumber), copynumber = mean(gc_copynumber), count=n()))
+```
+
+```{r}
+plot_map <- function(data, famname){
+TE <- filter(data, familyname == famname)
+world_map = map_data("world")
+
+ggplot() +
+  geom_map(
+    data = world_map, map = world_map,
+    aes(long, lat, map_id = region),
+    color = "white", fill = "lightgray", size = 0) +
+  geom_point(
+    data = TE, aes(long, lat, color = copynumber, size = count)
+  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~sex) + ggtitle(famname) + labs(size = "samples") + theme(legend.position = "left")}
+```
+
+
+```{r}
+L1PA4_biased <- plot_map(by_pop, "L1PA4")
+L1PA4_unbiased <- plot_map(by_pop_unbiased, "L1PA4")
+```
+
+```{r}
+ggsave(L1PA4_biased, file="/Volumes/Temp1/rpianezza/paper/figures-v2.0/maps/biased.png", dpi=1000, width = 10, height = 5)
+
+ggsave(L1PA4_unbiased, file="/Volumes/Temp1/rpianezza/paper/figures-v2.0/maps/unbiased.png", dpi=1000, width = 10, height = 5)
+```
