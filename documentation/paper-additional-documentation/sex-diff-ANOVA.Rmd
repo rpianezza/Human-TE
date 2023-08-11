@@ -1,0 +1,104 @@
+---
+title: "HGDP - Analyzing the TE abundance in the two sexes"
+output: rmarkdown::github_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/rpianezza/TE/')
+```
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(cowplot)
+library(plotrix)
+
+theme_set(theme_bw())
+
+HGDP <- read_delim("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_cutoff_classified.tsv")
+
+a_HGDP <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/a_HGDP.tsv")
+HGDP_nobiased_samples <- filter(a_HGDP, (a > (-0.5)) & (a<0.5)) %>% select(ID) %>% pull()
+HGDP_clean <- filter(HGDP, ID %in% HGDP_nobiased_samples)
+
+DNA_names <- c("Crypton", "hAT", "Helitron", "Kolobok", "Mariner/Tc1", "Merlin", "MuDR", "piggyBac", "DNA transposon")
+LINE_names <- c("L1", "CR1", "L2", "Crack", "RTE", "RTEX", "R4", "Vingi", "Tx1", "Penelope")
+SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
+LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
+satellites_names <- c("Satellite", "satellite", "SAT")
+
+classification <- HGDP_clean %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite"))
+
+coordinates <- read_tsv("/Volumes/Temp1/rpianezza/0.old/summary-HGDP/HGDP_populationcoordinates.txt", col_names = c("population","country","lat","long")) %>% select(-country)
+```
+
+```{r}
+cn <- classification %>% filter(type=="te", class!="satellite", class!="NA") %>% select(familyname, ID, country, sex, copynumber)
+
+(most_diff <- cn %>% group_by(familyname, sex) %>% summarise(avg = mean(copynumber)) %>% pivot_wider(names_from = sex, values_from = avg) %>% mutate(diff = abs(female-male), avg=(female+male)/2, diff_cn = diff/avg) %>% filter(avg>3) %>% arrange(desc(diff_cn)) %>% ungroup() %>% slice(1:10))
+
+subset_TE <- filter(cn, familyname %in% most_diff$familyname)
+```
+
+```{r}
+only_diff <- most_diff %>% select(familyname, diff)
+
+sexes <- cn %>%
+  filter(familyname %in% most_diff$familyname) %>%
+  inner_join(most_diff, by = "familyname") %>%
+  mutate(familyname = reorder(familyname, -diff))
+
+(p <- ggplot(sexes, aes(x = familyname, y = copynumber, color = sex)) +
+  geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
+  ylab("copynumber") +
+  xlab(NULL))
+
+(test_results <- sexes %>%
+  group_by(familyname) %>%
+  summarise(t_test_p_value = t.test(log(copynumber) ~ sex)$p.value))
+```
+
+```{r}
+sex_diff_country <- function(data, fam){
+  
+  te <- data %>% filter(familyname==fam)
+  te_avg <- data %>% filter(familyname==fam) %>% group_by(familyname, country, sex) %>% summarise(avg = mean(copynumber)) %>% pivot_wider(names_from = sex, values_from = avg)
+  
+  (te_all <- inner_join(te, te_avg, by=c("familyname","country")) %>% mutate(diff = ifelse(sex=="male", copynumber-female, copynumber-male)))
+  
+  ggplot(te_all, aes(x = familyname, y = diff, color = sex, fill = country)) +
+  geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
+  ylab(ifelse(fam %in% c("HERV46I","MER58A","MER4BI"), "females vs males", "")) +
+  xlab(NULL) +
+  theme(legend.position = "none")
+}
+
+sex_cn_country <- function(data, fam){
+  
+  te <- data %>% filter(familyname==fam)
+  
+  ggplot(te, aes(x = familyname, y = copynumber, color = country)) +
+  geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) +
+  ylab(ifelse(fam %in% c("HERV46I","MER58A","MER4BI"), "copynumber", "")) + facet_grid(~sex, labeller = labeller(sex = "")) +
+  xlab(fam)+
+  theme(legend.position = "none", strip.background = element_blank(),
+        strip.text = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title.x = element_text(size = 8))
+}
+
+plots_vector <- list()
+for (te in most_diff$familyname){
+  boxplot <- sex_cn_country(cn, te)
+  plots_vector[[te]] <- boxplot
+}
+
+(arranged_plots <- plot_grid(plotlist = plots_vector))
+```
+
+```{r}
+ggsave(arranged_plots, file="/Volumes/Temp1/rpianezza/paper/figures/sex-2/sexdiff-country.png", dpi=800, width = 10, height = 5)
+ggsave(p, file="/Volumes/Temp1/rpianezza/paper/figures/sex-2/most_diff.png", dpi=800, width = 10, height = 5)
+```

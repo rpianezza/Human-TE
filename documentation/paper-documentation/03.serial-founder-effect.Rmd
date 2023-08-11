@@ -31,7 +31,7 @@ SINE_names <- c("SINE1/7SL", "SINE2/tRNA", "SINE3/5S", "SINE")
 LTR_names <- c("ERV1", "ERV2", "ERV3", "Gypsy", "Endogenous Retrovirus", "LTR Retrotransposon", "Long terminal repeat", "Non-LTR Retrotransposon")
 satellites_names <- c("Satellite", "satellite", "SAT")
 
-(classification <- HGDP_clean %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite")))
+classification <- HGDP_clean %>% mutate(class = case_when(superfamily %in% DNA_names ~ "DNA", superfamily %in% LINE_names ~ "LINE", superfamily %in% SINE_names ~ "SINE", superfamily %in% LTR_names ~ "LTR", superfamily %in% satellites_names ~ "satellite"))
 ```
 
 ```{r}
@@ -41,12 +41,9 @@ cn <- HGDP_clean %>% filter(type=="te") %>% group_by(familyname) %>% summarise(m
 ```{r}
 variability <- classification %>% filter(familyname %in% cn, !(class%in%c("satellite", NA))) %>% group_by(pop, sex, familyname, country) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup()
 
-(pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct())
+pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct()
 
 (country <- pop %>% group_by(country) %>% summarise(mean_cv = mean(mean_cv, na.rm = TRUE)) %>% arrange(desc(mean_cv)))
-
-#(females <- cn %>% filter(sex=="female"))
-#(males <- cn %>% filter(sex=="male"))
 ```
 
 ```{r}
@@ -74,9 +71,9 @@ ggplot() +
     color = "white", fill = "lightgray", size = 0) +
   geom_point(data = full, aes(x=longitude, y=latitude, color = mean_cv), size = 12) + 
   geom_errorbar() + 
-  scale_colour_gradient(low = "red", high = "green") + 
-  theme(legend.position="right", legend.direction = "vertical") + 
-  labs(color = "Mean CV") + 
+  scale_colour_gradient(low = "red", high = "green",  labels = scales::number_format(accuracy = 0.01))  + 
+  theme(legend.position="bottom", legend.direction = "horizontal") + 
+  labs(color = "mean cv") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   ggtitle(title)
 }
@@ -93,15 +90,15 @@ ggplot() +
     color = "white", fill = "lightgray", size = 0) +
   geom_point(data = full, aes(x=longitude, y=latitude, color = mean_cv), size = 4) + 
   geom_errorbar() + 
-  scale_colour_gradient(low = "red", high = "green") + 
-  theme(legend.position="right", legend.direction = "vertical") + 
-  labs(color = "Mean CV") + 
+  scale_colour_gradient(low = "red", high = "green",  labels = scales::number_format(accuracy = 0.01)) + 
+  theme(legend.position="bottom", legend.direction = "horizontal") + 
+  labs(color = "mean cv") + 
   theme(plot.title = element_text(hjust = 0.5)) + 
   ggtitle(title)
 }
 
 
-plot_map_country(country, coordinates_con, "Variability in Repetitive Sequence Copynumbers per Continent")
+(map_country <- plot_map_country(country, coordinates_con, ""))
 
 #plot_map_pop(pop, coordinates_pop, "Variability in Repetitive Sequence Copynumbers per Population")
 ```
@@ -118,53 +115,46 @@ pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(me
 ```
 
 ```{r}
-(LINE_cv <- cv_by_class(classification, "LINE"))
-(LTR_cv <- cv_by_class(classification, "LTR"))
-(DNA_cv <- cv_by_class(classification, "DNA"))
+LINE_cv <- cv_by_class(classification, "LINE")
+LTR_cv <- cv_by_class(classification, "LTR")
+DNA_cv <- cv_by_class(classification, "DNA")
 ```
 
 ```{r}
 dist <- read_tsv("/Volumes/Temp1/rpianezza/PCA-copynumber-all-analysis/dist-from-ooa.tsv", col_names = c("pop", "country", "distance"))
-
 mean_dist <- dist %>% group_by(country) %>% summarise(distance = mean(distance))
+
+heterozigosity <- read_tsv("/Volumes/Temp1/rpianezza/Fst/scg.matrix-pi.tsv")
+het_dist <- inner_join(heterozigosity, mean_dist, by="country") %>% mutate(distance = ifelse(country=="Africa", 0, distance))
 
 cor_country <- inner_join(country, mean_dist, by="country") %>% mutate(distance = ifelse(country=="Africa", 0, distance))
 
 cor_pop <- inner_join(pop, dist, by=c("pop","country")) %>% mutate(distance = ifelse(country=="Africa", 0, distance))
 
-#p <- ggplot(cor_pop, aes(distance, mean_cv, color=country))+
-  #geom_point(size=6)
-
-(c <- ggplot(cor_country, aes(distance, mean_cv))+
+(copynumber_distance <- ggplot(cor_country, aes(distance, mean_cv))+
   geom_point(size=6, aes(colour = country))+
   geom_smooth(method = "lm", se = FALSE, color = "grey")+
-    stat_poly_eq(use_label(c("eq", "R2")), hjust=-0.45)+
-    xlab("distance from Out of Africa (km)")+
-    ylab("mean CV")+
-    labs(color = "Region"))
+  #stat_poly_eq(use_label("R2"), hjust=-8)+
+  xlab("distance from Out of Africa (km)")+
+  ylab("mean cv")+
+  labs(color = "region") +
+  geom_text(aes(label = country), vjust = 2.2, size = 3.5)+
+  ylim(0.024, 0.126)+
+  theme(legend.position = "none"))
 
-ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/correlation-cv-ooa.png", c, dpi = 600, width = 8, height = 6)
+(heterozigosity_distance <- ggplot(het_dist, aes(distance, hd))+
+  geom_point(size=6, aes(colour = country))+
+  geom_smooth(method = "lm", se = FALSE, color = "grey")+
+  #stat_poly_eq(use_label("R2"), hjust=-8)+
+  xlab("distance from Out of Africa (km)")+
+  ylab("gene diversity")+
+  labs(color = "region") +
+  geom_text(aes(label = country), vjust = 2.2, size = 3.5)+
+  theme(legend.position = "none"))
 ```
 
 ```{r}
-#outliers <- c("L1PA10", "MLT2A2", "TIGGER1")
-#box <- classification %>% filter(type=="te", familyname %in% outliers)
-
-#(scatter <- ggplot(box, aes(x = familyname, y = copynumber, fill = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1.2) +
-#theme(axis.text.x = element_text(angle = 90, hjust = 1)))# +
-#scale_fill_manual(values = c("#FFFF33", "#FF9900")))
-```
-
-```{r}
-#(tot_TE <- classification %>% filter(type == "te", !(class %in% c("satellite", NA))) %>% group_by(ID, pop, country, sex) %>% summarise(total = sum(copynumber)) %>% arrange(desc(total)))
-
-#(box <- ggplot(tot_TE, aes(x = country, y = total, fill = country)) +
-  #geom_boxplot(notch = FALSE) +
-#theme(axis.text.x = element_text(angle = 90, hjust = 1)))
-```
-
-```{r}
-(variability2 <- classification %>% filter(familyname %in% cn, !(class%in%c("satellite", NA))) %>% group_by(sex, familyname, country) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup())
-
-(country2 <- variability2 %>% group_by(country, sex) %>% summarise(mean_cv = mean(coeff_var, na.rm = TRUE)) %>% ungroup() %>% group_by(country) %>% summarise(mean_cv = mean(mean_cv))) %>% arrange(desc(mean_cv))
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/map.png", map_country, dpi = 800, width = 10, height = 7)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-cv-ooa.png", copynumber_distance, dpi = 600, width = 8, height = 7)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-pi-ooa.png", heterozigosity_distance, dpi = 600, width = 8, height = 7)
 ```
