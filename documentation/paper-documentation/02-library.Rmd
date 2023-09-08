@@ -37,27 +37,19 @@ classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~
   geom_col(width = 1) + labs(fill='') +
   coord_polar(theta="y")+
   theme_void()+
-  geom_text(aes(label = count), 
-           position = position_stack(vjust = 0.5), 
-            size = 3)+
+  #geom_text(aes(label = count), 
+           #position = position_stack(vjust = 0.5), 
+           # size = 3)+
   theme(legend.position = "bottom")+
  scale_fill_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF", "#D89000")))
 
-ggsave("/Volumes/Temp1/rpianezza/paper/figures-v2.0/approach/library.png", pie, dpi=600)
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/approach/library.png", pie, dpi=600)
 ```
 
 ```{r}
-plot_map <- function(data, famname){
-TE <- filter(data, familyname == famname)
-world_map = map_data("world")
-ggplot() +
-  geom_map(
-    data = world_map, map = world_map,
-    aes(long, lat, map_id = region),
-    color = "white", fill = "lightgray", size = 0) +
-  geom_point(
-    data = TE, aes(longitude, latitude, color = copynumber, size = count)
-  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
-  facet_wrap(~sex) + ggtitle(famname)}
+(scg <- classification %>% filter(type=="scg") %>% group_by(familyname) %>% summarise(copynumber = mean(copynumber)))
+
+(scg_plot <- ggplot(scg, aes(familyname, copynumber))+
+    geom_point() + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank()))
 ```
 

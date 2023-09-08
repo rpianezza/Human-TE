@@ -35,7 +35,7 @@ library(cowplot)
     ##     stamp
 
 ``` r
-theme_set(theme_gray())
+theme_set(theme_bw())
 ```
 
 After we discovered the presence of the GC bias in the data sets due to
@@ -162,67 +162,56 @@ scg <- function(data, id){
 
 scg_parabola <- function(data, id){
   data %>% filter(type=="scg", ID==id) %>% inner_join(gc, by="familyname") %>% ggplot(aes(GC_content, copynumber)) +
-  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=T, formula = y~poly(x,2)) + ylab("") + xlab("GC %") + ggtitle(paste0("Single copy genes - ", id)) + theme(plot.title = element_text(hjust = 0.5))
+  geom_point(size=1)+geom_smooth(method = "lm", color="grey", se=T, formula = y~poly(x,2)) + ylab("") + ylab("estimated copynumber") + xlab("GC content (%)") + ggtitle(paste0("Single copy genes - ", id)) + theme(plot.title = element_text(hjust = 0.5))
 }
 
-scg_parabola(HGDP, "HGDP00465")
+scg_a <- function(data, id){
+  fit <- data %>%
+    filter(type == "scg", ID == id) %>%
+    inner_join(gc, by = "familyname") %>%
+    lm(copynumber ~ poly(GC_content, 2), data = .)
+  
+  a_coeff <- fit$coefficients["poly(GC_content, 2)2"]
+  
+  data %>%
+    filter(type == "scg", ID == id) %>%
+    inner_join(gc, by = "familyname") %>%
+    ggplot(aes(GC_content, copynumber)) +
+    geom_point(size = 1) +
+    geom_smooth(method = "lm", color = "grey", se = TRUE, formula = y ~ poly(x, 2)) +
+    geom_text(aes(x = max(GC_content), y = max(copynumber), label = paste("a =", round(a_coeff, 2))), 
+              hjust = 1, vjust = 1, color = "black") +
+    ylab("") +
+    xlab("GC content (%)") +
+    ggtitle(paste0("Single copy genes - ", id)) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+
+#scg_parabola(HGDP, "HGDP00465")
+#scg_parabola(HGDP, "HGDP00981")
+(biased <- scg_parabola(HGDP, "HGDP01097") + ggtitle("single copy genes - HGDP01097 - biased sample"))
 ```
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
-scg_parabola(HGDP, "HGDP00981")
+#scg_parabola(HGDP, "HGDP00023")
+#scg_parabola(HGDP, "HGDP00197")
+#scg_parabola(HGDP, "HGDP01403")
+
+#scg_parabola(HGDP, "HGDP00003")
+#scg_parabola(HGDP, "HGDP00005")
+(unbiased <- scg_parabola(HGDP, "HGDP00007") + ggtitle("single copy genes - HGDP00007 - unbiased sample"))
 ```
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
 
 ``` r
-scg_parabola(HGDP, "HGDP01097")
+#scg_parabola(HGDP, "HGDP00009")
+
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/biased.png", biased, dpi = 600)
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/unbiased.png", unbiased, dpi = 600)
 ```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-3.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00023")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-4.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00197")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-5.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP01403")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-6.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00003")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-7.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00005")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-8.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00007")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-9.png)<!-- -->
-
-``` r
-scg_parabola(HGDP, "HGDP00009")
-```
-
-![](01-GC-bias_files/figure-gfm/unnamed-chunk-6-10.png)<!-- -->
 
 Interestingly, the “African-Papuan” cluster shows the GC bias, the other
 cluster does not.
@@ -246,9 +235,9 @@ I do the following steps:
   parabola shifts downward.
 - We are interested in the **a** parameter, because its value can
   distinguish between a **narrow parabola** (high a value) and a very
-  **wide parabola** (low a value). Thus, **if a is low, the sample is
-  not showing a strong GC bias. If a is high, the GC bias is present and
-  stronger as a increases**.
+  **wide parabola** (low a value). Thus, **if a is close to 0, the
+  sample is not showing a strong GC bias. If a is low, the GC bias is
+  present and stronger as a increases**.
 
 ``` r
 all_parabolas <- function(data){
@@ -327,7 +316,8 @@ f_PCA <- ggplot(data=f_fram, aes(x=fHGDP.pca$x[,1], y=fHGDP.pca$x[,2], color = f
   xlab(paste0("PC1 (", round(f_var1,3)*100,"%)")) + 
   ylab(paste0("PC2 (",round(f_var2,3)*100,"%)")) + 
   theme(plot.title = element_text(size = 8, hjust = 0.5)) + 
-  guides(col = guide_colourbar(title = "Parabola quadratic coefficient"))
+  guides(col = guide_colourbar(title = "parabola quadratic coefficient"))+
+  scale_color_gradient(low = "red", high = "green")
 
 mHGDP.pca <- prcomp(m_fram, center = TRUE, scale = TRUE)
 m_var1 <- summary(mHGDP.pca)$importance[2,1]
@@ -339,17 +329,22 @@ ggtitle("Males") +
 xlab(paste0("PC1 (", round(m_var1,3)*100,"%)")) +
 ylab(paste0("PC2 (",round(m_var2,3)*100,"%)")) +
 theme(plot.title = element_text(size = 8, hjust = 0.5)) +
-guides(col = guide_colourbar(title = "Parabola quadratic coefficient"))
+guides(col = guide_colourbar(title = "parabola quadratic coefficient"))+
+  scale_color_gradient(low = "red", high = "green")
 
-      figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = FALSE, legend = "bottom", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
+figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = FALSE, legend = "bottom", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
    
-    annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.lab = "")
+annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.lab = "")
 }
 
-PCA_GC_parabolas(joined_HGDP, "HGDP - all samples")
+(pca_plot <- PCA_GC_parabolas(joined_HGDP, "HGDP - all samples"))
 ```
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/pca.png", pca_plot, dpi = 600, height = 6, width = 10)
+```
 
 The above PCAs are considering **all the samples**, thus not excluding
 the PCR samples from the data sets. As expected, the clustering is
@@ -357,10 +352,14 @@ strongly dependent on the GC bias. But does this bias remaing when we
 only consider PCR-free samples?
 
 ``` r
-PCA_GC_parabolas(joined_HGDP_nopcr, "HGDP - PCR free")
+(pcr_free <- PCA_GC_parabolas(joined_HGDP_nopcr, "HGDP - PCR free samples"))
 ```
 
 ![](01-GC-bias_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/pcr-free-pca.png", pcr_free, dpi = 600, height = 6, width = 10)
+```
 
 Yes!
 
@@ -412,7 +411,7 @@ ggtitle("Males") +
 xlab(paste0("PC", PCx, " (", round(f_var1,3)*100,"%)")) + 
 ylab(paste0("PC", PCy, " (",round(f_var2,3)*100,"%)")) + 
 theme(plot.title = element_text(size = 8, hjust = 0.5))  +
-guides(col = guide_colourbar(title = "Parabola quadratic coefficient")) 
+guides(col = guide_colourbar(title = "parabola quadratic coefficient")) 
 
 figure <- ggarrange(f_PCA, m_PCA, ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", font.label = list(size = 10, color = "black", face = "bold", family = NULL, position = "top"))
    
@@ -422,6 +421,44 @@ annotate_figure(figure, top = text_grob(title, color = "black", size = 20), fig.
 #PCA_otherPC_GC(joined_HGDP, "HGDP - all samples", 1, 3)
 #PCA_otherPC_GC(joined_SGDP, "SGDP - all samples", 1, 3)
 ```
+
+``` r
+method <- joined_HGDP %>% select(ID, a) %>% distinct() %>% mutate(method = ifelse(ID %in% HGDP_pcr_free_samples$ID, "pcr_free", "pcr"))
+
+point_color <- method$a < -0.5
+
+(a_plot <- ggplot(method, aes(method, a)) +
+  geom_boxplot() +
+  geom_point(aes(color = ifelse(a < -0.5 | method == "pcr", "red", "black"))) +
+  scale_color_manual(values = c("black", "red")) + labs(color="") +
+  stat_compare_means(label = "p.format", method = "t.test", paired = FALSE, label.x = 0.53, 
+                     label.y = 0.45) +
+  theme(panel.grid = element_line(color = "white"), panel.grid.major.x = element_blank(), legend.position = NULL))
+```
+
+![](01-GC-bias_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/boxplots.png", a_plot, dpi = 600, height = 10, width = 9)
+```
+
+``` r
+(scg_gc <- read_tsv("/Volumes/Temp1/rpianezza/GC-content/gc-content.tsv") %>% filter(type=="scg") %>% summarise(max = max(GC_content), min = min(GC_content)))
+```
+
+    ## Rows: 1703 Columns: 4
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: "\t"
+    ## chr (2): familyname, type
+    ## dbl (2): GC_content, length
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+    ## # A tibble: 1 × 2
+    ##     max   min
+    ##   <dbl> <dbl>
+    ## 1  71.5  28.2
 
 ## SNPs
 

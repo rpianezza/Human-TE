@@ -62,9 +62,9 @@ classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~
   geom_col(width = 1) + labs(fill='') +
   coord_polar(theta="y")+
   theme_void()+
-  geom_text(aes(label = count), 
-           position = position_stack(vjust = 0.5), 
-            size = 3)+
+  #geom_text(aes(label = count), 
+           #position = position_stack(vjust = 0.5), 
+           # size = 3)+
   theme(legend.position = "bottom")+
  scale_fill_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF", "#D89000")))
 ```
@@ -72,16 +72,31 @@ classification <- HGDP %>% mutate(class = case_when(superfamily %in% DNA_names ~
 ![](02-library_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-plot_map <- function(data, famname){
-TE <- filter(data, familyname == famname)
-world_map = map_data("world")
-ggplot() +
-  geom_map(
-    data = world_map, map = world_map,
-    aes(long, lat, map_id = region),
-    color = "white", fill = "lightgray", size = 0) +
-  geom_point(
-    data = TE, aes(longitude, latitude, color = copynumber, size = count)
-  ) + geom_errorbar() + scale_colour_gradient(low = "green", high = "red") + theme(legend.position="top") + theme(plot.title = element_text(hjust = 0.5)) +
-  facet_wrap(~sex) + ggtitle(famname)}
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/approach/library.png", pie, dpi=600)
 ```
+
+``` r
+(scg <- classification %>% filter(type=="scg") %>% group_by(familyname) %>% summarise(copynumber = mean(copynumber)))
+```
+
+    ## # A tibble: 483 × 2
+    ##    familyname                copynumber
+    ##    <chr>                          <dbl>
+    ##  1 chr10:100746263-100749916      0.945
+    ##  2 chr10:100987794-100989884      1.02 
+    ##  3 chr10:101034691-101037167      1.00 
+    ##  4 chr10:101226194-101229794      0.979
+    ##  5 chr10:102065389-102068038      1.03 
+    ##  6 chr10:102394109-102396298      0.963
+    ##  7 chr10:11316832-11319884        1.02 
+    ##  8 chr10:116670033-116672635      0.948
+    ##  9 chr10:117239599-117241923      0.883
+    ## 10 chr10:120899837-120903175      0.978
+    ## # ℹ 473 more rows
+
+``` r
+(scg_plot <- ggplot(scg, aes(familyname, copynumber))+
+    geom_point() + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank()))
+```
+
+![](02-library_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
