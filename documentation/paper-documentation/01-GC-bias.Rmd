@@ -11,6 +11,7 @@ editor_options:
 library(tidyverse)
 library(ggpubr)
 library(cowplot)
+library(svglite)
 
 theme_set(theme_bw())
 ```
@@ -280,15 +281,14 @@ method <- joined_HGDP %>% select(ID, a) %>% distinct() %>% mutate(method = ifels
 
 point_color <- method$a < -0.5
 
-(a_plot <- ggplot(method, aes(method, a)) +
+(a_plot <- ggplot(method, aes(method, a, color=method)) +
   geom_boxplot() +
-  geom_point(aes(color = ifelse(a < -0.5 | method == "pcr", "red", "black"))) +
-  scale_color_manual(values = c("black", "red")) + labs(color="") +
+  scale_color_manual(values = c("red", "black")) + labs(color="") +
   stat_compare_means(label = "p.format", method = "t.test", paired = FALSE, label.x = 0.53, 
                      label.y = 0.45) +
-  theme(panel.grid = element_line(color = "white"), panel.grid.major.x = element_blank(), legend.position = NULL))
+  theme(panel.grid = element_line(color = "white"), panel.grid.major.x = element_blank(), legend.position = "none"))
 
-ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/boxplots.png", a_plot, dpi = 600, height = 10, width = 9)
+ggsave("/Volumes/Temp1/rpianezza/paper/figures/gc/boxplots.svg", a_plot, dpi = 600, height = 10, width = 9)
 ```
 
 ```{r}

@@ -154,7 +154,63 @@ cor_pop <- inner_join(pop, dist, by=c("pop","country")) %>% mutate(distance = if
 ```
 
 ```{r}
-ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/map.png", map_country, dpi = 800, width = 10, height = 7)
-ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-cv-ooa.png", copynumber_distance, dpi = 600, width = 8, height = 7)
-ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-pi-ooa.png", heterozigosity_distance, dpi = 600, width = 8, height = 7)
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/map.png", map_country, dpi = 800, width = 10, height = 7)
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-cv-ooa.png", copynumber_distance, dpi = 600, width = 8, height = 7)
+#ggsave("/Volumes/Temp1/rpianezza/paper/figures/serial/correlation-pi-ooa.png", heterozigosity_distance, dpi = 600, width = 8, height = 7)
+```
+
+## Divided by sex
+
+```{r}
+cn <- HGDP_clean %>% filter(type=="te") %>% group_by(familyname) %>% summarise(mean = mean(copynumber)) %>% filter(mean < 100) %>% select(familyname) %>% pull()
+
+(variability <- classification %>% filter(familyname %in% cn, !(class%in%c("satellite", NA))) %>% group_by(pop, sex, familyname, country) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup())
+
+(pop <- variability %>% group_by(pop, sex, country, individuals) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct())
+
+(country <- pop %>% group_by(country, sex) %>% summarise(mean_cv = mean(mean_cv, na.rm = TRUE), individuals=sum(individuals)) %>% arrange(desc(mean_cv)))
+
+cor_country <- inner_join(country, mean_dist, by="country") %>% mutate(distance = ifelse(country=="Africa", 0, distance)) %>% filter(country!="Africa")
+
+cor_pop <- inner_join(pop, dist, by=c("pop","country")) %>% mutate(distance = ifelse(country=="Africa", 0, distance))
+
+(copynumber_distance <- ggplot(cor_country, aes(distance, mean_cv))+
+  geom_point(size=6, aes(colour = country))+
+  geom_smooth(method = "lm", se = FALSE, color = "grey")+
+  #stat_poly_eq(use_label("R2"), hjust=-8)+
+  xlab("distance from Out of Africa (km)")+
+  ylab("mean cv")+
+  labs(color = "region") +
+  geom_text(aes(label = country), vjust = 2.2, size = 3.5)+
+  #ylim(0.024, 0.126)+
+  theme(legend.position = "none"))+
+  facet_grid(~sex)
+```
+
+```{r}
+cn <- HGDP_clean %>% filter(type=="te") %>% group_by(familyname) %>% summarise(mean = mean(copynumber)) %>% filter(mean < 100) %>% select(familyname) %>% pull()
+
+(variability <- classification %>% filter(familyname %in% cn) %>% group_by(pop, sex, familyname, country, class) %>% summarise(mean_cn = mean(copynumber), variance = var(copynumber), coeff_var = variance/mean_cn, individuals = n()) %>% ungroup())
+
+(pop <- variability %>% group_by(pop, sex, country, individuals, class) %>% summarise(mean_cv = mean(coeff_var, na.rm=TRUE), normalized_cv = mean_cv/individuals) %>% arrange(desc(mean_cv)) %>% distinct())
+
+(country <- pop %>% group_by(country, sex, class) %>% summarise(mean_cv = mean(mean_cv, na.rm = TRUE), individuals=sum(individuals)) %>% arrange(desc(mean_cv)))
+
+cor_country <- inner_join(country, mean_dist, by="country") %>% mutate(distance = ifelse(country=="Africa", 0, distance))
+
+cor_pop <- inner_join(pop, dist, by=c("pop","country")) %>% mutate(distance = ifelse(country=="Africa", 0, distance))
+
+(copynumber_distance <- ggplot(cor_country, aes(distance, mean_cv))+
+  geom_point(size=6, aes(colour = country))+
+  geom_smooth(method = "lm", se = FALSE, color = "grey")+
+  #stat_poly_eq(use_label("R2"), hjust=-8)+
+  xlab("distance from Out of Africa (km)")+
+  ylab("mean cv")+
+  labs(color = "region") +
+  geom_text(aes(label = country), vjust = 2.2, size = 3.5)+
+  #ylim(0.024, 0.126)+
+  theme(legend.position = "none"))+
+ facet_grid(~sex*class)
+
+ggsave("/Users/rpianezza/Desktop/serial-class.png", copynumber_distance, dpi = 800, width = 10, height = 7)
 ```

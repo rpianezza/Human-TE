@@ -1,5 +1,5 @@
 ---
-title: "HGDP - Analyzing the TE abundance in the two sexes"
+title: "HGDP - Analyzing the TE abundance and variance"
 output: rmarkdown::github_document
 editor_options: 
   markdown: 
@@ -40,18 +40,133 @@ cn <- classification %>% filter(type=="te") %>% group_by(familyname, class, supe
 
 no_sat <- cn %>% filter(class!="satellite", class!="NA")
 
-top25 <- cn %>% filter(!(class %in% c("satellite", NA)), mean>1)%>% filter(cv > 2.2)
+top25 <- cn %>% filter(!(class %in% c("satellite", NA)), mean>1) %>% filter(cv > 2.19)
 
 outliers <- HGDP_clean %>% filter(type=="te", familyname %in% top25$familyname) %>% inner_join(cn, by="familyname")
 outliers <- outliers[order(outliers$cv,decreasing=T),]
 outliers$familyname<-factor(outliers$familyname,levels=unique(outliers$familyname))
 
-(box <- ggplot(outliers, aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-    ylim(0,7000)+ facet_grid(~sex) +
+(box <- outliers %>% filter(familyname!="ALU") %>% ggplot(., aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none", axis.title.x = element_blank()) +
+    ylim(0,7000)+ facet_grid(sex ~ ., switch = "y")+
  scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
 
+(box_alu <- outliers %>% filter(familyname=="ALU") %>% ggplot(., aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+  theme(legend.position = "none", axis.title.x = element_blank(), strip.background = element_blank(), strip.text.y = element_blank()) +
+    ylim(155000,220000)+ facet_grid(sex ~ ., switch = "y")+
+ scale_color_manual(values=c("#D89000")))
+
+#ggsave(box, filename=("/Volumes/Temp1/rpianezza/paper/figures/cv-2/cv_box.png"), dpi=600, height = 12, width = 14)
+#ggsave(box_alu, filename=("/Volumes/Temp1/rpianezza/paper/figures/cv-2/alu_cv_box.png"), dpi=600, height = 10, width = 4)
 ```
+```{r}
+cn <- classification %>% filter(type=="te") %>% group_by(familyname, class, superfamily, sex) %>% summarise(mean = mean(copynumber), var = var(copynumber), cv = var/mean) %>% arrange(desc(cv))
+
+no_sat <- cn %>% filter(class!="satellite", class!="NA")
+males <- no_sat %>% filter(sex=="male") %>% filter(mean>1) %>% arrange(desc(cv))
+females <- no_sat %>% filter(sex=="female") %>% filter(mean>1) %>% arrange(desc(cv))
+males$familyname <- factor(males$familyname, levels = unique(males$familyname))
+females$familyname <- factor(females$familyname, levels = unique(females$familyname))
+
+top25_males <- males %>% filter(cv>1.4)
+top25_females <- females %>% filter(cv>1.71)
+
+(outliers_males <- HGDP_clean %>% filter(type=="te", sex=="male", familyname %in% top25_males$familyname) %>% inner_join(cn, by=c("familyname","sex")))
+outliers_males <- outliers_males[order(outliers_males$cv,decreasing=T),]
+outliers_males$familyname<-factor(outliers_males$familyname,levels=unique(outliers_males$familyname))
+
+(outliers_females <- HGDP_clean %>% filter(type=="te", sex=="female", familyname %in% top25_females$familyname) %>% inner_join(cn, by=c("familyname","sex")))
+outliers_females <- outliers_females[order(outliers_females$cv,decreasing=T),]
+outliers_females$familyname<-factor(outliers_females$familyname,levels=unique(outliers_females$familyname))
+
+(box_males <- outliers_males %>% filter(familyname!="ALU") %>% ggplot(., aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+ theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none", axis.title.x = element_blank()) +
+    ylim(0,7000)+
+scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
+
+(box_females <- outliers_females %>% filter(familyname!="ALU") %>% ggplot(., aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+ theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = "none", axis.title.x = element_blank()) +
+    ylim(0,7000)+
+scale_color_manual(values=c("#F8766D", "#7CAE00", "#00BFC4", "#C77CFF")))
+
+#(box_alu <- outliers %>% filter(familyname=="ALU") %>% ggplot(., aes(x=familyname, y=copynumber)) + geom_boxplot(notch=F, aes(color=class)) +
+  #theme(legend.position = "none", axis.title.x = element_blank(), strip.background = element_blank(), strip.text.y = element_blank()) +
+    #ylim(155000,220000)+ facet_grid(sex ~ ., switch = "y")+
+ #scale_color_manual(values=c("#D89000")))
+
+ggsave(box_males, filename=("/Volumes/Temp1/rpianezza/paper/figures/cv-2/cv_box_m.png"), dpi=600, height = 6, width = 14)
+ggsave(box_females, filename=("/Volumes/Temp1/rpianezza/paper/figures/cv-2/cv_box_f.png"), dpi=600, height = 6, width = 14)
+#ggsave(box_alu, filename=("/Volumes/Temp1/rpianezza/paper/figures/cv-2/alu_cv_box.png"), dpi=600, height = 10, width = 4)
+```
+
+```{r}
+top5 <- c("ALU", "L1PA4", "THE1B", "L1", "THE1_I")
+
+(to_box <- outliers %>% filter(familyname %in% top5) %>% group_by(familyname, sex) %>% mutate(mean = mean(copynumber), fold_diff = copynumber/mean) %>% group_by(sex, pop, country, familyname) %>% summarise(fold_diff_to_mean = mean(fold_diff)))
+
+for (TE in top5){
+  single_te <- to_box %>% filter(familyname == TE)
+  box <- ggplot(single_te, aes(familyname, fold_diff_to_mean))+
+    geom_boxplot(aes(color = country))+
+    facet_grid(~sex)+
+    ggtitle(TE)+
+    ylab("fold difference")+
+    theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(), legend.position = "none", plot.title = element_text(hjust = 0.5), strip.background = element_blank(), strip.text.x = element_blank())+
+    ylim(0.9,1.1)+
+    scale_x_discrete(expand = c(0.22, 0.22))
+  
+  print(box)
+  ggsave(box, filename=paste0("/Volumes/Temp1/rpianezza/paper/figures/cv-2/single_TEs/", TE, ".png"), dpi=600)
+}
+```
+
+```{r}
+top5_20 <- c("L1PREC1", "THE1C", "L1PA16", "THE1D", "L1PA6", "THE1A", "MSTA", "L1PB2c", "L1PA7", "L1HS", "L1PB1", "L1PREC2", "TIGGER1", "MLT2A2", "L1P_MA2", "L1PA3", "L1PA7_5", "L1PA10", "L1MA1", "L1PA15")
+
+(to_box <- outliers %>% filter(familyname %in% top5_20) %>% group_by(familyname, sex) %>% mutate(mean = mean(copynumber), fold_diff = copynumber/mean) %>% group_by(sex, pop, country, familyname) %>% summarise(fold_diff_to_mean = mean(fold_diff)))
+
+library(ggpubr)
+
+# Initialize a list to store the plots
+plot_list <- list()
+
+for (i in 1:length(top5_20)) {
+  TE <- top5_20[i]
+  single_te <- to_box %>% filter(familyname == TE)
+  box <- ggplot(single_te, aes(familyname, fold_diff_to_mean))+
+    geom_boxplot(aes(color = country))+
+    facet_grid(~sex)+
+    ggtitle(TE)+
+    theme(
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      legend.position = "none",
+      plot.title = element_text(hjust = 0.5),
+      strip.background = element_blank(),
+      strip.text.x = element_blank(),
+      plot.margin = unit(c(1,0.1,0.3,0.1), 'lines')
+    ) +
+    ylim(0.9, 1.1) +
+    scale_x_discrete(expand = c(0.22, 0.22))
+  
+  if ((i - 1) %% 5 == 0) {
+    box <- box + ylab("fold difference")
+  } else {
+    box <- box + ylab("") + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+  }
+  
+  plot_list[[i]] <- box
+}
+
+(final_plot <- ggarrange(plotlist = plot_list, ncol = 5, nrow = 4, common.legend = TRUE)) +
+  theme(axis.title.y = element_text(vjust = 6))
+
+ggsave(final_plot, filename="/Volumes/Temp1/rpianezza/paper/figures/cv-2/local-invasion-supplement-raw.png", dpi=600, height = 6, width = 10)
+```
+
+
+# Active TEs
 
 ```{r}
 active <- c("ALU","SVA_A","L1HS","HERV-K14CI","L1PA2")
@@ -72,11 +187,11 @@ plot_cn_country <- function(data, fam){
 cn <- data %>% filter(familyname==fam)
 
 (plots <- ggplot(cn, aes(x = familyname, y = copynumber, color = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) + facet_grid(~sex) + 
-theme(strip.background = element_blank(), strip.text.x = element_blank()) + xlab(NULL))
+theme(legend.position = "none", strip.background = element_blank(), strip.text.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank()) + xlab(NULL) + ylab(fam) + scale_x_discrete(expand = c(0.22, 0.22)))
 }
 
 alu <- classification %>% filter(familyname=="ALU")
-(f1 <- ggplot(alu, aes(x = familyname, y = copynumber, color = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) + facet_grid(~sex) + xlab(NULL))
+(f1 <- ggplot(alu, aes(x = familyname, y = copynumber, color = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) + facet_grid(~sex) + xlab(NULL) + ylab("ALU") + theme(legend.position = "none", axis.text.x = element_blank(), axis.ticks.x = element_blank()) + scale_x_discrete(expand = c(0.22, 0.22)))
 f2 <- plot_cn_country(classification, "L1PA4")
 f3 <- plot_cn_country(classification, "THE1B")
 f4 <- plot_cn_country(classification, "L1")
@@ -86,10 +201,11 @@ f7 <- plot_cn_country(classification, "THE1C")
 f8 <- plot_cn_country(classification, "L1PA16")
 f9 <- plot_cn_country(classification, "THE1D")
 f10 <- plot_cn_country(classification, "L1PA6")
-
 f11 <- plot_cn_country(classification, "THE1A")
 f12 <- plot_cn_country(classification, "MSTA")
-f13 <- plot_cn_country(classification, "L1PB2c")
+
+L1PB2c <- classification %>% filter(familyname=="L1PB2c")
+(f13 <- ggplot(L1PB2c, aes(x = familyname, y = copynumber, color = country)) + geom_boxplot(notch = FALSE, width = 0.8, lwd = 0.2, outlier.size = 1) + facet_grid(~sex) + xlab(NULL) + ylab("L1PB2c") + theme(legend.position = "none", axis.text.x = element_blank(), axis.ticks.x = element_blank()) + scale_x_discrete(expand = c(0.22, 0.22)))
 f14 <- plot_cn_country(classification, "L1PA7")
 f15 <- plot_cn_country(classification, "L1HS")
 f16 <- plot_cn_country(classification, "L1PB1")
@@ -97,22 +213,19 @@ f17 <- plot_cn_country(classification, "L1PREC2")
 f18 <- plot_cn_country(classification, "TIGGER1")
 f19 <- plot_cn_country(classification, "MLT2A2")
 f20 <- plot_cn_country(classification, "L1P_MA2")
-
 f21 <- plot_cn_country(classification, "L1PA3")
 f22 <- plot_cn_country(classification, "L1PA7_5")
 f23 <- plot_cn_country(classification, "L1PA10")
 f24 <- plot_cn_country(classification, "L1MA1")
-(f25 <- plot_cn_country(classification, "L1PA15"))
-
+f25 <- plot_cn_country(classification, "L1PA15")
 ```
-
 
 ```{r}
 cv_all <- ggarrange(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25, ncol = 1, common.legend = TRUE)
-cv_10 <- ggarrange(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10, ncol = 1, common.legend = TRUE)
+#cv_10 <- ggarrange(f1,f2,f3,f4,f5,f6,f7,f8,f9,f10, ncol = 1, common.legend = TRUE)
 
 
-#ggsave(cv_all, file="/Volumes/Temp1/rpianezza/paper/cv_all.png", height = 25, width = 12, dpi=1000)
+#ggsave(cv_all, file="/Volumes/Temp1/rpianezza/paper/figures/cv-2/cv_all.png", height = 25, width = 12, dpi=1000)
 #ggsave(cv_10, file="/Volumes/Temp1/rpianezza/paper/cv_10.png", height = 15, width = 12, dpi=1000)
 ```
 
